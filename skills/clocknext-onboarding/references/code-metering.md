@@ -26,13 +26,13 @@ Async is the default: fire-and-forget, non-blocking, retried, and it routes fail
 
 ```ts
 // clocknext.ts
-import { ClockNext } from "@clocknext/sdk";
+import { Clocknext } from "@clocknext/sdk";
 declare const logger: { warn: (context: unknown, message: string) => void };
-let client: ClockNext | undefined;
+let client: Clocknext | undefined;
 export const meteringEnabled = Boolean(process.env.CLOCKNEXT_API_KEY);
-export function clocknext(): ClockNext | undefined {
+export function clocknext(): Clocknext | undefined {
   if (!meteringEnabled) return undefined;
-  client ??= new ClockNext({
+  client ??= new Clocknext({
     apiKey: process.env.CLOCKNEXT_API_KEY!,
     onError: (err, signal) => logger.warn({ err, type: signal?.type }, "clocknext metering failed"),
   });

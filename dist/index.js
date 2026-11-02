@@ -21151,7 +21151,7 @@ var DEFAULT_TIMEOUT_MS = 1e4;
 var MAX_ATTEMPTS = 5;
 var BASE_DELAY_MS = 200;
 var MAX_DELAY_MS = 1e4;
-var ClockNextError = class extends Error {
+var ClocknextError = class extends Error {
   status;
   retryable;
   constructor(message, opts = {}) {
@@ -21162,11 +21162,11 @@ var ClockNextError = class extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 };
-var AuthError = class extends ClockNextError {
+var AuthError = class extends ClocknextError {
 };
-var ValidationError = class extends ClockNextError {
+var ValidationError = class extends ClocknextError {
 };
-var ForbiddenError = class extends ClockNextError {
+var ForbiddenError = class extends ClocknextError {
 };
 var FeatureLockedError = class extends ForbiddenError {
   feature;
@@ -21177,24 +21177,24 @@ var FeatureLockedError = class extends ForbiddenError {
 };
 var WorkspaceLockedError = class extends ForbiddenError {
 };
-var NotFoundError = class extends ClockNextError {
+var NotFoundError = class extends ClocknextError {
 };
-var PlanError = class extends ClockNextError {
+var PlanError = class extends ClocknextError {
 };
-var AllowanceError = class extends ClockNextError {
+var AllowanceError = class extends ClocknextError {
 };
-var ConflictError = class extends ClockNextError {
+var ConflictError = class extends ClocknextError {
 };
-var RateLimitError = class extends ClockNextError {
+var RateLimitError = class extends ClocknextError {
   retryAfterMs;
   constructor(message, opts = {}) {
     super(message, { status: 429, retryable: true });
     this.retryAfterMs = opts.retryAfterMs;
   }
 };
-var ServerError = class extends ClockNextError {
+var ServerError = class extends ClocknextError {
 };
-var NetworkError = class extends ClockNextError {
+var NetworkError = class extends ClocknextError {
   constructor(message) {
     super(message, { retryable: true });
   }
@@ -21220,7 +21220,7 @@ function errorFromResponse(status, message, retryAfterMs, lock = {}) {
     return new NotFoundError(text, { status });
   }
   if (status === 408) {
-    return new ClockNextError(text, { status, retryable: true });
+    return new ClocknextError(text, { status, retryable: true });
   }
   if (status === 409) {
     return new ConflictError(text, { status, retryable: true });
@@ -21237,7 +21237,7 @@ function errorFromResponse(status, message, retryAfterMs, lock = {}) {
   if (status >= 500) {
     return new ServerError(text, { status, retryable: true });
   }
-  return new ClockNextError(text, { status });
+  return new ClocknextError(text, { status });
 }
 function parseRetryAfter(headers) {
   const milliseconds = headers.get("retry-after-ms");
@@ -21281,7 +21281,7 @@ function activeQuery(params) {
 function idPath(base, id) {
   return `${base}/${encodeURIComponent(id)}`;
 }
-var ClockNextApi = class {
+var ClocknextApi = class {
   apiKey;
   baseUrl;
   constructor(config2) {
@@ -21306,7 +21306,7 @@ var ClockNextApi = class {
       try {
         return await this.sendOnce(url, options);
       } catch (error2) {
-        const isRetryable = error2 instanceof ClockNextError && error2.retryable;
+        const isRetryable = error2 instanceof ClocknextError && error2.retryable;
         if (attempt >= maxAttempts || !isRetryable) {
           throw error2;
         }
@@ -21549,7 +21549,7 @@ function makeClient() {
     );
   }
   const baseUrl = process.env.CLOCKNEXT_BASE_URL;
-  return new ClockNextApi({ apiKey, ...baseUrl ? { baseUrl } : {} });
+  return new ClocknextApi({ apiKey, ...baseUrl ? { baseUrl } : {} });
 }
 
 // src/tools/util.ts
@@ -21565,9 +21565,9 @@ function errorResult(message) {
   };
 }
 function errMsg(err) {
-  if (err instanceof ClockNextError) {
+  if (err instanceof ClocknextError) {
     const feature = err instanceof FeatureLockedError && err.feature ? ` [feature: ${err.feature}]` : "";
-    return `ClockNext ${err.constructor.name}${err.status ? ` (${err.status})` : ""}: ${err.message}${feature}`;
+    return `Clocknext ${err.constructor.name}${err.status ? ` (${err.status})` : ""}: ${err.message}${feature}`;
   }
   return err instanceof Error ? err.message : String(err);
 }
@@ -21577,18 +21577,18 @@ function registerAddModel(server, cnk) {
   server.registerTool(
     "clocknext_add_model",
     {
-      title: "ClockNext: add (enable) a model",
+      title: "Clocknext: add (enable) a model",
       description: [
-        "Enable a model for the organisation so usage can be metered against it. Afterwards its `modelId` is valid in the signals your product code sends, and it appears in clocknext_list_models. Autopriced from ClockNext's catalog \u2014 you never set prices here.",
+        "Enable a model for the organisation so usage can be metered against it. Afterwards its `modelId` is valid in the signals your product code sends, and it appears in clocknext_list_models. Autopriced from Clocknext's catalog \u2014 you never set prices here.",
         "",
         "Rules:",
-        "- Only models in ClockNext's pricing catalog can be added. clocknext_list_models shows what is ALREADY enabled; the addable catalog itself is browsable on the Models page. If the add fails, the model or provider isn't in the catalog.",
+        "- Only models in Clocknext's pricing catalog can be added. clocknext_list_models shows what is ALREADY enabled; the addable catalog itself is browsable on the Models page. If the add fails, the model or provider isn't in the catalog.",
         "- Re-adding a model that is already enabled is a safe no-op: it succeeds and returns `alreadyEnabled: true` with the live prices.",
         "- If the catalog has no price for it, the model is enabled but meters at $0; the tool returns a Models-page link and a `warning` so you can set pricing."
       ].join("\n"),
       inputSchema: {
         provider: external_exports.string().min(1).describe(
-          "Provider slug in the ClockNext catalog, e.g. 'openai', 'anthropic', 'google'."
+          "Provider slug in the Clocknext catalog, e.g. 'openai', 'anthropic', 'google'."
         ),
         model: external_exports.string().min(1).describe(
           "Catalog model id, e.g. 'gpt-4o' or 'claude-sonnet-4-6'. Becomes the modelId you send in usage signals."
@@ -21603,7 +21603,7 @@ function registerAddModel(server, cnk) {
         try {
           await cnk.workspace.addModel({ provider, modelId: model, pricingMode: "AUTO" });
         } catch (err) {
-          const serverAnswered = err instanceof ClockNextError && err.status !== void 0;
+          const serverAnswered = err instanceof ClocknextError && err.status !== void 0;
           if (!serverAnswered) {
             throw err;
           }
@@ -21611,7 +21611,7 @@ function registerAddModel(server, cnk) {
           alreadyEnabled = /already enabled/i.test(reason);
           if (!alreadyEnabled) {
             return errorResult(
-              `Couldn't add "${provider}/${model}": ${reason}. ClockNext only meters models in its pricing catalog, so a model or provider that isn't in the catalog can't be added or priced here. Browse the addable catalog on the Models page (${modelsPage}); clocknext_list_models only shows what's already enabled.`
+              `Couldn't add "${provider}/${model}": ${reason}. Clocknext only meters models in its pricing catalog, so a model or provider that isn't in the catalog can't be added or priced here. Browse the addable catalog on the Models page (${modelsPage}); clocknext_list_models only shows what's already enabled.`
             );
           }
         }
@@ -21839,7 +21839,7 @@ function registerCrud(server, opts) {
   server.registerTool(
     `clocknext_list_${plural}`,
     {
-      title: `ClockNext: list ${plural}`,
+      title: `Clocknext: list ${plural}`,
       description: desc.list,
       inputSchema: {
         active: external_exports.boolean().optional().describe(
@@ -21864,7 +21864,7 @@ function registerCrud(server, opts) {
   server.registerTool(
     `clocknext_get_${resource}`,
     {
-      title: `ClockNext: get ${resource}`,
+      title: `Clocknext: get ${resource}`,
       description: desc.get,
       inputSchema: { id: external_exports.string().describe(`The ${resource} id.`) },
       annotations: { readOnlyHint: true, openWorldHint: true }
@@ -21880,7 +21880,7 @@ function registerCrud(server, opts) {
   server.registerTool(
     `clocknext_create_${resource}`,
     {
-      title: `ClockNext: create ${resource}`,
+      title: `Clocknext: create ${resource}`,
       description: desc.create,
       inputSchema: input,
       annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: true }
@@ -21903,7 +21903,7 @@ function registerCrud(server, opts) {
   server.registerTool(
     `clocknext_update_${resource}`,
     {
-      title: `ClockNext: update ${resource}`,
+      title: `Clocknext: update ${resource}`,
       description: desc.update,
       inputSchema: {
         id: external_exports.string().describe(`The ${resource} id to update.`),
@@ -21933,7 +21933,7 @@ function registerCrud(server, opts) {
   server.registerTool(
     `clocknext_archive_${resource}`,
     {
-      title: `ClockNext: archive ${resource}`,
+      title: `Clocknext: archive ${resource}`,
       description: desc.archive,
       inputSchema: { id: external_exports.string().describe(`The ${resource} id to deactivate (soft-archive \u2014 reversible, not a delete).`) },
       annotations: {
@@ -21955,7 +21955,7 @@ function registerCrud(server, opts) {
   server.registerTool(
     `clocknext_unarchive_${resource}`,
     {
-      title: `ClockNext: unarchive ${resource}`,
+      title: `Clocknext: unarchive ${resource}`,
       description: [
         `Reactivate an archived ${resource} (sets isActive\u2192true) \u2014 the reverse of clocknext_archive_${resource}. Same identity, same definition; nothing is re-priced or rewritten.`,
         "",
@@ -22064,7 +22064,7 @@ function registerCatalogueTools(server, cnk) {
         "- Set useWalletForArrear:true to pay metered (ARREAR) usage from the plan's prepaid WALLET as it happens (one invoice/cycle, wallet may go negative) instead of a separate cycle-end arrear invoice. Requires >=1 ARREAR credit/outcome/unit/composite AND an ADVANCE WALLET component, or the backend rejects it (400).",
         "- FREE plans must be ADVANCE-only with no FLAT component, and never roll over.",
         "- A plan name already in use is refused (409). The currency is the workspace's primary currency (Settings \u2192 Organization \u2192 Currencies); it can't be chosen here.",
-        "- Creates a real, sellable plan \u2014 get pricing right first. Prefer the plan builder in the ClockNext product (https://payments.clocknext.com/plans); this is the fallback."
+        "- Creates a real, sellable plan \u2014 get pricing right first. Prefer the plan builder in the Clocknext product (https://payments.clocknext.com/plans); this is the fallback."
       ].join("\n"),
       update: [
         "Update a plan by id.",
@@ -22110,7 +22110,7 @@ function registerCatalogueTools(server, cnk) {
         "- Price is model-grounded: give the `models` mixer + `marginPercent`. The mixer is saved as the credit's model bundle and the server works out the base price and price-per-credit from the models' live prices. Never hand-typed.",
         "- Each mixer line's input/output/cache/cacheWrite shares must total 100; cacheWritePct only on a model with a cache-write price.",
         "- Enable the models you price against first (clocknext_add_model / _list_models).",
-        "- Prefer the credits builder in the ClockNext product (https://payments.clocknext.com/credits) \u2014 its live preview shows the price as you build it. This tool saves the same per-model mix, so the credit opens with its calculator filled in.",
+        "- Prefer the credits builder in the Clocknext product (https://payments.clocknext.com/credits) \u2014 its live preview shows the price as you build it. This tool saves the same per-model mix, so the credit opens with its calculator filled in.",
         "- A plan grants the credit via a CREDIT component referencing its id. A name or agentKey already in use is refused (409)."
       ].join("\n"),
       update: [
@@ -22154,7 +22154,7 @@ function registerCatalogueTools(server, cnk) {
         "- TWO kinds of agent key, both required and both unique org-wide, in separate namespaces: the outcome's own top-level `agentKey` (its identity), and each step's `agentKey` (what usage is reported against). Never reuse one as the other.",
         "- Price is model-grounded: each step's mixer is saved as its model bundle; the server works out each step's base cost from live model prices, sums them, then applies `marginPercent`. Never hand-typed.",
         "- Every step is an LLM step. A fixed-cost / non-LLM event (an upload, an export) is a UNIT, not an outcome step.",
-        "- Prefer the outcomes builder in the ClockNext product (https://payments.clocknext.com/outcomes); this is the fallback.",
+        "- Prefer the outcomes builder in the Clocknext product (https://payments.clocknext.com/outcomes); this is the fallback.",
         "- A plan grants it via an OUTCOME component referencing its id."
       ].join("\n"),
       update: [
@@ -22166,7 +22166,7 @@ function registerCatalogueTools(server, cnk) {
         "- Step agent keys are the runtime binding \u2014 change them deliberately."
       ].join("\n"),
       archive: [
-        "Deactivate an outcome TYPE (sets isActive\u2192false) \u2014 ClockNext's soft archive, NOT a delete.",
+        "Deactivate an outcome TYPE (sets isActive\u2192false) \u2014 Clocknext's soft archive, NOT a delete.",
         "",
         "Rules:",
         "- Steps and any in-flight/completed history are kept; existing plans and in-progress outcomes are unaffected; it just can't be added to new plans or composites and drops out of active lists.",
@@ -22196,7 +22196,7 @@ function registerCatalogueTools(server, cnk) {
         "- Price it FLAT (single `flatPrice` per event, default 0) or tiered (pricingType SLAB or VOLUME with `tiers` \u2014 limits rising, and the last tier upTo:null).",
         "- Only a FLAT unit can go inside a composite.",
         "- Reported against a stable `agentKey`, matched exactly (case included) \u2014 its durable identity, unique org-wide (409 if taken).",
-        "- Prefer the units builder in the ClockNext product (https://payments.clocknext.com/units); this is the fallback.",
+        "- Prefer the units builder in the Clocknext product (https://payments.clocknext.com/units); this is the fallback.",
         "- A plan meters it via a UNIT component referencing its id."
       ].join("\n"),
       update: [
@@ -22223,7 +22223,7 @@ function registerCompositeTools(server, cnk) {
   server.registerTool(
     "clocknext_list_composites",
     {
-      title: "ClockNext: list composites",
+      title: "Clocknext: list composites",
       description: [
         "List the organisation's composites \u2014 bundles of credits / outcomes / units grouped under one tag and billed as ONE thing. Returns each composite's `id` (what a plan's COMPOSITE line sends as compositeId) and `refId` (what the product's code puts in a signal's composite tag), plus the catalogue items it is restricted to, with their agentKeys.",
         "",
@@ -22236,16 +22236,16 @@ function registerCompositeTools(server, cnk) {
       ].join("\n"),
       inputSchema: {
         active: external_exports.boolean().optional().describe(
-          "Only return composites that still accept new traffic. Omit to include archived ones too."
+          "true = only composites that still accept new traffic, false = only archived ones, omit = all."
         )
       },
       annotations: { readOnlyHint: true, openWorldHint: true }
     },
     async ({ active }) => {
       try {
-        return jsonResult(
-          await cnk.composites.list(active === void 0 ? {} : { active })
-        );
+        const rows = await cnk.composites.list(active === void 0 ? {} : { active });
+        const filtered = active === void 0 ? rows : rows.filter((r) => r.isActive === active);
+        return jsonResult({ count: filtered.length, composites: filtered });
       } catch (err) {
         return errorResult(errMsg(err));
       }
@@ -22254,7 +22254,7 @@ function registerCompositeTools(server, cnk) {
   server.registerTool(
     "clocknext_create_composite",
     {
-      title: "ClockNext: create composite",
+      title: "Clocknext: create composite",
       description: [
         "Create a composite \u2014 a bundle of credits / outcomes / units that is grouped under one tag and billed as ONE thing instead of per item. Use it when several metered steps together make up one sellable unit of work (a call, a job, a document).",
         "",
@@ -22315,7 +22315,7 @@ function registerCompositeTools(server, cnk) {
   server.registerTool(
     "clocknext_get_composite",
     {
-      title: "ClockNext: get composite",
+      title: "Clocknext: get composite",
       description: "Get one composite in full by id \u2014 name, refId, price, description, active state, and the credits / outcomes / units it wraps (with their agentKeys).",
       inputSchema: { id: external_exports.string().describe("The composite id (from clocknext_list_composites).") },
       annotations: { readOnlyHint: true, openWorldHint: true }
@@ -22331,7 +22331,7 @@ function registerCompositeTools(server, cnk) {
   server.registerTool(
     "clocknext_update_composite",
     {
-      title: "ClockNext: update composite",
+      title: "Clocknext: update composite",
       description: [
         "Update a composite by id.",
         "",
@@ -22381,7 +22381,7 @@ function registerCompositeTools(server, cnk) {
   server.registerTool(
     "clocknext_archive_composite",
     {
-      title: "ClockNext: archive composite",
+      title: "Clocknext: archive composite",
       description: [
         "Archive a composite (isActive\u2192false) \u2014 the API never deletes; this is how a composite is retired.",
         "",
@@ -22404,7 +22404,7 @@ function registerCompositeTools(server, cnk) {
   server.registerTool(
     "clocknext_unarchive_composite",
     {
-      title: "ClockNext: unarchive composite",
+      title: "Clocknext: unarchive composite",
       description: "Reactivate an archived composite (sets isActive\u2192true) \u2014 the reverse of clocknext_archive_composite. Same refId, same wrapped items; its tag resolves again for new signals. Prefer this over creating a replacement.",
       inputSchema: { id: external_exports.string().describe("The composite id to reactivate.") },
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true }
@@ -22443,9 +22443,9 @@ function registerCustomerTools(server, cnk) {
   server.registerTool(
     "clocknext_create_customer",
     {
-      title: "ClockNext: create customer",
+      title: "Clocknext: create customer",
       description: [
-        "Create a ClockNext customer \u2014 the entity you bill (maps to one of your end-users / tenants / organisations).",
+        "Create a Clocknext customer \u2014 the entity you bill (maps to one of your end-users / tenants / organisations).",
         "",
         "Rules:",
         "- `name` and `email` are required; everything else is optional profile.",
@@ -22466,9 +22466,9 @@ function registerCustomerTools(server, cnk) {
   server.registerTool(
     "clocknext_get_customer",
     {
-      title: "ClockNext: get customer",
-      description: "Fetch one customer by ClockNext id.",
-      inputSchema: { id: external_exports.string().describe("The ClockNext customer id.") },
+      title: "Clocknext: get customer",
+      description: "Fetch one customer by Clocknext id.",
+      inputSchema: { id: external_exports.string().describe("The Clocknext customer id.") },
       annotations: { readOnlyHint: true, openWorldHint: true }
     },
     async ({ id }) => {
@@ -22482,7 +22482,7 @@ function registerCustomerTools(server, cnk) {
   server.registerTool(
     "clocknext_list_customers",
     {
-      title: "ClockNext: list customers",
+      title: "Clocknext: list customers",
       description: "List / search the org's customers, most-recent first (cursor-paginated). Use it to find a customer id or check whether one already exists before creating.",
       inputSchema: {
         q: external_exports.string().optional().describe("Search by name or email."),
@@ -22502,9 +22502,9 @@ function registerCustomerTools(server, cnk) {
   server.registerTool(
     "clocknext_get_customer_balances",
     {
-      title: "ClockNext: get customer balances",
+      title: "Clocknext: get customer balances",
       description: "Fetch a customer's current wallet / credit / outcome / unit balances. Use it to confirm a purchase granted the expected entitlements, or that a test signal drew the balance down as expected.",
-      inputSchema: { id: external_exports.string().describe("The ClockNext customer id.") },
+      inputSchema: { id: external_exports.string().describe("The Clocknext customer id.") },
       annotations: { readOnlyHint: true, openWorldHint: true }
     },
     async ({ id }) => {
@@ -22518,9 +22518,9 @@ function registerCustomerTools(server, cnk) {
   server.registerTool(
     "clocknext_get_customer_plan",
     {
-      title: "ClockNext: get customer plan",
+      title: "Clocknext: get customer plan",
       description: "Fetch a customer's current active plan (from their purchase). Use it to confirm a customer is subscribed to the plan you expect before firing a test signal.",
-      inputSchema: { id: external_exports.string().describe("The ClockNext customer id.") },
+      inputSchema: { id: external_exports.string().describe("The Clocknext customer id.") },
       annotations: { readOnlyHint: true, openWorldHint: true }
     },
     async ({ id }) => {
@@ -22534,7 +22534,7 @@ function registerCustomerTools(server, cnk) {
   server.registerTool(
     "clocknext_create_purchase",
     {
-      title: "ClockNext: subscribe customer to a plan",
+      title: "Clocknext: subscribe customer to a plan",
       description: [
         "Subscribe a customer to a plan (a 'purchase') \u2014 this activates the plan for that customer. Used to wire up a dummy customer before firing test signals.",
         "",
@@ -22545,7 +22545,7 @@ function registerCustomerTools(server, cnk) {
         "- A usage signal only prices if the customer has an active plan whose components match the meter (credit / outcome / unit)."
       ].join("\n"),
       inputSchema: {
-        customerId: external_exports.string().describe("ClockNext customer id (from clocknext_create_customer / _list_customers)."),
+        customerId: external_exports.string().describe("Clocknext customer id (from clocknext_create_customer / _list_customers)."),
         planId: external_exports.string().describe("Plan id (from clocknext_create_plan / _list_plans)."),
         billingDate: external_exports.string().optional().describe("YYYY-MM-DD. Default today; must be a valid, non-past date."),
         notes: external_exports.string().optional().describe("Internal notes for this purchase."),
@@ -22564,9 +22564,9 @@ function registerCustomerTools(server, cnk) {
   server.registerTool(
     "clocknext_bulk_import_customers",
     {
-      title: "ClockNext: bulk import customers",
+      title: "Clocknext: bulk import customers",
       description: [
-        "Bulk-create ClockNext customers in ONE request \u2014 for backfilling an existing user base. Returns a PER-ROW result (created id, or an error) so one duplicate/bad row never aborts the batch.",
+        "Bulk-create Clocknext customers in ONE request \u2014 for backfilling an existing user base. Returns a PER-ROW result (created id, or an error) so one duplicate/bad row never aborts the batch.",
         "",
         "Rules:",
         "- Each customer needs name + email; up to 200 per call. For a larger base, call again in \u2264200-row chunks.",
@@ -22622,21 +22622,21 @@ function resolveDocsUrl() {
 // src/tools/get-doc.ts
 var DOCS_URL = resolveDocsUrl();
 var DESCRIPTION = [
-  "Read the FULL contents of a single ClockNext API-reference page as Markdown. Use right after clocknext_search_docs: pass a result's `url` to read the whole page \u2014 endpoints, parameters, request/response fields, and the Node.js SDK + cURL examples the search snippet leaves out. Only API-reference pages can be read.",
+  "Read the FULL contents of a single Clocknext API-reference page as Markdown. Use right after clocknext_search_docs: pass a result's `url` to read the whole page \u2014 endpoints, parameters, request/response fields, and the Node.js SDK + cURL examples the search snippet leaves out. Only API-reference pages can be read.",
   "",
   "Rules:",
   "- A search snippet is enough to CHOOSE a page, never enough to implement against \u2014 read the page when you need exact field names, types, or the request body.",
-  "- Use this for ClockNext docs, not an external web-fetch/browser tool: it returns the page verbatim, whereas an external fetch may silently drop details (e.g. required fields like agentKey/idempotencyKey)."
+  "- Use this for Clocknext docs, not an external web-fetch/browser tool: it returns the page verbatim, whereas an external fetch may silently drop details (e.g. required fields like agentKey/idempotencyKey)."
 ].join("\n");
 function registerGetDoc(server) {
   server.registerTool(
     "clocknext_get_doc",
     {
-      title: "ClockNext: read a docs page",
+      title: "Clocknext: read a docs page",
       description: DESCRIPTION,
       inputSchema: {
         path: external_exports.string().min(1).describe(
-          "The `url` (or path) of a ClockNext docs page \u2014 typically taken from a clocknext_search_docs result, e.g. 'https://help.clocknext.com/docs/api-reference/signals/recordCreditSignal' or '/docs/api-reference/quickstart'."
+          "The `url` (or path) of a Clocknext docs page \u2014 typically taken from a clocknext_search_docs result, e.g. 'https://help.clocknext.com/docs/api-reference/signals/recordCreditSignal' or '/docs/api-reference/quickstart'."
         )
       },
       annotations: { readOnlyHint: true, openWorldHint: true }
@@ -22662,7 +22662,7 @@ function registerListModels(server, cnk) {
   server.registerTool(
     "clocknext_list_models",
     {
-      title: "ClockNext: list models",
+      title: "Clocknext: list models",
       description: "List the models the organisation has enabled, with their USD prices per 1,000,000 tokens. Use a returned `modelId` as the `model` when verifying or recording usage. Pass active=true to see only models that can be metered right now.",
       inputSchema: {
         active: external_exports.boolean().optional().describe("Only return currently-active (meterable) models.")
@@ -22685,17 +22685,17 @@ function registerListModels(server, cnk) {
 // src/tools/search-docs.ts
 var DOCS_URL2 = resolveDocsUrl();
 var DESCRIPTION2 = [
-  "Search ClockNext's API reference and get back the most relevant pages (title, URL, and a snippet). ClockNext is a usage-based billing platform: you meter product/AI usage, price it against plans and units, and bill customers for it. The API reference covers both the REST API and the Node.js SDK (`@clocknext/sdk`) \u2014 every endpoint page shows a Node.js example and a cURL example.",
+  "Search Clocknext's API reference and get back the most relevant pages (title, URL, and a snippet). Clocknext is a usage-based billing platform: you meter product/AI usage, price it against plans and units, and bill customers for it. The API reference covers both the REST API and the Node.js SDK (`@clocknext/sdk`) \u2014 every endpoint page shows a Node.js example and a cURL example.",
   "",
   "Rules:",
-  "- Prefer this over answering from memory \u2014 the docs are the source of truth and more current than training data. Search before explaining a ClockNext concept, designing an integration, or reaching for another ClockNext tool.",
+  "- Prefer this over answering from memory \u2014 the docs are the source of truth and more current than training data. Search before explaining a Clocknext concept, designing an integration, or reaching for another Clocknext tool.",
   "- Typical flow: search for the task (e.g. 'record credit usage', 'subscribe a customer to a plan'), then read the matching page with clocknext_get_doc. Use its Node.js SDK example for a JS/TS codebase and its cURL/REST example for any other language."
 ].join("\n");
 function registerSearchDocs(server) {
   server.registerTool(
     "clocknext_search_docs",
     {
-      title: "ClockNext: search docs",
+      title: "Clocknext: search docs",
       description: DESCRIPTION2,
       inputSchema: {
         query: external_exports.string().min(1).describe(
@@ -22734,9 +22734,9 @@ function registerWhoami(server, cnk) {
   server.registerTool(
     "clocknext_whoami",
     {
-      title: "ClockNext: identify workspace",
+      title: "Clocknext: identify workspace",
       description: [
-        "Identify the ClockNext organisation behind the configured API key, and whether it is a 'sandbox' (a disposable staging twin) or the 'live' organisation.",
+        "Identify the Clocknext organisation behind the configured API key, and whether it is a 'sandbox' (a disposable staging twin) or the 'live' organisation.",
         "",
         "Rules:",
         "- Call FIRST to confirm you are pointed at the intended workspace before recording any real usage."
@@ -22776,7 +22776,7 @@ function registerWriteEnv(server) {
   server.registerTool(
     "clocknext_write_env",
     {
-      title: "ClockNext: write the API key into a project .env",
+      title: "Clocknext: write the API key into a project .env",
       description: [
         "Write `CLOCKNEXT_API_KEY=<the org's cnk_\u2026 key>` into a project's `.env` file, server-side. The key is copied from this MCP server's own environment directly into the file \u2014 it is NEVER returned to you and never appears in the conversation. Use this as the last integration step so the code you generated (which reads `process.env.CLOCKNEXT_API_KEY`) can run; the alternative is the user pasting the key themselves.",
         "",

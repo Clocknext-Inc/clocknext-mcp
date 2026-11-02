@@ -1,5 +1,5 @@
 /**
- * The MCP's own ClockNext API client — plain `fetch`, no `@clocknext/sdk`.
+ * The MCP's own Clocknext API client — plain `fetch`, no `@clocknext/sdk`.
  *
  * Why this exists: the MCP stays self-contained rather than depending on
  * `@clocknext/sdk`. The catalogue calls here (credits / outcomes / units /
@@ -38,7 +38,7 @@ const MAX_DELAY_MS = 10_000;
 /** Base class for every failure this client raises. `status` is the HTTP
  *  status when the server answered, and undefined when the request never
  *  completed (network error / timeout). */
-export class ClockNextError extends Error {
+export class ClocknextError extends Error {
   readonly status?: number;
   readonly retryable: boolean;
 
@@ -53,14 +53,14 @@ export class ClockNextError extends Error {
 }
 
 /** 401 — the API key is missing, wrong, or expired. */
-export class AuthError extends ClockNextError {}
+export class AuthError extends ClocknextError {}
 /** 400 — the request body or query failed validation. */
-export class ValidationError extends ClockNextError {}
+export class ValidationError extends ClocknextError {}
 /** 403 — the key may not do this. The two lock refusals below are the
  *  common cases; a plain ForbiddenError is any other 403 (for example a
  *  sandbox that already holds its 25 customers). */
-export class ForbiddenError extends ClockNextError {}
-/** 403 `FEATURE_LOCKED` — the organisation's ClockNext plan does not include
+export class ForbiddenError extends ClocknextError {}
+/** 403 `FEATURE_LOCKED` — the organisation's Clocknext plan does not include
  *  this feature. `feature` names it (e.g. `COMPOSITES`, `PURCHASES`). */
 export class FeatureLockedError extends ForbiddenError {
   readonly feature?: string;
@@ -70,18 +70,18 @@ export class FeatureLockedError extends ForbiddenError {
   }
 }
 /** 403 `WORKSPACE_LOCKED` — the whole workspace is locked (an unpaid
- *  ClockNext bill); every API call is refused until it is paid. */
+ *  Clocknext bill); every API call is refused until it is paid. */
 export class WorkspaceLockedError extends ForbiddenError {}
 /** 404 — the resource doesn't exist (or belongs to another organisation). */
-export class NotFoundError extends ClockNextError {}
+export class NotFoundError extends ClocknextError {}
 /** 422 — valid request, but the account state doesn't allow it. */
-export class PlanError extends ClockNextError {}
+export class PlanError extends ClocknextError {}
 /** 422 with "insufficient" — an allowance ran out. */
-export class AllowanceError extends ClockNextError {}
+export class AllowanceError extends ClocknextError {}
 /** 409 — conflicts with the current state. */
-export class ConflictError extends ClockNextError {}
+export class ConflictError extends ClocknextError {}
 /** 429 — rate limited. `retryAfterMs` is how long the server asked us to wait. */
-export class RateLimitError extends ClockNextError {
+export class RateLimitError extends ClocknextError {
   readonly retryAfterMs?: number;
   constructor(message: string, opts: { retryAfterMs?: number } = {}) {
     super(message, { status: 429, retryable: true });
@@ -89,9 +89,9 @@ export class RateLimitError extends ClockNextError {
   }
 }
 /** 5xx — something failed on the server. */
-export class ServerError extends ClockNextError {}
+export class ServerError extends ClocknextError {}
 /** The request never got an answer: network failure or timeout. */
-export class NetworkError extends ClockNextError {
+export class NetworkError extends ClocknextError {
   constructor(message: string) {
     super(message, { retryable: true });
   }
@@ -103,7 +103,7 @@ function errorFromResponse(
   message: string,
   retryAfterMs: number | undefined,
   lock: { code?: string; feature?: string } = {},
-): ClockNextError {
+): ClocknextError {
   const text = message || `Request failed with status ${status}.`;
 
   if (status === 400) {
@@ -125,7 +125,7 @@ function errorFromResponse(
     return new NotFoundError(text, { status });
   }
   if (status === 408) {
-    return new ClockNextError(text, { status, retryable: true });
+    return new ClocknextError(text, { status, retryable: true });
   }
   if (status === 409) {
     return new ConflictError(text, { status, retryable: true });
@@ -142,7 +142,7 @@ function errorFromResponse(
   if (status >= 500) {
     return new ServerError(text, { status, retryable: true });
   }
-  return new ClockNextError(text, { status });
+  return new ClocknextError(text, { status });
 }
 
 // ---------------------------------------------------------------------------
@@ -252,7 +252,7 @@ function idPath(base: string, id: string): string {
 // The client
 // ---------------------------------------------------------------------------
 
-export class ClockNextApi {
+export class ClocknextApi {
   private readonly apiKey: string;
   private readonly baseUrl: string;
 
@@ -283,7 +283,7 @@ export class ClockNextApi {
       try {
         return await this.sendOnce<T>(url, options);
       } catch (error) {
-        const isRetryable = error instanceof ClockNextError && error.retryable;
+        const isRetryable = error instanceof ClocknextError && error.retryable;
         if (attempt >= maxAttempts || !isRetryable) {
           throw error;
         }

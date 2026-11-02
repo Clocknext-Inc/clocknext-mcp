@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ClockNextApi } from "../api";
+import type { ClocknextApi } from "../api";
 import { errMsg, errorResult, jsonResult } from "./util";
 
 /**
@@ -19,11 +19,11 @@ import { errMsg, errorResult, jsonResult } from "./util";
  * SELLS it. That second step is `clocknext_create_plan` with a `COMPOSITE`
  * line.
  */
-export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): void {
+export function registerCompositeTools(server: McpServer, cnk: ClocknextApi): void {
   server.registerTool(
     "clocknext_list_composites",
     {
-      title: "ClockNext: list composites",
+      title: "Clocknext: list composites",
       description: [
         "List the organisation's composites — bundles of credits / outcomes / units grouped under one tag and billed as ONE thing. Returns each composite's `id` (what a plan's COMPOSITE line sends as compositeId) and `refId` (what the product's code puts in a signal's composite tag), plus the catalogue items it is restricted to, with their agentKeys.",
         "",
@@ -39,16 +39,21 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
           .boolean()
           .optional()
           .describe(
-            "Only return composites that still accept new traffic. Omit to include archived ones too.",
+            "true = only composites that still accept new traffic, false = only archived ones, omit = all.",
           ),
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
     async ({ active }) => {
       try {
-        return jsonResult(
-          await cnk.composites.list(active === undefined ? {} : { active }),
-        );
+        const rows = await cnk.composites.list(active === undefined ? {} : { active });
+        // The API only filters `active=true`; `active=false` comes back
+        // unfiltered. Filter here, like the other list tools.
+        const filtered =
+          active === undefined
+            ? rows
+            : (rows as { isActive?: boolean }[]).filter((r) => r.isActive === active);
+        return jsonResult({ count: filtered.length, composites: filtered });
       } catch (err) {
         return errorResult(errMsg(err));
       }
@@ -58,7 +63,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
   server.registerTool(
     "clocknext_create_composite",
     {
-      title: "ClockNext: create composite",
+      title: "Clocknext: create composite",
       description: [
         "Create a composite — a bundle of credits / outcomes / units that is grouped under one tag and billed as ONE thing instead of per item. Use it when several metered steps together make up one sellable unit of work (a call, a job, a document).",
         "",
@@ -117,7 +122,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
     async ({ name, refId, price, description, creditIds, outcomeIds, unitIds }) => {
       // Checked here rather than left to the server so the agent gets the
       // actionable message ("go list the catalogue") instead of a 400 whose
-      // wording is aimed at the ClockNext product's picker.
+      // wording is aimed at the Clocknext product's picker.
       const total =
         (creditIds?.length ?? 0) + (outcomeIds?.length ?? 0) + (unitIds?.length ?? 0);
       if (total === 0) {
@@ -148,7 +153,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
   server.registerTool(
     "clocknext_get_composite",
     {
-      title: "ClockNext: get composite",
+      title: "Clocknext: get composite",
       description:
         "Get one composite in full by id — name, refId, price, description, active state, and the credits / outcomes / units it wraps (with their agentKeys).",
       inputSchema: { id: z.string().describe("The composite id (from clocknext_list_composites).") },
@@ -166,7 +171,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
   server.registerTool(
     "clocknext_update_composite",
     {
-      title: "ClockNext: update composite",
+      title: "Clocknext: update composite",
       description: [
         "Update a composite by id.",
         "",
@@ -227,7 +232,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
   server.registerTool(
     "clocknext_archive_composite",
     {
-      title: "ClockNext: archive composite",
+      title: "Clocknext: archive composite",
       description: [
         "Archive a composite (isActive→false) — the API never deletes; this is how a composite is retired.",
         "",
@@ -251,7 +256,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
   server.registerTool(
     "clocknext_unarchive_composite",
     {
-      title: "ClockNext: unarchive composite",
+      title: "Clocknext: unarchive composite",
       description:
         "Reactivate an archived composite (sets isActive→true) — the reverse of clocknext_archive_composite. Same refId, same wrapped items; its tag resolves again for new signals. Prefer this over creating a replacement.",
       inputSchema: { id: z.string().describe("The composite id to reactivate.") },

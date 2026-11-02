@@ -1,5 +1,5 @@
 /**
- * Base URL of the public ClockNext docs site (help.clocknext.com). Shared by the
+ * Base URL of the public Clocknext docs site (help.clocknext.com). Shared by the
  * docs tools (search_docs, get_doc). Override for staging/preview via
  * CLOCKNEXT_DOCS_URL. No API key is needed — the docs are public.
  *

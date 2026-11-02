@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { ClockNextApi } from "../api";
+import type { ClocknextApi } from "../api";
 import { errMsg, errorResult, jsonResult } from "./util";
 
 /**
@@ -14,7 +14,7 @@ import { errMsg, errorResult, jsonResult } from "./util";
  * checks it against the org's live models via list_models, and sends it as the
  * credit's / step's `modelBundle`. The SERVER works the base price out from that
  * bundle (and refuses a credit or new step without one) — an agent can never
- * hand-type an ungrounded price here. (The ClockNext product's mixer is still
+ * hand-type an ungrounded price here. (The Clocknext product's mixer is still
  * the preferred, first-class way to price — it previews live; these tools are
  * the fallback and save the same bundle.)
  *
@@ -87,7 +87,7 @@ type MixerLine = {
 };
 
 /**
- * One saved line of the ClockNext product's pricing calculator — the same shape
+ * One saved line of the Clocknext product's pricing calculator — the same shape
  * the product stores on a credit / outcome step as `modelBundle`. The server
  * prices the credit / step from it, and it is what makes the calculator show
  * the chosen models, their average tokens and the input / output / cache /
@@ -115,7 +115,7 @@ type BundleEntry = {
  * that would price at $0 is caught before it is sent.
  */
 async function computeMixerBase(
-  cnk: ClockNextApi,
+  cnk: ClocknextApi,
   lines: readonly MixerLine[],
 ): Promise<
   | { ok: true; basePrice: number; bundle: BundleEntry[] }
@@ -452,7 +452,7 @@ function registerCrud(
   server.registerTool(
     `clocknext_list_${plural}`,
     {
-      title: `ClockNext: list ${plural}`,
+      title: `Clocknext: list ${plural}`,
       description: desc.list,
       inputSchema: {
         active: z
@@ -487,7 +487,7 @@ function registerCrud(
   server.registerTool(
     `clocknext_get_${resource}`,
     {
-      title: `ClockNext: get ${resource}`,
+      title: `Clocknext: get ${resource}`,
       description: desc.get,
       inputSchema: { id: z.string().describe(`The ${resource} id.`) },
       annotations: { readOnlyHint: true, openWorldHint: true },
@@ -504,7 +504,7 @@ function registerCrud(
   server.registerTool(
     `clocknext_create_${resource}`,
     {
-      title: `ClockNext: create ${resource}`,
+      title: `Clocknext: create ${resource}`,
       description: desc.create,
       inputSchema: input,
       annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: true },
@@ -528,7 +528,7 @@ function registerCrud(
   server.registerTool(
     `clocknext_update_${resource}`,
     {
-      title: `ClockNext: update ${resource}`,
+      title: `Clocknext: update ${resource}`,
       description: desc.update,
       inputSchema: {
         id: z.string().describe(`The ${resource} id to update.`),
@@ -559,7 +559,7 @@ function registerCrud(
   server.registerTool(
     `clocknext_archive_${resource}`,
     {
-      title: `ClockNext: archive ${resource}`,
+      title: `Clocknext: archive ${resource}`,
       description: desc.archive,
       inputSchema: { id: z.string().describe(`The ${resource} id to deactivate (soft-archive — reversible, not a delete).`) },
       annotations: {
@@ -582,7 +582,7 @@ function registerCrud(
   server.registerTool(
     `clocknext_unarchive_${resource}`,
     {
-      title: `ClockNext: unarchive ${resource}`,
+      title: `Clocknext: unarchive ${resource}`,
       description: [
         `Reactivate an archived ${resource} (sets isActive→true) — the reverse of clocknext_archive_${resource}. Same identity, same definition; nothing is re-priced or rewritten.`,
         "",
@@ -626,7 +626,7 @@ function pick(args: Record<string, unknown>, keys: readonly string[]): Record<st
 /** A credit body: its fields plus, when a mixer was given, the `modelBundle`
  *  the server prices it from. `requireModels` is true for create. */
 async function creditBody(
-  cnk: ClockNextApi,
+  cnk: ClocknextApi,
   args: Record<string, unknown>,
   requireModels: boolean,
 ): Promise<Record<string, unknown> | { error: string }> {
@@ -656,7 +656,7 @@ type StepArgs = { id?: string; name: string; agentKey: string; models?: MixerLin
  *  its `modelBundle`. A step with no `models` is only allowed on update, where
  *  it keeps that existing step's price (`requireModels` is true for create). */
 async function outcomeBody(
-  cnk: ClockNextApi,
+  cnk: ClocknextApi,
   args: Record<string, unknown>,
   requireModels: boolean,
 ): Promise<Record<string, unknown> | { error: string }> {
@@ -697,7 +697,7 @@ const PARTIAL_UPDATE_RULE =
 
 // ---------- wire the four resources ----------
 
-export function registerCatalogueTools(server: McpServer, cnk: ClockNextApi): void {
+export function registerCatalogueTools(server: McpServer, cnk: ClocknextApi): void {
   registerCrud(server, {
     resource: "plan",
     plural: "plans",
@@ -724,7 +724,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClockNextApi): vo
         "- Set useWalletForArrear:true to pay metered (ARREAR) usage from the plan's prepaid WALLET as it happens (one invoice/cycle, wallet may go negative) instead of a separate cycle-end arrear invoice. Requires >=1 ARREAR credit/outcome/unit/composite AND an ADVANCE WALLET component, or the backend rejects it (400).",
         "- FREE plans must be ADVANCE-only with no FLAT component, and never roll over.",
         "- A plan name already in use is refused (409). The currency is the workspace's primary currency (Settings → Organization → Currencies); it can't be chosen here.",
-        "- Creates a real, sellable plan — get pricing right first. Prefer the plan builder in the ClockNext product (https://payments.clocknext.com/plans); this is the fallback.",
+        "- Creates a real, sellable plan — get pricing right first. Prefer the plan builder in the Clocknext product (https://payments.clocknext.com/plans); this is the fallback.",
       ].join("\n"),
       update: [
         "Update a plan by id.",
@@ -771,7 +771,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClockNextApi): vo
         "- Price is model-grounded: give the `models` mixer + `marginPercent`. The mixer is saved as the credit's model bundle and the server works out the base price and price-per-credit from the models' live prices. Never hand-typed.",
         "- Each mixer line's input/output/cache/cacheWrite shares must total 100; cacheWritePct only on a model with a cache-write price.",
         "- Enable the models you price against first (clocknext_add_model / _list_models).",
-        "- Prefer the credits builder in the ClockNext product (https://payments.clocknext.com/credits) — its live preview shows the price as you build it. This tool saves the same per-model mix, so the credit opens with its calculator filled in.",
+        "- Prefer the credits builder in the Clocknext product (https://payments.clocknext.com/credits) — its live preview shows the price as you build it. This tool saves the same per-model mix, so the credit opens with its calculator filled in.",
         "- A plan grants the credit via a CREDIT component referencing its id. A name or agentKey already in use is refused (409).",
       ].join("\n"),
       update: [
@@ -816,7 +816,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClockNextApi): vo
         "- TWO kinds of agent key, both required and both unique org-wide, in separate namespaces: the outcome's own top-level `agentKey` (its identity), and each step's `agentKey` (what usage is reported against). Never reuse one as the other.",
         "- Price is model-grounded: each step's mixer is saved as its model bundle; the server works out each step's base cost from live model prices, sums them, then applies `marginPercent`. Never hand-typed.",
         "- Every step is an LLM step. A fixed-cost / non-LLM event (an upload, an export) is a UNIT, not an outcome step.",
-        "- Prefer the outcomes builder in the ClockNext product (https://payments.clocknext.com/outcomes); this is the fallback.",
+        "- Prefer the outcomes builder in the Clocknext product (https://payments.clocknext.com/outcomes); this is the fallback.",
         "- A plan grants it via an OUTCOME component referencing its id.",
       ].join("\n"),
       update: [
@@ -828,7 +828,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClockNextApi): vo
         "- Step agent keys are the runtime binding — change them deliberately.",
       ].join("\n"),
       archive: [
-        "Deactivate an outcome TYPE (sets isActive→false) — ClockNext's soft archive, NOT a delete.",
+        "Deactivate an outcome TYPE (sets isActive→false) — Clocknext's soft archive, NOT a delete.",
         "",
         "Rules:",
         "- Steps and any in-flight/completed history are kept; existing plans and in-progress outcomes are unaffected; it just can't be added to new plans or composites and drops out of active lists.",
@@ -859,7 +859,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClockNextApi): vo
         "- Price it FLAT (single `flatPrice` per event, default 0) or tiered (pricingType SLAB or VOLUME with `tiers` — limits rising, and the last tier upTo:null).",
         "- Only a FLAT unit can go inside a composite.",
         "- Reported against a stable `agentKey`, matched exactly (case included) — its durable identity, unique org-wide (409 if taken).",
-        "- Prefer the units builder in the ClockNext product (https://payments.clocknext.com/units); this is the fallback.",
+        "- Prefer the units builder in the Clocknext product (https://payments.clocknext.com/units); this is the fallback.",
         "- A plan meters it via a UNIT component referencing its id.",
       ].join("\n"),
       update: [

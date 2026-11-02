@@ -1,9 +1,9 @@
 {
   "name": "clocknext",
   "version": "0.14.0",
-  "description": "Meter usage and manage usage-based billing from AI coding tools via the ClockNext API.",
+  "description": "Meter usage and manage usage-based billing from AI coding tools via the Clocknext API.",
   "author": {
-    "name": "ClockNext",
+    "name": "Clocknext",
     "email": "dev@clocknext.com"
   },
   "homepage": "https://github.com/Clocknext/clocknext-mcp",
@@ -19,7 +19,7 @@
   "userConfig": {
     "api_key": {
       "type": "string",
-      "title": "ClockNext API key",
+      "title": "Clocknext API key",
       "description": "Your organisation's cnk_… key (Settings → API Keys). Stored securely.",
       "sensitive": true,
       "required": true

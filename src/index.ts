@@ -12,7 +12,7 @@ import { registerWhoami } from "./tools/whoami";
 import { registerWriteEnv } from "./tools/write-env";
 
 /**
- * ClockNext MCP server (stdio).
+ * Clocknext MCP server (stdio).
  *
  * Exposes usage-based billing to AI coding tools (Claude Code, Cursor, Codex,
  * Antigravity). The customer's `cnk_…` key is read from the environment and

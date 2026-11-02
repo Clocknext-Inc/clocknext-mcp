@@ -1,8 +1,8 @@
-# ClockNext product deep-links (the "Manually in the Clocknext" path)
+# Clocknext product deep-links (the "Manually in the Clocknext" path)
 
 These are the links you hand the user when they choose **Manually in the Clocknext** instead
 of **Set it up using AI**. Base URL: **https://payments.clocknext.com** (the MCP's
-`CLOCKNEXT_BASE_URL`; the ClockNext product is the same app). When you give a link, also **say what to
+`CLOCKNEXT_BASE_URL`; the Clocknext product is the same app). When you give a link, also **say what to
 enter** — a bare link isn't guidance. Always render as a real markdown link, e.g.
 "[set the price here](https://payments.clocknext.com/settings/models)".
 
@@ -24,7 +24,7 @@ price). Tell the user that reason when you recommend it — see `pricing-and-mod
 `/credits`, the plan builder on `/plans`.) If `CLOCKNEXT_BASE_URL` is set to a non-production
 workspace, substitute that host instead of `payments.clocknext.com`.
 
-Note there is **no equivalent in the ClockNext product for recording or confirming unit *events*** — those
+Note there is **no equivalent in the Clocknext product for recording or confirming unit *events*** — those
 happen in the customer's product at runtime, and the MCP has no unit-usage tool. Confirm Unit
 consumption through the product's supported Unit usage/event-count endpoint; do not rely on a
 balance alone for ARREAR Units.

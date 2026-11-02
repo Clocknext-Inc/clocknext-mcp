@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ClockNextApi } from "../api";
+import type { ClocknextApi } from "../api";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { errMsg, errorResult, jsonResult } from "./util";
 
@@ -39,13 +39,13 @@ const customerFields = {
 
 const customerObject = z.object(customerFields);
 
-export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): void {
+export function registerCustomerTools(server: McpServer, cnk: ClocknextApi): void {
   server.registerTool(
     "clocknext_create_customer",
     {
-      title: "ClockNext: create customer",
+      title: "Clocknext: create customer",
       description: [
-        "Create a ClockNext customer — the entity you bill (maps to one of your end-users / tenants / organisations).",
+        "Create a Clocknext customer — the entity you bill (maps to one of your end-users / tenants / organisations).",
         "",
         "Rules:",
         "- `name` and `email` are required; everything else is optional profile.",
@@ -67,9 +67,9 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
   server.registerTool(
     "clocknext_get_customer",
     {
-      title: "ClockNext: get customer",
-      description: "Fetch one customer by ClockNext id.",
-      inputSchema: { id: z.string().describe("The ClockNext customer id.") },
+      title: "Clocknext: get customer",
+      description: "Fetch one customer by Clocknext id.",
+      inputSchema: { id: z.string().describe("The Clocknext customer id.") },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
     async ({ id }) => {
@@ -84,7 +84,7 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
   server.registerTool(
     "clocknext_list_customers",
     {
-      title: "ClockNext: list customers",
+      title: "Clocknext: list customers",
       description:
         "List / search the org's customers, most-recent first (cursor-paginated). Use it to find a customer id or check whether one already exists before creating.",
       inputSchema: {
@@ -106,10 +106,10 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
   server.registerTool(
     "clocknext_get_customer_balances",
     {
-      title: "ClockNext: get customer balances",
+      title: "Clocknext: get customer balances",
       description:
         "Fetch a customer's current wallet / credit / outcome / unit balances. Use it to confirm a purchase granted the expected entitlements, or that a test signal drew the balance down as expected.",
-      inputSchema: { id: z.string().describe("The ClockNext customer id.") },
+      inputSchema: { id: z.string().describe("The Clocknext customer id.") },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
     async ({ id }) => {
@@ -124,10 +124,10 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
   server.registerTool(
     "clocknext_get_customer_plan",
     {
-      title: "ClockNext: get customer plan",
+      title: "Clocknext: get customer plan",
       description:
         "Fetch a customer's current active plan (from their purchase). Use it to confirm a customer is subscribed to the plan you expect before firing a test signal.",
-      inputSchema: { id: z.string().describe("The ClockNext customer id.") },
+      inputSchema: { id: z.string().describe("The Clocknext customer id.") },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
     async ({ id }) => {
@@ -142,7 +142,7 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
   server.registerTool(
     "clocknext_create_purchase",
     {
-      title: "ClockNext: subscribe customer to a plan",
+      title: "Clocknext: subscribe customer to a plan",
       description: [
         "Subscribe a customer to a plan (a 'purchase') — this activates the plan for that customer. Used to wire up a dummy customer before firing test signals.",
         "",
@@ -155,7 +155,7 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
       inputSchema: {
         customerId: z
           .string()
-          .describe("ClockNext customer id (from clocknext_create_customer / _list_customers)."),
+          .describe("Clocknext customer id (from clocknext_create_customer / _list_customers)."),
         planId: z.string().describe("Plan id (from clocknext_create_plan / _list_plans)."),
         billingDate: z
           .string()
@@ -178,9 +178,9 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
   server.registerTool(
     "clocknext_bulk_import_customers",
     {
-      title: "ClockNext: bulk import customers",
+      title: "Clocknext: bulk import customers",
       description: [
-        "Bulk-create ClockNext customers in ONE request — for backfilling an existing user base. Returns a PER-ROW result (created id, or an error) so one duplicate/bad row never aborts the batch.",
+        "Bulk-create Clocknext customers in ONE request — for backfilling an existing user base. Returns a PER-ROW result (created id, or an error) so one duplicate/bad row never aborts the batch.",
         "",
         "Rules:",
         "- Each customer needs name + email; up to 200 per call. For a larger base, call again in ≤200-row chunks.",

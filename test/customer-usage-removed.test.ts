@@ -10,7 +10,7 @@
  *
  *   npx tsx test/customer-usage-removed.test.ts
  */
-import { ClockNextApi } from "../src/api";
+import { ClocknextApi } from "../src/api";
 import { registerCustomerTools } from "../src/tools/customers";
 
 const registered: string[] = [];
@@ -20,7 +20,7 @@ const fakeServer = {
   },
 };
 
-const cnk = new ClockNextApi({ apiKey: "cnk_test", baseUrl: "http://localhost:0" });
+const cnk = new ClocknextApi({ apiKey: "cnk_test", baseUrl: "http://localhost:0" });
 registerCustomerTools(fakeServer as never, cnk);
 
 let failures = 0;

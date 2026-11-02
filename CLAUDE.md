@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-`@clocknext/mcp` — a **stdio MCP server** that exposes ClockNext usage-based billing to AI coding tools. The repo ships two coupled artifacts:
+`@clocknext/mcp` — a **stdio MCP server** that exposes Clocknext usage-based billing to AI coding tools. The repo ships two coupled artifacts:
 
 - **The MCP server** (`src/`) — the tools an agent calls (whoami, list/add models, verify/record usage, catalogue CRUD, customers, docs search).
 - **The `clocknext-onboarding` skill** (`skills/clocknext-onboarding/`) — the human-in-the-loop playbook that *drives* those tools to onboard a product end-to-end. The skill is the "policy"; the server tools are the "mechanism." Changing tool names, args, or semantics means checking whether `SKILL.md` and its `references/*.md` still describe them correctly.
@@ -25,7 +25,10 @@ npm run typecheck    # tsc --noEmit (strict); CI runs this before build
 CLOCKNEXT_API_KEY=cnk_... npm start   # run the built server
 ```
 
-There is **no test suite and no linter** — `npm run typecheck` is the only static gate. To exercise the server manually, run it with a real `cnk_…` key against a **sandbox** org (see `clocknext_whoami`).
+There is **no linter**; `npm run typecheck` is the only static gate. Tests are plain `npx tsx` scripts in `test/`:
+
+- No server needed: `test/api-contract-2026-11.test.ts` (the bodies the tools send), `test/customer-usage-removed.test.ts`, `test/brand-name.test.ts` (the name is "Clocknext", never the camel-case spelling).
+- Against a real server (throwaway workspace only — they create rows and delete nothing): `test/catalogue-tools.smoke.ts`, and `test/e2e-stdio.test.ts`, which starts the built `dist/index.js` over stdio like an MCP client and calls every tool. Run `npm run build` first. Its header lists the env it needs (`CN_TEST_KEY`, `CN_TEST_BASE`, optional `CN_TEST_DB_URL`, `CN_TEST_SANDBOX_KEY`, `CN_TEST_EDGE=1`).
 
 ## Critical build/commit rule
 
@@ -33,19 +36,19 @@ There is **no test suite and no linter** — `npm run typecheck` is the only sta
 
 ## Architecture
 
-- **Entry:** `src/index.ts` — builds one `ClockNext` client from env (`makeClient()`), constructs the `McpServer`, and calls each `register*` function to attach tools. `main()` connects over `StdioServerTransport`.
+- **Entry:** `src/index.ts` — builds one `Clocknext` client from env (`makeClient()`), constructs the `McpServer`, and calls each `register*` function to attach tools. `main()` connects over `StdioServerTransport`.
 - **stdout is the JSON-RPC channel — never write to it.** All logging goes to **stderr** (`console.error`). A stray `console.log` corrupts the protocol.
 - **The `cnk_…` API key never enters the model's context.** It's read from `process.env.CLOCKNEXT_API_KEY` inside the server and passed to the API client (`src/api.ts`); tools receive only non-secret args.
 - **Every tool lives in its own `src/tools/*.ts`** and exports a `registerXxx(server, cnk)` function. To add a tool: create the file, export a register fn, and call it from `index.ts`.
-- **One API client, no SDK:** every ClockNext API call goes through `src/api.ts` (`ClockNextApi`) — plain `fetch` with the `cnk_` bearer. This repo does NOT depend on `@clocknext/sdk` (a choice to keep the MCP self-contained, not a gap): since 2026-10-01 the public SDK and docs DO cover the catalogue (credits / outcomes / units / composites / plan CRUD — list, get, create, update, archive, unarchive, no delete); only `POST /api/v1/models`, `/me` and bulk import remain MCP-only. Keep `src/api.ts` in step with the documented contract (`../clocknext-docs/openapi.yaml`). `ClockNextApi` mirrors the old SDK transport: timeout, both response envelopes, typed errors (`AuthError`, `NotFoundError`, …), and retries only for GET / PUT / DELETE. Its method names (`cnk.credits.list`, `cnk.plans.update`, …) match the SDK's so tool code reads the same. Base URL from `CLOCKNEXT_BASE_URL` (default `https://payments.clocknext.com`). To call a new endpoint, add a method to `ClockNextApi` — never `fetch` directly from a tool.
+- **One API client, no SDK:** every Clocknext API call goes through `src/api.ts` (`ClocknextApi`) — plain `fetch` with the `cnk_` bearer. This repo does NOT depend on `@clocknext/sdk` (a choice to keep the MCP self-contained, not a gap): since 2026-10-01 the public SDK and docs DO cover the catalogue (credits / outcomes / units / composites / plan CRUD — list, get, create, update, archive, unarchive, no delete); only `POST /api/v1/models`, `/me` and bulk import remain MCP-only. Keep `src/api.ts` in step with the documented contract (`../clocknext-docs/openapi.yaml`). `ClocknextApi` mirrors the old SDK transport: timeout, both response envelopes, typed errors (`AuthError`, `NotFoundError`, …), and retries only for GET / PUT / DELETE. Its method names (`cnk.credits.list`, `cnk.plans.update`, …) match the SDK's so tool code reads the same. Base URL from `CLOCKNEXT_BASE_URL` (default `https://payments.clocknext.com`). To call a new endpoint, add a method to `ClocknextApi` — never `fetch` directly from a tool.
   - Public docs tools (`search_docs`, `get_doc`) use `fetchJson` (`src/tools/http.ts`) against the docs origin — **no API key** (`CLOCKNEXT_DOCS_URL`, default `https://help.clocknext.com`, resolved defensively in `docs-url.ts`).
 
 ### Shared conventions (follow these when adding/editing tools)
 
-- **Result helpers in `src/tools/util.ts`:** return `jsonResult(data)` for success and `errorResult(msg)` for failures — **catch API/network errors and turn them into `errorResult(errMsg(err))`; do not let a tool throw.** `errMsg` special-cases `ClockNextError` (from `src/api.ts`) to include the HTTP status.
+- **Result helpers in `src/tools/util.ts`:** return `jsonResult(data)` for success and `errorResult(msg)` for failures — **catch API/network errors and turn them into `errorResult(errMsg(err))`; do not let a tool throw.** `errMsg` special-cases `ClocknextError` (from `src/api.ts`) to include the HTTP status.
 - **Inputs are Zod `ZodRawShape`s** (flat objects, as MCP requires). Push validation into the schema (`.refine`, `.enum`, `.min`) where possible. Cross-field rules that can't be expressed flatly are enforced in the handler and returned as an `errorResult` (e.g. `create_composite` requiring at least one entitlement id).
-- **Descriptions are load-bearing.** Tool and field `describe()` text is the agent's only guidance — it encodes rules (idempotency, "records for real", "partial update", "prefer the ClockNext product"). Keep them precise and current when behavior changes.
-  **Never write "dashboard"** in a tool description, a skill file, or anything the user sees — the product is called **the ClockNext product**, and doing something there is **manually / Manually in the Clocknext**.
+- **Descriptions are load-bearing.** Tool and field `describe()` text is the agent's only guidance — it encodes rules (idempotency, "records for real", "partial update", "prefer the Clocknext product"). Keep them precise and current when behavior changes.
+  **Never write "dashboard"** in a tool description, a skill file, or anything the user sees — the product is called **the Clocknext product**, and doing something there is **manually / Manually in the Clocknext**.
 - **Annotations** (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) are set intentionally per tool — mirror the neighbours when adding one.
 - **The MCP never touches usage — not to record it, and not to preview it.** There is no record/track tool: the `/api/v1/signal/*` routes are asynchronous (`202 {queued, messageId, rawId}` — no usage log, and no validation of `agentKey` until the worker picks it up), so a tool could only ever report "accepted", never "billed". There is no dry-run/preview tool either: it was removed in 0.10.0 because the underlying `dryRun` flag is internal-only and must not be exposed through a public surface. Don't re-add either one.
 - **What replaced the preview is a read-only reference check** (`SKILL.md` S27): `list_models` plus `get_credit` / `get_outcome` / `get_unit` confirm every model and `agentKey` the product will send actually resolves. That catches the two mis-wires ingest will not report — it answers `202` and the worker drops a bad reference later — but it does NOT price the signal. Say so rather than implying it is a guarantee; the real signal is the first thing that validates the whole path.
@@ -74,7 +77,7 @@ This repo no longer depends on `@clocknext/sdk`, but usage-billing work often sp
 - Name wire/response DTOs with a `Serialized*` prefix; export **types** type-only (`export type Foo`) and classes as value exports.
 
 **Client architecture — one seam, composed resources.**
-- A single root `ClockNext` class holds `readonly` resource sub-clients (`signals`, `customers`, `plans`, `workspace`, …), each its own class taking a shared `Transport`.
+- A single root `Clocknext` class holds `readonly` resource sub-clients (`signals`, `customers`, `plans`, `workspace`, …), each its own class taking a shared `Transport`.
 - **All HTTP goes through one `Transport` seam**: it builds the authenticated request, enforces the timeout, unwraps the `{ ok, ... }` envelope, maps status → typed error, and retries transient failures with backoff + jitter. Resource classes never call `fetch` directly.
 - **Config object with documented defaults**, plus an internal `ResolvedConfig` (= config with every default applied) so downstream code sees non-optional fields.
 - **Injectable seams for testability**: `fetch?: FetchLike` and `logger?: Logger` are config options defaulting to globals.
@@ -82,7 +85,7 @@ This repo no longer depends on `@clocknext/sdk`, but usage-billing work often sp
 - Consistent CRUD verbs across every resource: `list(params?)`, `get(id)`, `create(input)`, `update(id, input)`, `setActive(id, bool)`. Add lifecycle methods (`flush()`, `close()`, `pending`) where buffering exists.
 
 **Errors — a typed hierarchy callers branch on.**
-- `ClockNextError extends Error` carries `status?: number` and `retryable: boolean`; subclasses map one-to-one to HTTP status (`AuthError` 401, `ValidationError` 400, `NotFoundError` 404, `PlanError`/`AllowanceError` 422, `ConflictError` 409, `RateLimitError` 429 with `retryAfterMs`, `ServerError` 5xx, `NetworkError` for a request that never completed). Callers branch on the **kind**, never string-match messages. This server's `errMsg` (`src/tools/util.ts`) already special-cases `ClockNextError` to surface `status`.
+- `ClocknextError extends Error` carries `status?: number` and `retryable: boolean`; subclasses map one-to-one to HTTP status (`AuthError` 401, `ValidationError` 400, `NotFoundError` 404, `PlanError`/`AllowanceError` 422, `ConflictError` 409, `RateLimitError` 429 with `retryAfterMs`, `ServerError` 5xx, `NetworkError` for a request that never completed). Callers branch on the **kind**, never string-match messages. This server's `errMsg` (`src/tools/util.ts`) already special-cases `ClocknextError` to surface `status`.
 
 **Packaging — dual ESM/CJS, tree-shakeable, validated.**
 - `"type": "module"`, `"sideEffects": false`, and an `exports` map with distinct `import`/`require` conditions each pointing at their own types (`index.d.ts` / `index.d.cts`); `main`→CJS, `module`→ESM, `types`→DTS. Ship only `["dist", "README.md"]`, `engines: node >=18`.

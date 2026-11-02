@@ -21,7 +21,7 @@
  *   npx tsx test/api-contract-2026-11.test.ts
  */
 import { z } from "zod";
-import { ClockNextApi } from "../src/api";
+import { ClocknextApi } from "../src/api";
 import { registerCatalogueTools } from "../src/tools/catalogue";
 import { registerCompositeTools } from "../src/tools/composites";
 import { registerCustomerTools } from "../src/tools/customers";
@@ -60,7 +60,7 @@ function success(result: unknown) {
   return { status: 200, json: { statusCode: 200, statusDetail: { status: "SUCCESS", message: "ok" }, result } };
 }
 
-const cnk = new ClockNextApi({ apiKey: "cnk_test", baseUrl: "http://localhost:0" });
+const cnk = new ClocknextApi({ apiKey: "cnk_test", baseUrl: "http://localhost:0" });
 registerCatalogueTools(fakeServer as never, cnk);
 registerCompositeTools(fakeServer as never, cnk);
 registerCustomerTools(fakeServer as never, cnk);
@@ -196,6 +196,26 @@ async function main(): Promise<void> {
   const frozen = await call("clocknext_list_plans", {});
   const frozenText = "result" in frozen ? frozen.result?.content[0]?.text ?? "" : "";
   check("a WORKSPACE_LOCKED 403 is a WorkspaceLockedError", /WorkspaceLockedError \(403\)/.test(frozenText), frozenText);
+
+  console.log("composites list");
+  reply = success({
+    composites: [
+      { id: "pm_1", isActive: true },
+      { id: "pm_2", isActive: false },
+    ],
+  });
+  const archived = await call("clocknext_list_composites", { active: false });
+  const archivedData = JSON.parse("result" in archived ? archived.result?.content[0]?.text ?? "{}" : "{}");
+  check(
+    "list_composites returns { count, composites } like the other list tools",
+    archivedData.count !== undefined && Array.isArray(archivedData.composites),
+    JSON.stringify(archivedData),
+  );
+  check(
+    "list_composites active=false returns only archived ones (the API filters only active=true)",
+    Array.isArray(archivedData.composites) && archivedData.composites.length === 1 && archivedData.composites[0].id === "pm_2",
+    JSON.stringify(archivedData),
+  );
 
   console.log("purchases");
   check(

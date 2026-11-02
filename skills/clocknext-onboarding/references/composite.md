@@ -127,7 +127,7 @@ exactly like success and nothing anywhere reports it.
 ## Gotchas
 - **Created but not on a plan → bills nothing, silently.** The most common failure.
 - **A typo'd `refId` at runtime is invisible.** Nothing errors; the occurrence never exists.
-- **Renaming a `refId`** (only possible in the ClockNext product) keeps all history — rows bind by id — but cuts
+- **Renaming a `refId`** (only possible in the Clocknext product) keeps all history — rows bind by id — but cuts
   ingest over immediately, so callers still sending the old property stop being counted with
   no error. Ship the new property to callers first, then rename.
 - **One composite per signal** through the SDK's `composite: { ref, value }`. The wire format

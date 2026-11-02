@@ -15,10 +15,10 @@ type SearchResponse = {
 };
 
 const DESCRIPTION = [
-  "Search ClockNext's API reference and get back the most relevant pages (title, URL, and a snippet). ClockNext is a usage-based billing platform: you meter product/AI usage, price it against plans and units, and bill customers for it. The API reference covers both the REST API and the Node.js SDK (`@clocknext/sdk`) — every endpoint page shows a Node.js example and a cURL example.",
+  "Search Clocknext's API reference and get back the most relevant pages (title, URL, and a snippet). Clocknext is a usage-based billing platform: you meter product/AI usage, price it against plans and units, and bill customers for it. The API reference covers both the REST API and the Node.js SDK (`@clocknext/sdk`) — every endpoint page shows a Node.js example and a cURL example.",
   "",
   "Rules:",
-  "- Prefer this over answering from memory — the docs are the source of truth and more current than training data. Search before explaining a ClockNext concept, designing an integration, or reaching for another ClockNext tool.",
+  "- Prefer this over answering from memory — the docs are the source of truth and more current than training data. Search before explaining a Clocknext concept, designing an integration, or reaching for another Clocknext tool.",
   "- Typical flow: search for the task (e.g. 'record credit usage', 'subscribe a customer to a plan'), then read the matching page with clocknext_get_doc. Use its Node.js SDK example for a JS/TS codebase and its cURL/REST example for any other language.",
 ].join("\n");
 
@@ -26,7 +26,7 @@ export function registerSearchDocs(server: McpServer): void {
   server.registerTool(
     "clocknext_search_docs",
     {
-      title: "ClockNext: search docs",
+      title: "Clocknext: search docs",
       description: DESCRIPTION,
       inputSchema: {
         query: z

@@ -1,17 +1,17 @@
 {
   "name": "clocknext",
-  "description": "Official ClockNext plugins for AI coding tools — usage metering and billing.",
+  "description": "Official Clocknext plugins for AI coding tools — usage metering and billing.",
   "owner": {
-    "name": "ClockNext",
+    "name": "Clocknext",
     "url": "https://github.com/Clocknext"
   },
   "plugins": [
     {
       "name": "clocknext",
       "source": ".",
-      "description": "Meter usage and manage usage-based billing from AI coding tools via the ClockNext API.",
+      "description": "Meter usage and manage usage-based billing from AI coding tools via the Clocknext API.",
       "author": {
-        "name": "ClockNext"
+        "name": "Clocknext"
       },
       "homepage": "https://github.com/Clocknext/clocknext-mcp",
       "license": "MIT"

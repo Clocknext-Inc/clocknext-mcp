@@ -111,7 +111,7 @@ The ARREAR credit is then billed as consumed — separately at cycle end, or fro
 - Cross-component rules (the wallet-funded three, one-wallet/one-flat, FREE constraints) are
   enforced by the backend with a **clean 400** — the tool surfaces the message; fix and resend.
 - Changes apply **going forward**; customers already on a plan keep their terms.
-- Prefer the plan builder in the ClockNext product for anything non-trivial (live preview) — the MCP is the
+- Prefer the plan builder in the Clocknext product for anything non-trivial (live preview) — the MCP is the
   fallback. See [`ui-links.md`](ui-links.md) and [the plan states in `SKILL.md`](../SKILL.md#s13s15--plan).
 
 ## See also

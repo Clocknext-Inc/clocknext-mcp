@@ -7,7 +7,7 @@ be priced before anything downstream can be priced against it):
 - **Set it up using AI** → `clocknext_add_model` with `provider` + `model` (its catalog id).
 
 Either way:
-- Only **catalog** models can be metered. ClockNext auto-prices from its catalog.
+- Only **catalog** models can be metered. Clocknext auto-prices from its catalog.
 - **No catalog price?** The model still enables, but at **$0**, and the tool returns a
   `warning`. Send the user to `{base}/settings/models` to set the price, and **STOP** until
   they confirm it's set — otherwise usage meters at $0.
@@ -44,4 +44,4 @@ stores just the final computed price. That bundle is what makes later **re-prici
 auditing** easy. So when the user is deciding, **recommend Manually in the Clocknext for
 credits/outcomes and say that reason out loud** — but if they'd rather **Set it up using AI**, that's a
 valid, fully model-grounded result; do it cleanly and note the one tradeoff (no stored
-bundle). Don't keep pushing the ClockNext product after they've chosen.
+bundle). Don't keep pushing the Clocknext product after they've chosen.

@@ -1,6 +1,6 @@
 /**
  * Minimal JSON fetch with a timeout, for the public docs tools (search / get
- * page) — no API key. Every ClockNext API call goes through `src/api.ts`.
+ * page) — no API key. Every Clocknext API call goes through `src/api.ts`.
  */
 export async function fetchJson<T = unknown>(
   url: string | URL,

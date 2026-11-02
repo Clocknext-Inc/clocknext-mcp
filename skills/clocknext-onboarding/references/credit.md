@@ -23,7 +23,7 @@ Fields (see also the mixer in [`pricing-and-models.md`](pricing-and-models.md)):
 | `marginPercent` | yes | Markup over the computed base cost. `100` = double the base = price per credit. `0` = at cost; negative discounts (down to `-100` = free). |
 | `description` | no | Optional. |
 
-The mixer is saved as the credit's model bundle, and **ClockNext works out `basePrice` and
+The mixer is saved as the credit's model bundle, and **Clocknext works out `basePrice` and
 `pricePerCredit` from it** at the models' live prices; a disabled/unknown model, a split ≠ 100
 or a cache-write share on a model without a cache-write price is rejected. You never hand-type
 a price. The credit's token volume (`tokensPerCredit`) is the sum of the mixer's tokens — a

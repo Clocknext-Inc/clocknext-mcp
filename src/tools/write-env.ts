@@ -49,7 +49,7 @@ export function registerWriteEnv(server: McpServer): void {
   server.registerTool(
     "clocknext_write_env",
     {
-      title: "ClockNext: write the API key into a project .env",
+      title: "Clocknext: write the API key into a project .env",
       description: [
         "Write `CLOCKNEXT_API_KEY=<the org's cnk_… key>` into a project's `.env` file, server-side. The key is copied from this MCP server's own environment directly into the file — it is NEVER returned to you and never appears in the conversation. Use this as the last integration step so the code you generated (which reads `process.env.CLOCKNEXT_API_KEY`) can run; the alternative is the user pasting the key themselves.",
         "",

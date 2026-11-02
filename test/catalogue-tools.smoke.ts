@@ -1,5 +1,5 @@
 /**
- * SMOKE TEST — the catalogue tools against a REAL ClockNext server.
+ * SMOKE TEST — the catalogue tools against a REAL Clocknext server.
  *
  * Written BEFORE changing the tools, from the server's current rules
  * (Clocknext-Payment-Saas `scripts/itest-v1-catalog-crud-behaviour.mts`).
@@ -23,7 +23,7 @@
  *   CN_TEST_KEY=cnk_… CN_TEST_BASE=http://localhost:3000 npx tsx test/catalogue-tools.smoke.ts
  */
 import { z } from "zod";
-import { ClockNextApi } from "../src/api";
+import { ClocknextApi } from "../src/api";
 import { registerCatalogueTools } from "../src/tools/catalogue";
 import { registerCompositeTools } from "../src/tools/composites";
 
@@ -42,7 +42,7 @@ const fakeServer = {
 const apiKey = process.env.CN_TEST_KEY ?? "";
 const baseUrl = process.env.CN_TEST_BASE ?? "http://localhost:3000";
 if (!apiKey) throw new Error("Set CN_TEST_KEY.");
-const cnk = new ClockNextApi({ apiKey, baseUrl });
+const cnk = new ClocknextApi({ apiKey, baseUrl });
 registerCatalogueTools(fakeServer as never, cnk);
 registerCompositeTools(fakeServer as never, cnk);
 

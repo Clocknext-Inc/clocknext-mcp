@@ -1,6 +1,6 @@
 # Entitlements & billing building blocks — the map
 
-ClockNext bills a product out of a small set of building blocks. This file is the **decision
+Clocknext bills a product out of a small set of building blocks. This file is the **decision
 guide** — what each one is, and which to reach for. Each has its own deep reference (pricing
 math, exact MCP tool fields, runtime signal, worked examples); open the one you're working on.
 

@@ -2,7 +2,7 @@
   "name": "@clocknext/mcp",
   "version": "0.14.0",
   "mcpName": "io.github.Clocknext/mcp",
-  "description": "ClockNext MCP server — meter usage, verify signals, and manage billing from AI coding tools (Claude Code, Cursor, Codex, Antigravity).",
+  "description": "Clocknext MCP server — meter usage, verify signals, and manage billing from AI coding tools (Claude Code, Cursor, Codex, Antigravity).",
   "license": "MIT",
   "repository": {
     "type": "git",

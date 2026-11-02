@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { ClockNextError, type ClockNextApi } from "../api";
+import { ClocknextError, type ClocknextApi } from "../api";
 import { errMsg, errorResult, jsonResult } from "./util";
 
 /**
@@ -16,16 +16,16 @@ import { errMsg, errorResult, jsonResult } from "./util";
  * back to detect this).
  */
 
-export function registerAddModel(server: McpServer, cnk: ClockNextApi): void {
+export function registerAddModel(server: McpServer, cnk: ClocknextApi): void {
   server.registerTool(
     "clocknext_add_model",
     {
-      title: "ClockNext: add (enable) a model",
+      title: "Clocknext: add (enable) a model",
       description: [
-        "Enable a model for the organisation so usage can be metered against it. Afterwards its `modelId` is valid in the signals your product code sends, and it appears in clocknext_list_models. Autopriced from ClockNext's catalog — you never set prices here.",
+        "Enable a model for the organisation so usage can be metered against it. Afterwards its `modelId` is valid in the signals your product code sends, and it appears in clocknext_list_models. Autopriced from Clocknext's catalog — you never set prices here.",
         "",
         "Rules:",
-        "- Only models in ClockNext's pricing catalog can be added. clocknext_list_models shows what is ALREADY enabled; the addable catalog itself is browsable on the Models page. If the add fails, the model or provider isn't in the catalog.",
+        "- Only models in Clocknext's pricing catalog can be added. clocknext_list_models shows what is ALREADY enabled; the addable catalog itself is browsable on the Models page. If the add fails, the model or provider isn't in the catalog.",
         "- Re-adding a model that is already enabled is a safe no-op: it succeeds and returns `alreadyEnabled: true` with the live prices.",
         "- If the catalog has no price for it, the model is enabled but meters at $0; the tool returns a Models-page link and a `warning` so you can set pricing.",
       ].join("\n"),
@@ -34,7 +34,7 @@ export function registerAddModel(server: McpServer, cnk: ClockNextApi): void {
           .string()
           .min(1)
           .describe(
-            "Provider slug in the ClockNext catalog, e.g. 'openai', 'anthropic', 'google'.",
+            "Provider slug in the Clocknext catalog, e.g. 'openai', 'anthropic', 'google'.",
           ),
         model: z
           .string()
@@ -55,7 +55,7 @@ export function registerAddModel(server: McpServer, cnk: ClockNextApi): void {
         } catch (err) {
           // A request that never got an answer (network / timeout) is not a
           // catalog problem — report it as it is.
-          const serverAnswered = err instanceof ClockNextError && err.status !== undefined;
+          const serverAnswered = err instanceof ClocknextError && err.status !== undefined;
           if (!serverAnswered) {
             throw err;
           }
@@ -70,7 +70,7 @@ export function registerAddModel(server: McpServer, cnk: ClockNextApi): void {
             // error whether the MODEL or the PROVIDER is unknown — so guide the
             // caller for both without offering a manual path that won't work.
             return errorResult(
-              `Couldn't add "${provider}/${model}": ${reason}. ClockNext only meters models in its pricing catalog, so a model or provider that isn't in the catalog can't be added or priced here. Browse the addable catalog on the Models page (${modelsPage}); clocknext_list_models only shows what's already enabled.`,
+              `Couldn't add "${provider}/${model}": ${reason}. Clocknext only meters models in its pricing catalog, so a model or provider that isn't in the catalog can't be added or priced here. Browse the addable catalog on the Models page (${modelsPage}); clocknext_list_models only shows what's already enabled.`,
             );
           }
         }

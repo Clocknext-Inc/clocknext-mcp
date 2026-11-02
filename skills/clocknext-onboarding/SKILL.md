@@ -1,20 +1,20 @@
 ---
 name: clocknext-onboarding
 description: >-
-  Guide a product end-to-end onto ClockNext usage-based billing using the ClockNext MCP
+  Guide a product end-to-end onto Clocknext usage-based billing using the Clocknext MCP
   tools — detect and enable the models it uses, create entitlements (credits / outcomes /
   units) and a plan, then meter every billable call in the codebase and prove it with a
   dummy customer and live signals. Runs as a strict one-state-per-turn state machine — for
   every setup step the user chooses Manually in the Clocknext or Set it up using AI,
   automatic execution never means automatic progression, and two hard money gates
   guard anything that spends real money. Use whenever the user is doing anything with
-  ClockNext — setting up billing, creating or pricing credits/outcomes/units/plans, adding
+  Clocknext — setting up billing, creating or pricing credits/outcomes/units/plans, adding
   models, metering or charging for LLM/API calls, wiring agentKey or customerId into their
-  app, or onboarding customers. If the request has nothing to do with ClockNext, ignore
+  app, or onboarding customers. If the request has nothing to do with Clocknext, ignore
   this skill.
 ---
 
-# Onboard a product onto ClockNext usage-based billing
+# Onboard a product onto Clocknext usage-based billing
 
 Take a product from "nothing metered" to "billed, tested, and live". Everything the MCP
 writes is **real org state** — and a purchase raises a **real invoice** — so this flow is a
@@ -23,14 +23,14 @@ and you advance only on the user's answer. This is a one-on-one interview with a
 person, not a pipeline.
 
 ## When this runs
-Any ClockNext work: setting up billing, adding models, creating/pricing entitlements or
+Any Clocknext work: setting up billing, adding models, creating/pricing entitlements or
 plans, metering calls, wiring the SDK/API into a codebase, or onboarding customers. If a
-request isn't about ClockNext, **ignore this skill entirely**.
+request isn't about Clocknext, **ignore this skill entirely**.
 
 ## PRIME INVARIANT — AUTOMATIC EXECUTION DOES NOT MEAN AUTOMATIC PROGRESSION
 
 > **"Automatic" means: use the MCP to execute the CURRENTLY APPROVED step instead of the
-> ClockNext product. It does NOT mean: run the workflow automatically.**
+> Clocknext product. It does NOT mean: run the workflow automatically.**
 
 When the user picks Set it up using AI — or says "auto mode", "just do it", "you handle it", "I
 trust you" — that choice applies to **exactly one state**: the one the immediately
@@ -78,7 +78,7 @@ pending_action:
   operation: ENABLE_ONE_MODEL
   target: provider/model
   arguments_summary: exact non-secret arguments
-  side_effect: what changes in ClockNext or the codebase
+  side_effect: what changes in Clocknext or the codebase
   approval_scope: this action only
 ```
 
@@ -174,7 +174,7 @@ Authorization rules (MUST):
 | S28 | ⛔ MONEY_GATE_2 | The real-signal question, asked ALONE. Gate 1 did NOT cover this. |
 | S29 | ⚙ REAL_SIGNAL | Fire exactly one approved real signal. |
 | S30 | ⚙ VERIFY_USAGE_AND_BALANCE | Read back usage and balances where applicable; prove credit/outcome/wallet logs and Unit event counts landed. |
-| S31 | ⏸ CLEANUP | Offer cleanup in the ClockNext product (no MCP tool exists — never improvise one). |
+| S31 | ⏸ CLEANUP | Offer cleanup in the Clocknext product (no MCP tool exists — never improvise one). |
 | S32 | ⏸ REAL_CUSTOMER_ONBOARDING_DECISION | "Wire real customer onboarding now?" |
 
 **Re-entry:** on resume, do NOT trust the conversation's claims about what happened — not
@@ -182,7 +182,7 @@ even your own earlier messages. Re-enter at S1, re-derive everything (S3), and f
 only past states whose results you have re-verified with tools. Reconciliation is never
 skippable.
 
-**Manually in the Clocknext always means:** the exact ClockNext product deep-link (`{base}` URLs below; the full map
+**Manually in the Clocknext always means:** the exact Clocknext product deep-link (`{base}` URLs below; the full map
 is `references/ui-links.md`), exactly what to enter, then one question asking whether the
 user will confirm completion — and
 you verify with the list tools before advancing. **Set it up using AI always means:** state exactly
@@ -199,7 +199,7 @@ guardrails; don't nag (and `references/testing.md` follows the same rule).
 ### S3 · Reconcile
 List models, credits, outcomes, units, plans, and customers. For each candidate test customer,
 read its current plan/subscription with `clocknext_get_customer_plan`; if purchase history
-cannot be read by MCP, direct the user to the ClockNext product and ask them to report any active or
+cannot be read by MCP, direct the user to the Clocknext product and ask them to report any active or
 scheduled purchase. Report what exists so everything downstream
 reuses instead of duplicating. If an entitlement exists but is archived/inactive, the fix
 later is `clocknext_unarchive_credit`/`_unit`/`_outcome`/`_plan` — NOT an update:
@@ -265,17 +265,17 @@ S9 **sketches before creating**: name, what it bills, the model mixer grounding 
 avg tokens, input/output/cache/cache-write split estimated from the code) and the pricing assumptions,
 in plain words. Any outstanding decision (e.g. the markup) is its own question, one per
 turn. **Never create first and explain pricing afterward. Never invent a price, never
-hand-type a token-metered base price — the mixer computes it** (live preview in the ClockNext product on
+hand-type a token-metered base price — the mixer computes it** (live preview in the Clocknext product on
 Manually in the Clocknext, `computeMixerBase` inside `create_credit`/`create_outcome` when
 the user chooses Set it up using AI).
 S10 asks one question — Manually in the Clocknext or Set it up using AI — for the **named
 entitlement**. For credits and outcomes, recommend **Manually in the Clocknext** because the
-ClockNext product shows a live price preview and stores the full per-model pricing bundle, which
+Clocknext product shows a live price preview and stores the full per-model pricing bundle, which
 the MCP path cannot (it stores only the final computed number) — that record makes later
 re-pricing and audits far easier. Units are simpler; Set it up using AI is usually fine.
 S11 carries out the selected creation method and creates the entitlement **active** (don't
 stage inactive as a ritual — only build inactive if the user asks to review first). For the
-manual path, give the exact entries to make in the ClockNext product and wait for the user's confirmation before
+manual path, give the exact entries to make in the Clocknext product and wait for the user's confirmation before
 verifying. Report the grounded price.
 S12 asks: another entitlement, or move to the plan? Loop to S8 until they're done.
 
@@ -307,7 +307,7 @@ total. A later plan change requires a new S13–S15 cycle and approval.
 Details: `references/plans.md`.
 
 ### S16 · Choose test-customer method
-Propose the exact throwaway customer identity first, for example name `ClockNext onboarding
+Propose the exact throwaway customer identity first, for example name `Clocknext onboarding
 test` and email `clocknext-onboarding-test+<unique-suffix>@example.invalid`. Ask one
 question: Manually in the Clocknext or Set it up using AI to create this customer.
 Manually in the Clocknext means those exact fields will be given
@@ -442,14 +442,14 @@ Unit event count changes are used for Units). Unit
 consumption is confirmed through the product's supported Unit usage/event-count readback — the
 MCP has no unit-event tool and an ARREAR Unit may have no balance decrement. “Sent” is not proof;
 **the event landed and the expected count changed** is. Report proof, ask “Shall I move to
-cleanup in the ClockNext product?” and STOP. Details: `references/testing.md`.
+cleanup in the Clocknext product?” and STOP. Details: `references/testing.md`.
 
 ### S31 · Cleanup
-Offer to clean up the test artifacts — and say plainly this happens **in the ClockNext
+Offer to clean up the test artifacts — and say plainly this happens **in the Clocknext
 product, not via the MCP**: there is NO MCP tool to void an invoice or delete a customer, and you
 must never improvise one. Link `{base}/customers`. If the user chooses cleanup, ask them to
 report when it is complete; do not claim completion or advance until they report back. Then
-reconcile the result from the ClockNext product in a new turn before entering S32.
+reconcile the result from the Clocknext product in a new turn before entering S32.
 
 ### S32 · Real onboarding
 Ask only: "Wire real customer onboarding now?" The answer authorizes only the decision to
@@ -467,7 +467,7 @@ has no unit-usage recording or read tool.
 
 ## Writing style — talk like a human, not a schema
 The user is a finance/ops person. Every question must work with zero knowledge of
-ClockNext internals: "billed up-front", "charged as used", "prepaid wallet", "which
+Clocknext internals: "billed up-front", "charged as used", "prepaid wallet", "which
 entitlement should this charge against", "which model", "which plan". Bad: *"Which
 agentKey?"*, *"ADVANCE or ARREAR?"*. Good: *"Should this call charge against **AI
 Credits** or **Research Outcome**?"* Terms like `agentKey`, `marginPercent`,

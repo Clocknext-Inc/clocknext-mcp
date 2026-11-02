@@ -6,7 +6,7 @@
 #     (Prefer npm "trusted publishing" via OIDC to drop this token entirely —
 #      configure it on npmjs.com for @clocknext/mcp, then delete the token line.)
 # The MCP Registry needs NO secret: it authenticates with GitHub OIDC, and the
-# repo lives under the ClockNext org, so it can publish io.github.ClockNext/*.
+# repo lives under the Clocknext org, so it can publish io.github.Clocknext/*.
 #
 # Release flow:
 #   1. bump the version in package.json, server.json (both "version" fields),
