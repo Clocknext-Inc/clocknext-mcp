@@ -20,7 +20,7 @@ want and which agent you're on:
 
 | Install | What you get | Works in |
 | --- | --- | --- |
-| **[Skill](#1--the-skill-every-ai-coding-agent)** — `npx skills add Clocknext/clocknext-mcp` | the guided onboarding flow | **every** agent (Claude Code, Cursor, Codex, Windsurf, Gemini, Antigravity, VS Code, …) |
+| **[Skill](#1--the-skill-every-ai-coding-agent)** — `npx skills add Clocknext-Inc/clocknext-mcp` | the guided onboarding flow | **every** agent (Claude Code, Cursor, Codex, Windsurf, Gemini, Antigravity, VS Code, …) |
 | **[MCP server](#2--the-mcp-server-every-ai-coding-agent)** — `npx -y @clocknext/mcp` | the tools an agent calls | **every** MCP client |
 | **[Plugin](#3--the-claude-code-plugin-claude-code-only)** — `/plugin install clocknext@clocknext` | MCP tools **+** skill, one step | **Claude Code only** |
 
@@ -48,9 +48,9 @@ agent actually looks:
 
 ```bash
 # user-wide (all projects), for a specific agent:
-npx skills add Clocknext/clocknext-mcp --global --agent claude-code
+npx skills add Clocknext-Inc/clocknext-mcp --global --agent claude-code
 # …or this project only:
-npx skills add Clocknext/clocknext-mcp --agent claude-code
+npx skills add Clocknext-Inc/clocknext-mcp --agent claude-code
 ```
 
 Swap `claude-code` for `cursor`, `codex`, `windsurf`, … (or `*` for every
@@ -73,7 +73,7 @@ the agent** — most load skills at startup.
 Copy the folder from the repo into your agent's skills directory:
 
 ```bash
-git clone https://github.com/Clocknext/clocknext-mcp
+git clone https://github.com/Clocknext-Inc/clocknext-mcp
 # Claude Code — all projects:
 mkdir -p ~/.claude/skills && cp -r clocknext-mcp/skills/clocknext-onboarding ~/.claude/skills/
 # …or this project only: .claude/skills/
@@ -220,7 +220,7 @@ skill together, and wires the API key for you. **Claude Code only** (the plugin
 format is Claude Code's; other agents use §1 + §2 above).
 
 ```
-/plugin marketplace add Clocknext/clocknext-mcp
+/plugin marketplace add Clocknext-Inc/clocknext-mcp
 /plugin install clocknext@clocknext
 ```
 

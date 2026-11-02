@@ -3,7 +3,7 @@
   "description": "Official Clocknext plugins for AI coding tools — usage metering and billing.",
   "owner": {
     "name": "Clocknext",
-    "url": "https://github.com/Clocknext"
+    "url": "https://github.com/Clocknext-Inc"
   },
   "plugins": [
     {
@@ -13,7 +13,7 @@
       "author": {
         "name": "Clocknext"
       },
-      "homepage": "https://github.com/Clocknext/clocknext-mcp",
+      "homepage": "https://github.com/Clocknext-Inc/clocknext-mcp",
       "license": "MIT"
     }
   ]
