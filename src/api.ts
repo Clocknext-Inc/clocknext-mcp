@@ -56,6 +56,22 @@ export class ClockNextError extends Error {
 export class AuthError extends ClockNextError {}
 /** 400 — the request body or query failed validation. */
 export class ValidationError extends ClockNextError {}
+/** 403 — the key may not do this. The two lock refusals below are the
+ *  common cases; a plain ForbiddenError is any other 403 (for example a
+ *  sandbox that already holds its 25 customers). */
+export class ForbiddenError extends ClockNextError {}
+/** 403 `FEATURE_LOCKED` — the organisation's ClockNext plan does not include
+ *  this feature. `feature` names it (e.g. `COMPOSITES`, `PURCHASES`). */
+export class FeatureLockedError extends ForbiddenError {
+  readonly feature?: string;
+  constructor(message: string, opts: { feature?: string } = {}) {
+    super(message, { status: 403 });
+    this.feature = opts.feature;
+  }
+}
+/** 403 `WORKSPACE_LOCKED` — the whole workspace is locked (an unpaid
+ *  ClockNext bill); every API call is refused until it is paid. */
+export class WorkspaceLockedError extends ForbiddenError {}
 /** 404 — the resource doesn't exist (or belongs to another organisation). */
 export class NotFoundError extends ClockNextError {}
 /** 422 — valid request, but the account state doesn't allow it. */
@@ -86,6 +102,7 @@ function errorFromResponse(
   status: number,
   message: string,
   retryAfterMs: number | undefined,
+  lock: { code?: string; feature?: string } = {},
 ): ClockNextError {
   const text = message || `Request failed with status ${status}.`;
 
@@ -94,6 +111,15 @@ function errorFromResponse(
   }
   if (status === 401) {
     return new AuthError(text, { status });
+  }
+  if (status === 403) {
+    if (lock.code === "FEATURE_LOCKED") {
+      return new FeatureLockedError(text, { feature: lock.feature });
+    }
+    if (lock.code === "WORKSPACE_LOCKED") {
+      return new WorkspaceLockedError(text, { status });
+    }
+    return new ForbiddenError(text, { status });
   }
   if (status === 404) {
     return new NotFoundError(text, { status });
@@ -314,14 +340,26 @@ export class ClockNextApi {
     const body = (json ?? {}) as Record<string, unknown>;
     const retryAfterMs = parseRetryAfter(response.headers);
 
-    // New envelope: { statusCode, statusDetail: { status, message }, result }
+    // New envelope: { statusCode, statusDetail: { status, message, code? }, result }
     if (typeof body === "object" && body !== null && "statusDetail" in body) {
-      const detail = body.statusDetail as { status?: string; message?: string } | undefined;
+      const detail = body.statusDetail as
+        | { status?: string; message?: string; code?: string }
+        | undefined;
       if (response.ok && detail?.status === "SUCCESS") {
         return (body.result as T | undefined) ?? ({} as T);
       }
       const message = detail?.message ?? `Request failed with status ${response.status}.`;
-      throw errorFromResponse(response.status, message, retryAfterMs);
+      // A locked feature names itself in `result.feature` and in the
+      // X-Feature-Locked header (SE-61).
+      const result = body.result as { feature?: unknown } | undefined;
+      const feature =
+        typeof result?.feature === "string"
+          ? result.feature
+          : (response.headers.get("x-feature-locked") ?? undefined);
+      throw errorFromResponse(response.status, message, retryAfterMs, {
+        code: detail?.code,
+        feature,
+      });
     }
 
     // Old envelope: { ok, error?, ...payload }

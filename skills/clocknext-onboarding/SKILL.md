@@ -282,7 +282,7 @@ S12 asks: another entitlement, or move to the plan? Loop to S8 until they're don
 > **Wallet** isn't one of the four — it's a plan component, not a catalogue entitlement:
 > prepaid USD. Two debit rules,
 > say them plainly: **plain wallet signals debit at raw model cost (no margin — no profit
-> on wallet-metered spend), but wallet-funded metered usage (`walletFundedArrear`, S13)
+> on wallet-metered spend), but wallet-funded metered usage (`useWalletForArrear`, S13)
 > debits at the customer price — margin included, profit preserved.** Unit-FLAT (per
 > event) ≠ plan-FLAT (one-off). Deep: `references/wallet.md`.
 
@@ -295,7 +295,7 @@ words ("billed up-front for the whole cycle, or charged as it's used?"), never a
 fields. If the plan has both a prepaid wallet AND metered usage, offer wallet-funded
 metering in plain words ("pay that metered usage straight out of the prepaid wallet as
 it's used — one bill a cycle; the wallet can dip negative and the next top-up covers it —
-instead of a separate end-of-cycle usage invoice?"); yes → `walletFundedArrear:true`
+instead of a separate end-of-cycle usage invoice?"); yes → `useWalletForArrear:true`
 (needs ≥1 metered credit/outcome/unit AND an up-front wallet, else the backend rejects
 it; margin is preserved — wallet-funded usage debits at customer price).
 S14 asks one question — Manually in the Clocknext (`{base}/plans` builder — lean this way for
@@ -341,8 +341,9 @@ report it, and ask the same single phase-transition question. This is a sequenci
 not a second money gate or a new financial scope. Do not purchase in S18.
 S19 executes the approved subscription phase only after that transition answer: announce
 that this is the invoice-raising phase already covered by Gate 1, call
-`clocknext_create_purchase` — leave `autoPayment` unset/false for a test, and consider
-`voidAfterMinutes` so an unpaid test invoice auto-voids. Report the invoice id and amount,
+`clocknext_create_purchase` — leave `autoPayment` unset/false for a test. An unpaid invoice
+is never voided by its age, so say that the test invoice stays open until it is paid, or
+until the user voids it manually in the Clocknext. Report the invoice id and amount,
 ask one next-state question, and STOP. The transition question is not a new money gate.
 
 ### S20–S23 · Metering code

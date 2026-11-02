@@ -16,8 +16,8 @@ import { errMsg, errorResult, jsonResult } from "./util";
  * The money boundary an agent has to understand: creating a composite prices
  * it but charges nobody. An invoice is built from plan components, never from
  * a catalogue entry, so a composite only starts costing money when a plan
- * SELLS it. That second step is `clocknext_create_plan` with a
- * `PRICING_METRIC` component — the wire still uses the old name for it.
+ * SELLS it. That second step is `clocknext_create_plan` with a `COMPOSITE`
+ * line.
  */
 export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): void {
   server.registerTool(
@@ -25,11 +25,11 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
     {
       title: "ClockNext: list composites",
       description: [
-        "List the organisation's composites — bundles of credits / outcomes / units grouped under one tag and billed as ONE thing. Returns each composite's `id` (what a plan's PRICING_METRIC component sends as compositeId) and `refId` (what the product's code puts in a signal's composite tag), plus the catalogue items it is restricted to, with their agentKeys.",
+        "List the organisation's composites — bundles of credits / outcomes / units grouped under one tag and billed as ONE thing. Returns each composite's `id` (what a plan's COMPOSITE line sends as compositeId) and `refId` (what the product's code puts in a signal's composite tag), plus the catalogue items it is restricted to, with their agentKeys.",
         "",
         "Rules:",
         "- Call this BEFORE tagging any signal with a composite: only a live composite's refId resolves, and a tag naming nothing is silently ignored rather than rejected — so a typo looks exactly like success.",
-        "- Call it BEFORE clocknext_create_plan / clocknext_update_plan too: the `id` here is what a PRICING_METRIC component references as compositeId. `id` and `refId` are NOT interchangeable — the plan wants the id, the signal wants the refId.",
+        "- Call it BEFORE clocknext_create_plan / clocknext_update_plan too: the `id` here is what a COMPOSITE line references as compositeId. `id` and `refId` are NOT interchangeable — the plan wants the id, the signal wants the refId.",
         "- A composite is restricted to a set of credits/outcomes/units. Only signals naming something in that set may carry its tag. Empty lists mean unrestricted (legacy rows only).",
         "- Pass active=true for only the ones a new signal can still be tagged with. Archived composites keep every row they already own.",
         "- To change one, use clocknext_update_composite; to retire one, clocknext_archive_composite. Never create a second composite as a workaround — the old one keeps resolving and both stay live.",
@@ -66,7 +66,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
         "- `refId` is the integration contract: it is what the product's code sends as a signal's compositeRef. Saved and matched exactly as sent (case included); letters, digits, ., _ and - only. It may NOT collide with a field the ingest body already owns (customerId, usage, agentKey, runId, member, custom, composite, …) — a collision is refused here, not silently ignored later.",
         "- `entitlements` is REQUIRED — at least one credit / outcome / unit id. A composite restricted to nothing would accept every signal in the organisation. Get the ids from clocknext_list_credits / clocknext_list_outcomes / clocknext_list_units (ids, not agentKeys). Every item must be active, and a unit must be FLAT-priced.",
         "- `price` is what ONE occurrence costs once a plan sells this. Creating a composite CHARGES NOBODY: an invoice is built from plan components, never from a catalogue entry.",
-        "- To actually bill it, add it to a plan with clocknext_create_plan / clocknext_update_plan as a component of type PRICING_METRIC (the wire still uses the old name), passing the id this tool returns as `compositeId`, plus a billingMode and, for ADVANCE, a quantity — that quantity is a prepaid pool of slots shared across the wrapped items. Tell the user this second step is required, or they will wonder why a composite they created bills nothing.",
+        "- To actually bill it, add it to a plan with clocknext_create_plan / clocknext_update_plan as a line of type COMPOSITE, passing the id this tool returns as `compositeId`, plus a billingMode and, for ADVANCE, a quantity — that quantity is a prepaid pool of slots shared across the wrapped items. Tell the user this second step is required, or they will wonder why a composite they created bills nothing.",
         "- It can be changed later with clocknext_update_composite — but renaming `refId` cuts live traffic over at once (signals still sending the old tag go untagged, silently), so get refId right first time.",
         "- A name or refId already in use is refused (409).",
       ].join("\n"),

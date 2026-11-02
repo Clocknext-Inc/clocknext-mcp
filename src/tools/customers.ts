@@ -50,6 +50,7 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
         "Rules:",
         "- `name` and `email` are required; everything else is optional profile.",
         "- Returns the customer `id` — pass it as `customerId` to clocknext_create_purchase and to the signals your product code sends.",
+        "- A sandbox holds at most 25 customers, archived ones included. Past that, a create is refused (403 ForbiddenError) — reuse an existing test customer (clocknext_list_customers) instead.",
       ].join("\n"),
       inputSchema: customerFields,
       annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: true },
@@ -162,12 +163,6 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
           .describe("YYYY-MM-DD. Default today; must be a valid, non-past date."),
         notes: z.string().optional().describe("Internal notes for this purchase."),
         autoPayment: z.boolean().optional().describe("Charge automatically when the invoice is due."),
-        voidAfterMinutes: z
-          .number()
-          .int()
-          .positive()
-          .optional()
-          .describe("Auto-void the purchase if it stays unpaid after N minutes."),
       },
       annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: true },
     },
@@ -189,6 +184,7 @@ export function registerCustomerTools(server: McpServer, cnk: ClockNextApi): voi
         "",
         "Rules:",
         "- Each customer needs name + email; up to 200 per call. For a larger base, call again in ≤200-row chunks.",
+        "- A sandbox holds at most 25 customers, archived ones included; import a real user base into the live organisation only.",
         "- Match results back to your users by email.",
         "- MCP-only bulk endpoint (no SDK / public API).",
       ].join("\n"),

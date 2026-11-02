@@ -1,4 +1,4 @@
-import { ClockNextError } from "../api";
+import { ClockNextError, FeatureLockedError } from "../api";
 
 /** A successful tool result carrying a JSON payload as pretty text. */
 export function jsonResult(data: unknown) {
@@ -20,7 +20,10 @@ export function errMsg(err: unknown): string {
   if (err instanceof ClockNextError) {
     // Include the subclass (AuthError, AllowanceError, RateLimitError, …) so
     // callers can branch on the kind, not just the shared status code.
-    return `ClockNext ${err.constructor.name}${err.status ? ` (${err.status})` : ""}: ${err.message}`;
+    // A locked feature also names the feature, so the agent can tell the user
+    // which part of their ClockNext plan to upgrade.
+    const feature = err instanceof FeatureLockedError && err.feature ? ` [feature: ${err.feature}]` : "";
+    return `ClockNext ${err.constructor.name}${err.status ? ` (${err.status})` : ""}: ${err.message}${feature}`;
   }
   return err instanceof Error ? err.message : String(err);
 }

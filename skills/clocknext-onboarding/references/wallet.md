@@ -22,9 +22,9 @@ at input `$3`/M, output `$15`/M → `(1,000·3 + 500·15)/1e6 = $0.0105` off the
 The balance (`walletBalanceUsd`) is a stored running total, updated atomically per call, and
 **may go negative** — see below.
 
-## Wallet-funded metered usage (`walletFundedArrear`) — the "use wallet" feature
+## Wallet-funded metered usage (`useWalletForArrear`) — the "use wallet" feature
 By default a plan's **metered (ARREAR)** credit/outcome/unit usage is billed on a **separate
-invoice at cycle end**. Turn on `walletFundedArrear` on the plan and that metered usage is instead
+invoice at cycle end**. Turn on `useWalletForArrear` on the plan and that metered usage is instead
 **drawn from the prepaid wallet as it happens**:
 
 - **One invoice per cycle** — the wallet top-up. No separate arrear usage invoice.
@@ -36,9 +36,9 @@ invoice at cycle end**. Turn on `walletFundedArrear` on the plan and that metere
   still raw cost.) So margin *is* earned on wallet-funded credit/outcome usage — it's the metering
   path that moves to the wallet, not the pricing.
 
-### The three backend rules (a 422 if any fails)
-`walletFundedArrear: true` is accepted only when the plan has:
-1. **at least one ARREAR** credit/outcome/unit component (something to fund), **and**
+### The three backend rules (a 400 if any fails)
+`useWalletForArrear: true` is accepted only when the plan has:
+1. **at least one ARREAR** credit/outcome/unit/composite component (something to fund), **and**
 2. a **WALLET** component (the funding source), **and**
 3. that wallet is **ADVANCE** (a metered/ARREAR wallet would bill the same overdraft twice).
 
@@ -46,7 +46,7 @@ invoice at cycle end**. Turn on `walletFundedArrear` on the plan and that metere
 - As a plain prepaid balance: add a **WALLET component** to the plan with an `amount` (USD), in
   **ADVANCE** mode. See [`plans.md`](plans.md).
 - As wallet-funded metering: add that ADVANCE wallet **plus** ≥1 ARREAR credit/outcome/unit, and
-  set `walletFundedArrear: true` on the plan (`clocknext_create_plan` / `_update_plan`).
+  set `useWalletForArrear: true` on the plan (`clocknext_create_plan` / `_update_plan`).
 
 ## Confirming balances
 `clocknext_get_customer_balances` shows the wallet balance (which can be negative on a
@@ -54,7 +54,7 @@ wallet-funded plan). There's no separate wallet-transaction read tool in the MCP
 
 ## Common mistakes
 - **Expecting margin on plain wallet spend.** There is none — it's raw cost by design.
-- **`walletFundedArrear` with a metered (ARREAR) wallet, or with no wallet / no arrear meter.**
+- **`useWalletForArrear` with a metered (ARREAR) wallet, or with no wallet / no arrear meter.**
   The backend rejects all three — see the rules above.
 - **Confusing the wallet with a credit.** A credit carries margin and is drawn in *credits*; a
   wallet is at-cost USD. Different blocks. See [`credit.md`](credit.md).

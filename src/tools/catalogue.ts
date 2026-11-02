@@ -186,19 +186,27 @@ async function computeMixerBase(
 // Plan component: flattened discriminated union. Every optional id / amount /
 // quantity field also takes null, because that is how clocknext_get_plan reads
 // them back (rollover always reads back as a boolean) — so a
-// plan's entitlements can be sent straight back to clocknext_update_plan.
+// plan's entitlements can be sent straight back to clocknext_update_plan; the
+// server counts null, a missing field and `rollover: false` as not sent.
 // The per-type rules below are
-// enforced by the server, not here: a missing/duplicated field, an id that
-// resolves to nothing, or an archived item newly added are all a 400
-// ValidationError ("Pick a credit.", "One or more credits don't exist in this
-// workspace.", "The credit … is archived …"), surfaced through errMsg with the
-// status intact, so the field notes only have to guide the agent, not gate it.
+// enforced by the server, not here: a field that doesn't fit the line's type
+// and billingMode, an id that resolves to nothing, or an archived item newly
+// added are all a 400 ValidationError naming the line and the field
+// ("entitlements[0].quantity: required for ADVANCE CREDIT lines"), surfaced
+// through errMsg with the status intact, so the field notes only have to guide
+// the agent, not gate it.
 const planComponent = z
   .object({
-    type: z
-      .enum(["WALLET", "FLAT", "CREDIT", "OUTCOME", "UNIT", "PRICING_METRIC"])
+    id: z
+      .string()
+      .optional()
       .describe(
-        "The meter type of this entitlement line. PRICING_METRIC is a COMPOSITE — the product word is 'composite' but the stored enum and the wire value are still the older name, so send PRICING_METRIC and expect it back.",
+        "UPDATE only: the id of a saved line on this plan (from clocknext_get_plan), to update that line. Leave it out to match the saved line of the same type and item, or to add a new line. Ignored on create. Line ids stay the same across updates until the line is removed.",
+      ),
+    type: z
+      .enum(["WALLET", "FLAT", "CREDIT", "OUTCOME", "UNIT", "COMPOSITE"])
+      .describe(
+        "The meter type of this entitlement line. COMPOSITE sells a composite: set compositeId.",
       ),
     billingMode: z
       .enum(["ADVANCE", "ARREAR"])
@@ -209,7 +217,7 @@ const planComponent = z
       .number()
       .nullish()
       .describe(
-        "WALLET or FLAT only (USD). FLAT = one-off fee, REQUIRED and above 0. WALLET + ADVANCE = prepaid balance granted each cycle; $0 is allowed (e.g. a wallet carried only to fund metering). Plain wallet signals debit it at raw model cost — no margin; wallet-funded ARREAR usage debits it at customer price, margin included.",
+        "USD. REQUIRED on a FLAT line (one-off fee, above 0) and on an ADVANCE WALLET line (prepaid balance granted each cycle; send 0 for an empty wallet, e.g. one carried only to fund metering). Not allowed on any other line. Plain wallet signals debit the wallet at raw model cost — no margin; ARREAR usage paid from the wallet (useWalletForArrear) debits it at customer price, margin included.",
       ),
     creditId: z
       .string()
@@ -227,28 +235,30 @@ const planComponent = z
       .string()
       .nullish()
       .describe(
-        "PRICING_METRIC only: id of an existing, active COMPOSITE (clocknext_list_composites). Plans read back with this same field, so a get_plan → update_plan round-trip keeps it. This component is the ONLY thing that makes a composite bill — the catalogue entry alone charges nobody.",
+        "COMPOSITE only: id of an existing, active composite (clocknext_list_composites). Plans read back with this same field, so a get_plan → update_plan round-trip keeps it. This line is the ONLY thing that makes a composite bill — the catalogue entry alone charges nobody.",
       ),
-    pricingMetricId: z
-      .string()
-      .nullish()
-      .describe("Older name for compositeId, still accepted. Prefer compositeId."),
     quantity: z
       .number()
       .nullish()
       .describe(
-        "CREDIT/OUTCOME/UNIT/PRICING_METRIC + ADVANCE only: the quantity granted each cycle (whole number; 0 is allowed and is the default — the entitlement exists and can be topped up by hand). Omit for ARREAR (metered). For PRICING_METRIC + ADVANCE it is a prepaid POOL of composite-occurrence slots shared across the wrapped items: each distinct tag value claims one slot on completion, repeats reuse it; running past the pool is allowed and carries as debt into the next cycle.",
+        "REQUIRED on an ADVANCE CREDIT/OUTCOME/UNIT/COMPOSITE line: the quantity granted each cycle (whole number; 0 is allowed — the entitlement exists and can be topped up by hand). Not allowed on any other line (leave it out for ARREAR). For COMPOSITE + ADVANCE it is a prepaid POOL of composite-occurrence slots shared across the wrapped items: each distinct tag value claims one slot on completion, repeats reuse it; running past the pool is allowed and carries as debt into the next cycle.",
       ),
     rollover: z
       .boolean()
       .optional()
       .describe(
-        "ADVANCE CREDIT/OUTCOME/PRICING_METRIC/WALLET only: carry what's left this cycle into the next one instead of resetting. Default false. Ignored (stored false) for UNIT, FLAT, ARREAR lines, and on FREE plans.",
+        "ADVANCE CREDIT/OUTCOME/COMPOSITE/WALLET only: carry what's left this cycle into the next one instead of resetting. Default false. `true` on a UNIT, FLAT or ARREAR line, or on any line of a FREE plan, is refused (400).",
       ),
   })
   .describe("One entitlement line in the plan.");
 
 const unitTier = z.object({
+  id: z
+    .string()
+    .optional()
+    .describe(
+      "UPDATE only: the id of a saved tier (from clocknext_get_unit), to update it. Leave it out to match the saved tier at the same position, or to add a new tier. Tier ids stay the same across updates until the tier is removed.",
+    ),
   upTo: z
     .number()
     .nullable()
@@ -276,23 +286,24 @@ const planInput: z.ZodRawShape = {
     .describe(
       "DEPRECATED — still accepted for back-compat but no longer read by the backend; setting it has no effect (carry-forward is fixed policy now: wallet money carries, allowances reset).",
     ),
-  walletFundedArrear: z
+  useWalletForArrear: z
     .boolean()
     .optional()
     .describe(
-      "Wallet-funded metering. Default false. When true, every metered (ARREAR) CREDIT/OUTCOME/UNIT/PRICING_METRIC component is paid FROM the customer's prepaid WALLET as usage happens — one invoice per cycle — instead of a separate arrear invoice at cycle end. The wallet may go negative mid-cycle; the next cycle's wallet top-up absorbs the overdraft. Backend rejects it (400) unless ALL THREE hold: (1) the plan has at least one ARREAR credit/outcome/unit/composite component; (2) the plan has a WALLET component; (3) that WALLET component is billingMode ADVANCE (a metered/ARREAR wallet is refused as double-billing). Margin is PRESERVED: wallet-funded ARREAR usage debits the wallet at the CUSTOMER price (margin included) — only plain type:'wallet' signals debit at raw model cost with no margin.",
+      "Pay metered usage from the wallet. Default false. When true, every metered (ARREAR) CREDIT/OUTCOME/UNIT/COMPOSITE line is paid FROM the customer's prepaid WALLET as usage happens — one invoice per cycle — instead of a separate arrear invoice at cycle end. The wallet may go negative mid-cycle; the next cycle's wallet top-up absorbs the overdraft. Backend rejects it (400) unless ALL THREE hold: (1) the plan has at least one ARREAR credit/outcome/unit/composite component; (2) the plan has a WALLET component; (3) that WALLET component is billingMode ADVANCE (a metered/ARREAR wallet is refused as double-billing). Margin is PRESERVED: wallet-funded ARREAR usage debits the wallet at the CUSTOMER price (margin included) — only plain type:'wallet' signals debit at raw model cost with no margin.",
     ),
-  priceAdjustment: z
+  cost: z
     .number()
+    .min(0)
     .optional()
     .describe(
-      "Signed rounding nudge (USD) on the plan's computed due-at-purchase price — negative discounts, positive adds (e.g. -0.01 to land on a round number). Default 0; coerced to 0 for FREE / all-ARREAR plans that have no advance total to round. Leave unset unless you need to tidy a rounding edge.",
+      "The plan's total price per billing cycle (USD). Leave it out to price the plan at the sum of its ADVANCE lines; send it only when the user wants a different headline price (e.g. 299 instead of 300.42) — the server stores the difference as the read-only `priceAdjustment`. Must be left out (or 0) on a FREE plan or a plan with nothing paid in advance. On update: without `cost` the plan keeps its saved price, unless the entitlements you send really change (a line added or removed, or a line's billingMode, quantity, amount or rollover changed) — then it resets to the sum of the new ADVANCE lines at today's prices.",
     ),
   entitlements: z
     .array(planComponent)
     .min(1)
     .describe(
-      "At least one entitlement line. CREDIT/OUTCOME/UNIT lines reference an existing resource by id, and PRICING_METRIC references an existing composite by compositeId — create those first. The plan's currency is the workspace's primary currency; it isn't set here.",
+      "At least one entitlement line. CREDIT/OUTCOME/UNIT lines reference an existing resource by id, and COMPOSITE references an existing composite by compositeId — create those first. The plan's currency is the workspace's primary currency; it isn't set here.",
     ),
 };
 
@@ -700,15 +711,17 @@ export function registerCatalogueTools(server: McpServer, cnk: ClockNextApi): vo
     input: planInput,
     desc: {
       list: "List the organisation's billing plans (id, name, billing cycle, cost, currency, active, entitlements). Find a plan id, or see what's on offer. Pass active=true for only sellable plans, active=false for only archived ones.",
-      get: "Get one plan's configuration by id — its `entitlements` (wallet/credit/outcome/unit/flat/composite lines, each with quantity/amount and rollover), billing cycle, cost, currency and active state. A composite line reads back as type PRICING_METRIC with its compositeId, so a read→edit→update round-trip keeps it.",
+      get: "Get one plan's configuration by id — its `entitlements` (wallet/credit/outcome/unit/flat/composite lines, each with its id, quantity/amount and rollover), billing cycle, cost, priceAdjustment, useWalletForArrear, currency and active state. A composite line reads back as type COMPOSITE with its compositeId, so a read→edit→update round-trip keeps it.",
       create: [
-        "Create a billing plan bundling one or more `entitlements`: WALLET (prepaid USD balance, debited at raw model cost — no margin), FLAT (one-off fee), CREDIT/OUTCOME/UNIT entitlements referencing an existing resource by id, or PRICING_METRIC referencing an existing COMPOSITE by compositeId.",
+        "Create a billing plan bundling one or more `entitlements`: WALLET (prepaid USD balance, debited at raw model cost — no margin), FLAT (one-off fee), CREDIT/OUTCOME/UNIT entitlements referencing an existing resource by id, or COMPOSITE referencing an existing composite by compositeId.",
         "",
         "Rules:",
         "- Create referenced credits/outcomes/units first (clocknext_create_credit / _outcome / _unit), then pass their ids. Every item referenced must be active.",
-        "- To SELL a composite, add a PRICING_METRIC entitlement with the composite's id as compositeId (clocknext_list_composites). This is the only thing that makes a composite bill — the catalogue entry alone charges nobody, errors nowhere, and looks configured. For ADVANCE, its quantity is a prepaid POOL of occurrence slots shared across the wrapped items.",
-        "- Each entitlement's billingMode is ADVANCE (up-front grant) or ARREAR (metered). Set rollover:true on an ADVANCE credit/outcome/composite/wallet line to carry what's left into the next cycle.",
-        "- Set walletFundedArrear:true to pay metered (ARREAR) usage from the plan's prepaid WALLET as it happens (one invoice/cycle, wallet may go negative) instead of a separate cycle-end arrear invoice. Requires >=1 ARREAR credit/outcome/unit/composite AND an ADVANCE WALLET component, or the backend rejects it (400).",
+        "- To SELL a composite, add a COMPOSITE entitlement with the composite's id as compositeId (clocknext_list_composites). This is the only thing that makes a composite bill — the catalogue entry alone charges nobody, errors nowhere, and looks configured. For ADVANCE, its quantity is a prepaid POOL of occurrence slots shared across the wrapped items.",
+        "- Each entitlement's billingMode is ADVANCE (up-front grant) or ARREAR (metered). An ADVANCE credit/outcome/unit/composite line needs `quantity` (0 is allowed); an ADVANCE WALLET line needs `amount` (0 is allowed); a FLAT line needs `amount` above 0. A field that doesn't fit the line is refused (400), never dropped.",
+        "- Set rollover:true on an ADVANCE credit/outcome/composite/wallet line to carry what's left into the next cycle.",
+        "- The price is the sum of the ADVANCE lines. Send `cost` only to set a different total.",
+        "- Set useWalletForArrear:true to pay metered (ARREAR) usage from the plan's prepaid WALLET as it happens (one invoice/cycle, wallet may go negative) instead of a separate cycle-end arrear invoice. Requires >=1 ARREAR credit/outcome/unit/composite AND an ADVANCE WALLET component, or the backend rejects it (400).",
         "- FREE plans must be ADVANCE-only with no FLAT component, and never roll over.",
         "- A plan name already in use is refused (409). The currency is the workspace's primary currency (Settings → Organization → Currencies); it can't be chosen here.",
         "- Creates a real, sellable plan — get pricing right first. Prefer the plan builder in the ClockNext product (https://payments.clocknext.com/plans); this is the fallback.",
@@ -718,8 +731,9 @@ export function registerCatalogueTools(server: McpServer, cnk: ClockNextApi): vo
         "",
         "Rules:",
         PARTIAL_UPDATE_RULE,
-        "- `entitlements`, if sent, replaces ALL lines: re-send every line you want to keep, PRICING_METRIC (composite) lines included — dropping one unsells that composite. Easiest: read it with clocknext_get_plan, edit the list, send it back as-is (compositeId and rollover included).",
-        "- Lines get NEW ids on each entitlements update, even ones you sent back unchanged. Never store a line id as a durable handle.",
+        "- `entitlements`, if sent, replaces ALL lines: re-send every line you want to keep, COMPOSITE lines included — dropping one unsells that composite. Easiest: read it with clocknext_get_plan, edit the list, send it back as-is (ids, compositeId and rollover included).",
+        "- Line ids stay the same: a line sent with its `id` updates that line; one sent without an `id` updates the saved line of the same type and item. Only a new line gets a new id; a saved line left out is removed. An unknown `id`, the same `id` twice, or an `id` sent with a different type or item is a 400.",
+        "- Price: without `cost` the plan keeps its saved price, unless the lines really change (added, removed, or a billingMode/quantity/amount/rollover changed) — then it resets to the sum of the new ADVANCE lines at today's prices. Sending the same lines back keeps the price.",
         "- An item already on the plan may stay even if since archived; a newly added one must be active.",
         "- Changes apply to new purchases; customers already on the plan keep their terms until they re-purchase. carryForward is deprecated and ignored.",
       ].join("\n"),

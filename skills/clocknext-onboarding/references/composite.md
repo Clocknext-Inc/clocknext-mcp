@@ -9,8 +9,8 @@ might be a transcribe credit + a summarise credit + 4 minute-units — three met
 customer buys *calls*. A composite is how "$2 per call" becomes the price instead of the sum
 of three internal prices.
 
-> **Naming:** the product word is *composite*. The stored enum and the plan-component wire
-> value are still the older `PRICING_METRIC`. Same thing; don't be thrown by it.
+> **Naming:** the product word is *composite*, and so is the plan line: `type: "COMPOSITE"`.
+> The older wire name `PRICING_METRIC` is refused (400).
 
 ## When to pick it
 - Billing sounds like *"$X per call / per job / per document"* — where that one thing is
@@ -35,7 +35,7 @@ from a catalogue entry. There are two steps and both are required:
 1. **`clocknext_create_composite`** — defines what the bundle is and what one occurrence
    costs.
 2. **Sell it on a plan** — `clocknext_create_plan` / `clocknext_update_plan` with a
-   component of type `PRICING_METRIC` whose `compositeId` is the composite's **`id`**
+   line of type `COMPOSITE` whose `compositeId` is the composite's **`id`**
    (not its `refId` — the plan wants the id, the signal wants the refId), plus a
    `billingMode` and (for ADVANCE) a `quantity`.
 

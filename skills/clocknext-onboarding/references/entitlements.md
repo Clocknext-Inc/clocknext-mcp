@@ -16,7 +16,7 @@ source of truth.
 | **Outcome** | catalogue entitlement | Billed once per *completed* multi-step LLM deliverable. | [`outcome.md`](outcome.md) |
 | **Unit** | catalogue entitlement | Fixed price per *event*, no tokens — FLAT / SLAB / VOLUME pricing. | [`unit.md`](unit.md) |
 | **Composite** | catalogue + plan component | Several credits/outcomes/units bundled and billed as **ONE** thing, per completed occurrence. | [`composite.md`](composite.md) |
-| **Wallet** | plan component | Prepaid USD balance. Plain wallet signals debit at **raw** model cost (no margin); when it funds metered usage (`walletFundedArrear`) it debits the **customer price — margin included**. | [`wallet.md`](wallet.md) |
+| **Wallet** | plan component | Prepaid USD balance. Plain wallet signals debit at **raw** model cost (no margin); when it funds metered usage (`useWalletForArrear`) it debits the **customer price — margin included**. | [`wallet.md`](wallet.md) |
 | **Flat** | plan component | A one-off fee on the plan (e.g. setup). | [`plans.md`](plans.md) |
 | **Plan** | the wrapper | Bundles the above into what a customer subscribes to and pays for. | [`plans.md`](plans.md) |
 

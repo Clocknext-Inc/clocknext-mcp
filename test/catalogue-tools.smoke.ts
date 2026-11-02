@@ -155,7 +155,7 @@ async function main(): Promise<void> {
     billingCycle: "MONTHLY",
     entitlements: [
       { type: "CREDIT", billingMode: "ADVANCE", creditId: credit.id, quantity: 10, rollover: true },
-      { type: "PRICING_METRIC", billingMode: "ADVANCE", compositeId, quantity: 3 },
+      { type: "COMPOSITE", billingMode: "ADVANCE", compositeId, quantity: 3 },
     ],
   });
   check("create_plan with rollover + compositeId → ok", r.ok, r.text.slice(0, 300));
@@ -164,12 +164,16 @@ async function main(): Promise<void> {
   check("plan response has no type / kind", !("type" in r.data) && !("kind" in r.data), Object.keys(r.data).join(","));
   check("rollover stored true", comps.some((c) => c.creditId === credit.id && c.rollover === true), JSON.stringify(comps).slice(0, 300));
   check("compositeId round-trips", comps.some((c) => c.compositeId === compositeId), JSON.stringify(comps).slice(0, 300));
+  check("composite line reads back as COMPOSITE", comps.some((c) => c.compositeId === compositeId && c.type === "COMPOSITE"), JSON.stringify(comps).slice(0, 300));
   r = await tool("clocknext_update_plan", { id: planId, name: `${P} plan renamed` });
   check("update_plan {id, name} → ok", r.ok, r.text.slice(0, 300));
   check("…rollover kept", ((r.data.entitlements ?? []) as Json[]).some((c) => c.creditId === credit.id && c.rollover === true), r.text.slice(0, 300));
   const read = await tool("clocknext_get_plan", { id: planId });
   r = await tool("clocknext_update_plan", { id: planId, entitlements: read.data.entitlements });
   check("update_plan with get_plan's entitlements sent back → ok", r.ok, r.text.slice(0, 300));
+  const idsBefore = ((read.data.entitlements ?? []) as Json[]).map((c) => c.id).sort().join(",");
+  const idsAfter = ((r.data.entitlements ?? []) as Json[]).map((c) => c.id).sort().join(",");
+  check("…line ids stay the same", idsBefore !== "" && idsBefore === idsAfter, `${idsBefore} → ${idsAfter}`);
   r = await tool("clocknext_update_plan", { id: planId, isActive: false });
   check("T6 update_plan does not take isActive", !r.ok, r.text.slice(0, 200));
   r = await tool("clocknext_archive_plan", { id: planId });
