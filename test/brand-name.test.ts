@@ -1,5 +1,5 @@
 /**
- * REGRESSION — the product name is written "Clocknext", never "ClockNext".
+ * REGRESSION — the product name is written "Clocknext", never with a capital N.
  *
  * Checks every file git tracks (source, the built dist/, the skill, every
  * .md) for the old spelling. The lower-case package name `clocknext` and the
