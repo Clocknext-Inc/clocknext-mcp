@@ -201,7 +201,10 @@ droid mcp add --type stdio clocknext "npx -y @clocknext/mcp"
 **Any other MCP client** — point it at the stdio command `npx -y @clocknext/mcp`
 with `CLOCKNEXT_API_KEY` in env. `@clocknext/mcp` is also in the official
 [MCP Registry](https://modelcontextprotocol.io/registry/about) as
-`io.github.Clocknext/mcp`, so registry‑aware clients can discover it directly.
+`io.github.Clocknext-Inc/mcp`, so registry‑aware clients can discover it directly.
+(The older entry `io.github.Clocknext/mcp` stops at 0.13.0: the GitHub
+organisation was renamed to Clocknext-Inc, and the registry only lets it publish
+under its own name.)
 
 ### Environment
 
@@ -308,7 +311,7 @@ npm publish --access public                 # npm first — the registry validat
 # get the publisher CLI (Linux/macOS, no brew needed):
 curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 ./mcp-publisher login github                # device flow — must be a Clocknext org member
-./mcp-publisher publish                     # reads server.json (name io.github.Clocknext/mcp)
+./mcp-publisher publish                     # reads server.json (name io.github.Clocknext-Inc/mcp)
 ```
 </details>
 
