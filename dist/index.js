@@ -21478,15 +21478,6 @@ var ClockNextApi = class {
       });
       return { customers: result.customers, nextCursor: result.nextCursor };
     },
-    /** `GET /api/v1/usage?customerId=` — recent usage logs + totals. */
-    usage: async (id, params = {}) => {
-      const result = await this.request({
-        method: "GET",
-        path: "/api/v1/usage",
-        query: { customerId: id, limit: params.limit }
-      });
-      return { customer: result.customer, totals: result.totals, logs: result.logs };
-    },
     /** `GET /api/v1/customers/:id/balances`. */
     balances: (id) => {
       return this.request({ method: "GET", path: `${idPath("/api/v1/customers", id)}/balances` });
@@ -21755,7 +21746,7 @@ var planInput = {
 var creditInput = {
   name: external_exports.string().min(1).describe("Credit name."),
   agentKey: external_exports.string().min(1).describe(
-    "Lowercased stable key you report credit usage against (sent as `agentKey` when recording usage). The credit's durable identity \u2014 chars [a-z0-9._-]; a rename never changes it."
+    "Stable key you report credit usage against (sent as `agentKey` when recording usage), saved and matched exactly as sent (case included). The credit's durable identity \u2014 chars [A-Za-z0-9._-]; a rename never changes it."
   ),
   models: external_exports.array(mixerLine).min(1).describe(
     "Model mixer that GROUNDS the price \u2014 one or more enabled catalog models with avg tokens + input/output/cache split. The tool reads live prices and computes the base cost; never type a raw price."
@@ -21771,7 +21762,7 @@ var outcomeStep = external_exports.object({
   ),
   name: external_exports.string().min(1).describe("Step name (unique within the outcome)."),
   agentKey: external_exports.string().min(1).describe(
-    "Lowercased stable key you report this outcome step against (sent as `agentKey` when recording usage). Chars [a-z0-9._-]."
+    "Stable key you report this outcome step against (sent as `agentKey` when recording usage), saved and matched exactly as sent (case included). Chars [A-Za-z0-9._-]."
   ),
   models: external_exports.array(mixerLine).min(1).optional().describe(
     "Model mixer grounding THIS step's price \u2014 REQUIRED for a new step. On update, leave it out to keep an existing step's current price. Every outcome step is an LLM step \u2014 a non-LLM, fixed-cost event is a UNIT, not an outcome step."
@@ -21780,7 +21771,7 @@ var outcomeStep = external_exports.object({
 var outcomeInput = {
   name: external_exports.string().min(1).describe("Outcome name."),
   agentKey: external_exports.string().min(1).describe(
-    "The OUTCOME's own stable key \u2014 REQUIRED, unique org-wide, chars [a-z0-9._-]. Distinct from a step's agentKey and in a separate namespace: usage is still reported against a STEP's key, never this one. This identifies the outcome itself (mirrors a credit's agentKey); a rename never changes it."
+    "The OUTCOME's own stable key \u2014 REQUIRED, unique org-wide, matched exactly (case included), chars [A-Za-z0-9._-]. Distinct from a step's agentKey and in a separate namespace: usage is still reported against a STEP's key, never this one. This identifies the outcome itself (mirrors a credit's agentKey); a rename never changes it."
   ),
   description: external_exports.string().nullish().describe("Optional human-readable description."),
   marginPercent: external_exports.number().min(-100).describe(
@@ -21791,7 +21782,7 @@ var outcomeInput = {
 var unitInput = {
   name: external_exports.string().min(1).describe("Unit name."),
   agentKey: external_exports.string().min(1).describe(
-    "Lowercased stable key consumption is reported against (sent as `agentKey` when recording unit usage). The unit's durable identity \u2014 unique org-wide, chars [a-z0-9._-]; a rename never changes it."
+    "Stable key consumption is reported against (sent as `agentKey` when recording unit usage), saved and matched exactly as sent (case included). The unit's durable identity \u2014 unique org-wide, chars [A-Za-z0-9._-]; a rename never changes it."
   ),
   pricingType: external_exports.enum(["FLAT", "SLAB", "VOLUME"]).describe("FLAT = a single per-event price. SLAB/VOLUME = tiered pricing."),
   flatPrice: external_exports.number().min(0).optional().describe("FLAT only: price per event. Default 0."),
@@ -22170,7 +22161,7 @@ function registerCatalogueTools(server, cnk) {
         "Rules:",
         "- Price it FLAT (single `flatPrice` per event, default 0) or tiered (pricingType SLAB or VOLUME with `tiers` \u2014 limits rising, and the last tier upTo:null).",
         "- Only a FLAT unit can go inside a composite.",
-        "- Reported against a lowercased stable `agentKey` \u2014 its durable identity, unique org-wide (409 if taken).",
+        "- Reported against a stable `agentKey`, matched exactly (case included) \u2014 its durable identity, unique org-wide (409 if taken).",
         "- Prefer the units builder in the ClockNext product (https://payments.clocknext.com/units); this is the fallback.",
         "- A plan meters it via a UNIT component referencing its id."
       ].join("\n"),
@@ -22234,7 +22225,7 @@ function registerCompositeTools(server, cnk) {
         "Create a composite \u2014 a bundle of credits / outcomes / units that is grouped under one tag and billed as ONE thing instead of per item. Use it when several metered steps together make up one sellable unit of work (a call, a job, a document).",
         "",
         "Rules:",
-        "- `refId` is the integration contract: it is what the product's code sends as a signal's compositeRef. Lowercased; letters, digits, _ and - only. It may NOT collide with a field the ingest body already owns (customerId, usage, agentKey, runId, member, custom, composite, \u2026) \u2014 a collision is refused here, not silently ignored later.",
+        "- `refId` is the integration contract: it is what the product's code sends as a signal's compositeRef. Saved and matched exactly as sent (case included); letters, digits, ., _ and - only. It may NOT collide with a field the ingest body already owns (customerId, usage, agentKey, runId, member, custom, composite, \u2026) \u2014 a collision is refused here, not silently ignored later.",
         "- `entitlements` is REQUIRED \u2014 at least one credit / outcome / unit id. A composite restricted to nothing would accept every signal in the organisation. Get the ids from clocknext_list_credits / clocknext_list_outcomes / clocknext_list_units (ids, not agentKeys). Every item must be active, and a unit must be FLAT-priced.",
         "- `price` is what ONE occurrence costs once a plan sells this. Creating a composite CHARGES NOBODY: an invoice is built from plan components, never from a catalogue entry.",
         "- To actually bill it, add it to a plan with clocknext_create_plan / clocknext_update_plan as a component of type PRICING_METRIC (the wire still uses the old name), passing the id this tool returns as `compositeId`, plus a billingMode and, for ADVANCE, a quantity \u2014 that quantity is a prepaid pool of slots shared across the wrapped items. Tell the user this second step is required, or they will wonder why a composite they created bills nothing.",
@@ -22244,7 +22235,7 @@ function registerCompositeTools(server, cnk) {
       inputSchema: {
         name: external_exports.string().min(1).max(80).describe("Human-readable name, e.g. 'Voice AI call'."),
         refId: external_exports.string().min(1).max(80).describe(
-          "The tag identifier the product's code will send (e.g. 'voice_ai'). Lowercased; letters, digits, _ and - only; must not collide with a reserved ingest field."
+          "The tag identifier the product's code will send (e.g. 'voice_ai'). Saved and matched exactly as sent (case included); letters, digits, ., _ and - only; must not collide with a reserved ingest field."
         ),
         price: external_exports.number().min(0).describe(
           "USD charged per completed occurrence once a plan sells this composite. Ask the user \u2014 do not invent a price."
@@ -22468,25 +22459,6 @@ function registerCustomerTools(server, cnk) {
     async (args) => {
       try {
         return jsonResult(await cnk.customers.list(args));
-      } catch (err) {
-        return errorResult(errMsg(err));
-      }
-    }
-  );
-  server.registerTool(
-    "clocknext_get_customer_usage",
-    {
-      title: "ClockNext: get customer usage",
-      description: "Read back a customer's recent usage logs (most recent first). Use it to CONFIRM a signal landed \u2014 after running the product's code so it fires a real signal, check the event shows up with the expected model, tokens, and cost. This is the ONLY proof a real signal landed: the MCP cannot record usage, and ingest is asynchronous, so a signal your code 'sent' is not billed until it appears here.",
-      inputSchema: {
-        id: external_exports.string().describe("The ClockNext customer id."),
-        limit: external_exports.number().int().min(1).max(100).optional().describe("Max usage rows to return (most recent first).")
-      },
-      annotations: { readOnlyHint: true, openWorldHint: true }
-    },
-    async ({ id, limit }) => {
-      try {
-        return jsonResult(await cnk.customers.usage(id, limit ? { limit } : void 0));
       } catch (err) {
         return errorResult(errMsg(err));
       }

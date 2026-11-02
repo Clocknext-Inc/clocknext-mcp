@@ -48,7 +48,7 @@ way for this feature to silently do nothing.
 | Field | Required | Meaning |
 | --- | --- | --- |
 | `name` | yes | Human label, e.g. "Voice AI call". |
-| `refId` | yes | The tag identity the product's code sends. Lowercased, `[a-z0-9._-]`, unique org-wide. **May not collide** with a field the ingest body owns (`customerId`, `usage`, `agentKey`, `runId`, `member`, `custom`, `composite`, …) — refused at create time. |
+| `refId` | yes | The tag identity the product's code sends. Saved and matched exactly as sent (case included), `[A-Za-z0-9._-]`, unique org-wide. **May not collide** with a field the ingest body owns (`customerId`, `usage`, `agentKey`, `runId`, `member`, `custom`, `composite`, …) — refused at create time. |
 | `price` | yes | USD for **one completed occurrence**, once a plan sells it. Ask the user; never invent it. |
 | `creditIds` / `outcomeIds` / `unitIds` | **at least one, combined** | What the bundle is made of. Pass **ids**, from `clocknext_list_credits` / `clocknext_list_outcomes` / `clocknext_list_units`. Every item must be active, and a unit must be FLAT-priced. |
 | `description` | no | Optional note. |

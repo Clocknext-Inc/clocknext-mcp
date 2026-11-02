@@ -63,7 +63,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
         "Create a composite — a bundle of credits / outcomes / units that is grouped under one tag and billed as ONE thing instead of per item. Use it when several metered steps together make up one sellable unit of work (a call, a job, a document).",
         "",
         "Rules:",
-        "- `refId` is the integration contract: it is what the product's code sends as a signal's compositeRef. Lowercased; letters, digits, _ and - only. It may NOT collide with a field the ingest body already owns (customerId, usage, agentKey, runId, member, custom, composite, …) — a collision is refused here, not silently ignored later.",
+        "- `refId` is the integration contract: it is what the product's code sends as a signal's compositeRef. Saved and matched exactly as sent (case included); letters, digits, ., _ and - only. It may NOT collide with a field the ingest body already owns (customerId, usage, agentKey, runId, member, custom, composite, …) — a collision is refused here, not silently ignored later.",
         "- `entitlements` is REQUIRED — at least one credit / outcome / unit id. A composite restricted to nothing would accept every signal in the organisation. Get the ids from clocknext_list_credits / clocknext_list_outcomes / clocknext_list_units (ids, not agentKeys). Every item must be active, and a unit must be FLAT-priced.",
         "- `price` is what ONE occurrence costs once a plan sells this. Creating a composite CHARGES NOBODY: an invoice is built from plan components, never from a catalogue entry.",
         "- To actually bill it, add it to a plan with clocknext_create_plan / clocknext_update_plan as a component of type PRICING_METRIC (the wire still uses the old name), passing the id this tool returns as `compositeId`, plus a billingMode and, for ADVANCE, a quantity — that quantity is a prepaid pool of slots shared across the wrapped items. Tell the user this second step is required, or they will wonder why a composite they created bills nothing.",
@@ -81,7 +81,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClockNextApi): vo
           .min(1)
           .max(80)
           .describe(
-            "The tag identifier the product's code will send (e.g. 'voice_ai'). Lowercased; letters, digits, _ and - only; must not collide with a reserved ingest field.",
+            "The tag identifier the product's code will send (e.g. 'voice_ai'). Saved and matched exactly as sent (case included); letters, digits, ., _ and - only; must not collide with a reserved ingest field.",
           ),
         price: z
           .number()

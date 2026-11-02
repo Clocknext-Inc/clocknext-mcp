@@ -302,7 +302,7 @@ const creditInput: z.ZodRawShape = {
     .string()
     .min(1)
     .describe(
-      "Lowercased stable key you report credit usage against (sent as `agentKey` when recording usage). The credit's durable identity — chars [a-z0-9._-]; a rename never changes it.",
+      "Stable key you report credit usage against (sent as `agentKey` when recording usage), saved and matched exactly as sent (case included). The credit's durable identity — chars [A-Za-z0-9._-]; a rename never changes it.",
     ),
   models: z
     .array(mixerLine)
@@ -331,7 +331,7 @@ const outcomeStep = z.object({
     .string()
     .min(1)
     .describe(
-      "Lowercased stable key you report this outcome step against (sent as `agentKey` when recording usage). Chars [a-z0-9._-].",
+      "Stable key you report this outcome step against (sent as `agentKey` when recording usage), saved and matched exactly as sent (case included). Chars [A-Za-z0-9._-].",
     ),
   models: z
     .array(mixerLine)
@@ -348,7 +348,7 @@ const outcomeInput: z.ZodRawShape = {
     .string()
     .min(1)
     .describe(
-      "The OUTCOME's own stable key — REQUIRED, unique org-wide, chars [a-z0-9._-]. Distinct from a step's agentKey and in a separate namespace: usage is still reported against a STEP's key, never this one. This identifies the outcome itself (mirrors a credit's agentKey); a rename never changes it.",
+      "The OUTCOME's own stable key — REQUIRED, unique org-wide, matched exactly (case included), chars [A-Za-z0-9._-]. Distinct from a step's agentKey and in a separate namespace: usage is still reported against a STEP's key, never this one. This identifies the outcome itself (mirrors a credit's agentKey); a rename never changes it.",
     ),
   description: z.string().nullish().describe("Optional human-readable description."),
   marginPercent: z
@@ -370,7 +370,7 @@ const unitInput: z.ZodRawShape = {
     .string()
     .min(1)
     .describe(
-      "Lowercased stable key consumption is reported against (sent as `agentKey` when recording unit usage). The unit's durable identity — unique org-wide, chars [a-z0-9._-]; a rename never changes it.",
+      "Stable key consumption is reported against (sent as `agentKey` when recording unit usage), saved and matched exactly as sent (case included). The unit's durable identity — unique org-wide, chars [A-Za-z0-9._-]; a rename never changes it.",
     ),
   pricingType: z
     .enum(["FLAT", "SLAB", "VOLUME"])
@@ -844,7 +844,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClockNextApi): vo
         "Rules:",
         "- Price it FLAT (single `flatPrice` per event, default 0) or tiered (pricingType SLAB or VOLUME with `tiers` — limits rising, and the last tier upTo:null).",
         "- Only a FLAT unit can go inside a composite.",
-        "- Reported against a lowercased stable `agentKey` — its durable identity, unique org-wide (409 if taken).",
+        "- Reported against a stable `agentKey`, matched exactly (case included) — its durable identity, unique org-wide (409 if taken).",
         "- Prefer the units builder in the ClockNext product (https://payments.clocknext.com/units); this is the fallback.",
         "- A plan meters it via a UNIT component referencing its id.",
       ].join("\n"),

@@ -17,7 +17,7 @@ event (an upload, an export), that's a [unit](unit.md) — **not** an outcome st
 | Field | Required | Meaning |
 | --- | --- | --- |
 | `name` | yes | Human label. |
-| `agentKey` | yes | The **outcome's own** stable key. Unique org-wide, `[a-z0-9._-]`. |
+| `agentKey` | yes | The **outcome's own** stable key. Unique org-wide, `[A-Za-z0-9._-]`, matched exactly (case included). |
 | `marginPercent` | yes | Markup over the **summed** step base costs. `100` = double; negative discounts (down to `-100`). |
 | `steps` | yes | **1–50 steps.** Each has its own `name`, its own `agentKey`, and its own **model mixer** (`models`). |
 | `description` | no | Optional. |

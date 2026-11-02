@@ -17,7 +17,7 @@ them is the main thing to get right, so they're worked out side-by-side below.
 | Field | Required | Meaning |
 | --- | --- | --- |
 | `name` | yes | Human label. |
-| `agentKey` | yes | Durable identity `[a-z0-9._-]`, **unique org-wide**; what the product reports consumption against. |
+| `agentKey` | yes | Durable identity `[A-Za-z0-9._-]`, matched exactly (case included), **unique org-wide**; what the product reports consumption against. |
 | `pricingType` | yes | `FLAT` \| `SLAB` \| `VOLUME` (below). |
 | `flatPrice` | FLAT only | Price per event (default 0). |
 | `tiers` | SLAB/VOLUME only | **1–50 ordered tiers**, each `{ upTo, price }`. `upTo` is the tier's **inclusive** upper bound, rising tier by tier; **the last tier must be `upTo: null`** ("and above"), and only the last. |
