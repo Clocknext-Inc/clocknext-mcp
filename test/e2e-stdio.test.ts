@@ -13,7 +13,7 @@
  *   E5  Credits / outcomes / units / plans / composites: list (all / active /
  *       archived), get, create, update, archive, unarchive.
  *   E6  Customers: create, get, list, a wrong cursor (400), balances, plan,
- *       purchase, bulk import. Balances after the purchase need a server with
+ *       purchase. Balances after the purchase need a server with
  *       an edge (it reads usage from ClickHouse): set CN_TEST_EDGE=1 for it.
  *   E7  Errors: a wrong id is a NotFoundError (404); a wrong key is an
  *       AuthError (401).
@@ -72,7 +72,6 @@ const EXPECTED_TOOLS = [
   "clocknext_get_customer_balances",
   "clocknext_get_customer_plan",
   "clocknext_create_purchase",
-  "clocknext_bulk_import_customers",
 ].sort();
 
 // ---------- harness ----------
@@ -340,13 +339,6 @@ async function main(): Promise<void> {
     // With a plan, the server reads usage through the edge (ClickHouse).
     console.log("  [SKIP] balances after the purchase: set CN_TEST_EDGE=1 when the server has an edge");
   }
-  r = await call(client, "clocknext_bulk_import_customers", {
-    customers: [
-      { name: `${P} bulk 1`, email: `${run}-b1@e2e.example.com` },
-      { name: `${P} bulk 2`, email: `${run}-b2@e2e.example.com` },
-    ],
-  });
-  check("bulk_import_customers → a result per row", r.ok && JSON.stringify(r.data).includes(`${run}-b2@e2e.example.com`), r.text);
 
   console.log("=== E7 · errors ===");
   r = await call(client, "clocknext_get_credit", { id: "no-such-credit" });

@@ -21510,16 +21510,6 @@ var ClocknextApi = class {
     /** `GET /api/v1/customers/:id/plan`. */
     plan: (id) => {
       return this.request({ method: "GET", path: `${idPath("/api/v1/customers", id)}/plan` });
-    },
-    /** `POST /api/v1/customers/bulk` — up to 200 customers, one result per row. */
-    bulkCreate: (customers) => {
-      return this.request({
-        method: "POST",
-        path: "/api/v1/customers/bulk",
-        body: { customers },
-        timeoutMs: 6e4
-        // one batch request; allow headroom
-      });
     }
   };
   // --- Purchases -------------------------------------------------------------
@@ -22422,13 +22412,12 @@ function registerCompositeTools(server, cnk) {
 // src/tools/customers.ts
 var customerFields = {
   name: external_exports.string().min(1).describe("Customer / company name."),
-  email: external_exports.string().min(1).describe("Primary email \u2014 required, and the key bulk import matches back on."),
+  email: external_exports.string().min(1).describe("Primary email \u2014 required."),
   description: external_exports.string().nullish().describe("Optional freeform description of the customer."),
   website: external_exports.string().nullish().describe("The customer's website."),
   phone: external_exports.string().nullish().describe("Contact phone number."),
   legalName: external_exports.string().nullish().describe("Registered legal name (for invoices), when it differs from `name`."),
   addressLine1: external_exports.string().nullish().describe("Billing address, line 1."),
-  addressLine2: external_exports.string().nullish().describe("Billing address, line 2."),
   city: external_exports.string().nullish().describe("Billing address city."),
   state: external_exports.string().nullish().describe("Billing address state / province / region."),
   country: external_exports.string().nullish().describe("Billing address country."),
@@ -22438,7 +22427,6 @@ var customerFields = {
   logoUrl: external_exports.string().nullish().describe("URL of the customer's logo image."),
   currencyCode: external_exports.string().optional().describe("ISO 4217 (3 letters); must be enabled for the org. Defaults to the org currency.")
 };
-var customerObject = external_exports.object(customerFields);
 function registerCustomerTools(server, cnk) {
   server.registerTool(
     "clocknext_create_customer",
@@ -22556,32 +22544,6 @@ function registerCustomerTools(server, cnk) {
     async (args) => {
       try {
         return jsonResult(await cnk.purchases.create(args));
-      } catch (err) {
-        return errorResult(errMsg(err));
-      }
-    }
-  );
-  server.registerTool(
-    "clocknext_bulk_import_customers",
-    {
-      title: "Clocknext: bulk import customers",
-      description: [
-        "Bulk-create Clocknext customers in ONE request \u2014 for backfilling an existing user base. Returns a PER-ROW result (created id, or an error) so one duplicate/bad row never aborts the batch.",
-        "",
-        "Rules:",
-        "- Each customer needs name + email; up to 200 per call. For a larger base, call again in \u2264200-row chunks.",
-        "- A sandbox holds at most 25 customers, archived ones included; import a real user base into the live organisation only.",
-        "- Match results back to your users by email.",
-        "- MCP-only bulk endpoint (no SDK / public API)."
-      ].join("\n"),
-      inputSchema: {
-        customers: external_exports.array(customerObject).min(1).max(200).describe("Customers to create; name + email required each; \u2264200 per call.")
-      },
-      annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: true }
-    },
-    async ({ customers }) => {
-      try {
-        return jsonResult(await cnk.customers.bulkCreate(customers));
       } catch (err) {
         return errorResult(errMsg(err));
       }
