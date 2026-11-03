@@ -5,25 +5,20 @@ import { errMsg, errorResult, jsonResult } from "./util";
 
 /**
  * Customer tools — create/read customers, subscribe them to a plan (purchase),
- * read a customer's balances / current plan, and a bulk import. They go
- * through the MCP's own API client (`src/api.ts`). They power the
- * clocknext-setup-billing skill's "dummy customer + test signal + confirm it landed"
- * step and the clocknext-customer-mapping / bulk-import skills.
+ * and read a customer's balances / current plan. They go through the MCP's
+ * own API client (`src/api.ts`). They power the clocknext-onboarding skill's
+ * "dummy customer + test signal + confirm it landed" step.
  */
 
 // Shared customer profile fields. `name` + `email` are required on create.
 const customerFields = {
   name: z.string().min(1).describe("Customer / company name."),
-  email: z
-    .string()
-    .min(1)
-    .describe("Primary email — required, and the key bulk import matches back on."),
+  email: z.string().min(1).describe("Primary email — required."),
   description: z.string().nullish().describe("Optional freeform description of the customer."),
   website: z.string().nullish().describe("The customer's website."),
   phone: z.string().nullish().describe("Contact phone number."),
   legalName: z.string().nullish().describe("Registered legal name (for invoices), when it differs from `name`."),
   addressLine1: z.string().nullish().describe("Billing address, line 1."),
-  addressLine2: z.string().nullish().describe("Billing address, line 2."),
   city: z.string().nullish().describe("Billing address city."),
   state: z.string().nullish().describe("Billing address state / province / region."),
   country: z.string().nullish().describe("Billing address country."),
@@ -36,8 +31,6 @@ const customerFields = {
     .optional()
     .describe("ISO 4217 (3 letters); must be enabled for the org. Defaults to the org currency."),
 } satisfies z.ZodRawShape;
-
-const customerObject = z.object(customerFields);
 
 export function registerCustomerTools(server: McpServer, cnk: ClocknextApi): void {
   server.registerTool(
@@ -169,37 +162,6 @@ export function registerCustomerTools(server: McpServer, cnk: ClocknextApi): voi
     async (args) => {
       try {
         return jsonResult(await cnk.purchases.create(args));
-      } catch (err) {
-        return errorResult(errMsg(err));
-      }
-    },
-  );
-
-  server.registerTool(
-    "clocknext_bulk_import_customers",
-    {
-      title: "Clocknext: bulk import customers",
-      description: [
-        "Bulk-create Clocknext customers in ONE request — for backfilling an existing user base. Returns a PER-ROW result (created id, or an error) so one duplicate/bad row never aborts the batch.",
-        "",
-        "Rules:",
-        "- Each customer needs name + email; up to 200 per call. For a larger base, call again in ≤200-row chunks.",
-        "- A sandbox holds at most 25 customers, archived ones included; import a real user base into the live organisation only.",
-        "- Match results back to your users by email.",
-        "- MCP-only bulk endpoint (no SDK / public API).",
-      ].join("\n"),
-      inputSchema: {
-        customers: z
-          .array(customerObject)
-          .min(1)
-          .max(200)
-          .describe("Customers to create; name + email required each; ≤200 per call."),
-      },
-      annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: true },
-    },
-    async ({ customers }) => {
-      try {
-        return jsonResult(await cnk.customers.bulkCreate(customers));
       } catch (err) {
         return errorResult(errMsg(err));
       }

@@ -456,7 +456,8 @@ Ask only: "Wire real customer onboarding now?" The answer authorizes only the de
 start that process. If yes, enter a new design state in the next turn; do not add a schema
 column, create customers, backfill, meter, preflight, or fire a signal in S32. Each of those
 actions needs its own announced state, one question, and authorization; real usage still
-requires Gate 2.
+requires Gate 2. A backfill creates each customer with its own `clocknext_create_customer`
+call; there is no bulk import tool.
 
 ## Units are NOT LLM calls
 "Meter every billable call" is about **credit / outcome / wallet** signals (token-priced).

@@ -250,9 +250,8 @@ No manual config, no env vars, nothing to build.
 | `clocknext_get_customer_plan` | A customer's current active plan (from their purchase). |
 
 Plus catalogue CRUD (`create_plan` / `create_credit` / `create_outcome` /
-`create_unit` …), customer tools (`create_customer`, `create_purchase`,
-`bulk_import_customers`), and the docs tools (`search_docs`, `get_doc`). Run
-`/mcp` to see the full list.
+`create_unit` …), customer tools (`create_customer`, `create_purchase`), and
+the docs tools (`search_docs`, `get_doc`). Run `/mcp` to see the full list.
 
 A typical agent flow: `whoami` → `list_models` → `get_customer_plan` (confirm
 the plan, and that every model and agent key the code will send resolves) → run

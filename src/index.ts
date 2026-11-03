@@ -30,7 +30,7 @@ async function main(): Promise<void> {
   registerGetDoc(server); // reads a full docs page; also no API key needed
   registerCatalogueTools(server, cnk); // CRUD for plans/credits/outcomes/units
   registerCompositeTools(server, cnk); // list/get/create/update/archive composites (no delete on the public API)
-  registerCustomerTools(server, cnk); // customers, purchases, bulk import
+  registerCustomerTools(server, cnk); // customers, purchases
   registerAddModel(server, cnk); // enable a model (autopriced); reads price back to warn on $0
   registerWriteEnv(server); // writes the cnk_ key into a project .env server-side — key never enters context
 

@@ -232,7 +232,7 @@ export interface RequestOptions {
   query?: Record<string, string | number | undefined>;
   /** JSON body. Omit for bodyless requests. */
   body?: unknown;
-  /** Overrides the default 10s timeout (e.g. a slow bulk import). */
+  /** Overrides the default 10s timeout (e.g. a slow purchase). */
   timeoutMs?: number;
 }
 
@@ -523,16 +523,6 @@ export class ClocknextApi {
     /** `GET /api/v1/customers/:id/plan`. */
     plan: (id: string): Promise<unknown> => {
       return this.request({ method: "GET", path: `${idPath("/api/v1/customers", id)}/plan` });
-    },
-
-    /** `POST /api/v1/customers/bulk` — up to 200 customers, one result per row. */
-    bulkCreate: (customers: unknown[]): Promise<unknown> => {
-      return this.request({
-        method: "POST",
-        path: "/api/v1/customers/bulk",
-        body: { customers },
-        timeoutMs: 60_000, // one batch request; allow headroom
-      });
     },
   };
 
