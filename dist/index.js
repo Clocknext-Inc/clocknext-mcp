@@ -22734,7 +22734,7 @@ function registerWhoami(server, cnk) {
     {
       title: "Clocknext: identify workspace",
       description: [
-        "Identify the Clocknext organisation behind the configured API key, and whether it is a 'sandbox' (a disposable staging twin) or the 'live' organisation.",
+        "Identify the Clocknext organisation behind the configured API key, and whether it is a 'sandbox' (a disposable staging organisation) or the 'live' organisation.",
         "",
         "Rules:",
         "- Call FIRST to confirm you are pointed at the intended workspace before recording any real usage."
