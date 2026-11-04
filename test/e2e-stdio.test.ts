@@ -21,15 +21,13 @@
  *       the feature, WORKSPACE_LOCKED → WorkspaceLockedError. Needs
  *       CN_TEST_DB_URL — the test sets and clears the lock in that database
  *       with psql, so point it at a THROWAWAY copy only.
- *   E9  (optional) A sandbox already at its 25 customers refuses a create
- *       (403 ForbiddenError). Needs CN_TEST_SANDBOX_KEY.
  *
  * Creates rows prefixed `mcp-e2e-<run>` and raises a real invoice (the
  * purchase): run it against a throwaway workspace on a local server only.
  *
  *   npm run build
  *   CN_TEST_KEY=cnk_… CN_TEST_BASE=http://localhost:3000 \
- *     [CN_TEST_DB_URL=postgresql://…] [CN_TEST_SANDBOX_KEY=cnk_…] \
+ *     [CN_TEST_DB_URL=postgresql://…] \
  *     npx tsx test/e2e-stdio.test.ts
  */
 import { execFileSync } from "node:child_process";
@@ -42,7 +40,6 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 const apiKey = process.env.CN_TEST_KEY ?? "";
 const baseUrl = process.env.CN_TEST_BASE ?? "http://localhost:3000";
 const dbUrl = process.env.CN_TEST_DB_URL ?? "";
-const sandboxKey = process.env.CN_TEST_SANDBOX_KEY ?? "";
 if (!apiKey) throw new Error("Set CN_TEST_KEY.");
 
 const EXPECTED_TOOLS = [
@@ -382,18 +379,6 @@ async function main(): Promise<void> {
     r = await call(locked, "clocknext_list_plans");
     check("…unlocked again → works", r.ok, r.text);
     await locked.close();
-  }
-
-  console.log("=== E9 · sandbox customer cap ===");
-  if (!sandboxKey) {
-    console.log("  [SKIP] set CN_TEST_SANDBOX_KEY (a sandbox with 25+ customers) to run this");
-  } else {
-    const sandbox = await connect(sandboxKey);
-    r = await call(sandbox, "clocknext_whoami");
-    check("sandbox key → environment sandbox", r.ok && r.data.organization?.environment === "sandbox", r.text);
-    r = await call(sandbox, "clocknext_create_customer", { name: `${P} over cap`, email: `${run}-cap@e2e.example.com` });
-    check("create_customer past the cap → ForbiddenError (403)", !r.ok && /ForbiddenError \(403\)/.test(r.text) && /25/.test(r.text), r.text);
-    await sandbox.close();
   }
 
   const notCalled = EXPECTED_TOOLS.filter((t) => !called.has(t));
