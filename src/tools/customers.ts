@@ -107,7 +107,7 @@ export function registerCustomerTools(server: McpServer, cnk: ClocknextApi): voi
     {
       title: "Clocknext: get customer balances",
       description:
-        "Fetch a customer's current wallet / credit / outcome / unit balances. Use it to confirm a purchase granted the expected entitlements, or that a test signal drew the balance down as expected.",
+        "Fetch a customer's current balances: `wallet`, `credits`, `outcomes`, `units` and `composites` (the prepaid composite pools). Each credit and unit carries its `agentKey`, each outcome its steps, and each composite its `refId`. Use it to confirm a purchase granted the expected entitlements, or that a test signal drew the balance down as expected.",
       inputSchema: { id: z.string().describe("The Clocknext customer id.") },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },

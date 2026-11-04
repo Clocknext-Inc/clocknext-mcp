@@ -22259,7 +22259,7 @@ function registerCompositeTools(server, cnk) {
         "Create a composite \u2014 a bundle of credits / outcomes / units that is grouped under one tag and billed as ONE thing instead of per item. Use it when several metered steps together make up one sellable unit of work (a call, a job, a document).",
         "",
         "Rules:",
-        "- `refId` is the integration contract: it is what the product's code sends as a signal's compositeRef. Saved and matched exactly as sent (case included); letters, digits, ., _ and - only. It may NOT collide with a field the ingest body already owns (customerId, usage, agentKey, runId, member, custom, composite, \u2026) \u2014 a collision is refused here, not silently ignored later.",
+        '- `refId` is the integration contract: it is the key that the product\'s code puts in a signal\'s `composite` block (`{ "<refId>": "<your id>" }`). Saved and matched exactly as sent (case included); letters, digits, ., _ and - only. It may NOT collide with a field the ingest body already owns (customerId, usage, agentKey, runId, member, custom, composite, \u2026) \u2014 a collision is refused here, not silently ignored later.',
         "- `entitlements` is REQUIRED \u2014 at least one credit / outcome / unit id. A composite restricted to nothing would accept every signal in the organisation. Get the ids from clocknext_list_credits / clocknext_list_outcomes / clocknext_list_units (ids, not agentKeys). Every item must be active, and a unit must be FLAT-priced.",
         "- `price` is what ONE occurrence costs once a plan sells this. Creating a composite CHARGES NOBODY: an invoice is built from plan components, never from a catalogue entry.",
         "- To actually bill it, add it to a plan with clocknext_create_plan / clocknext_update_plan as a line of type COMPOSITE, passing the id this tool returns as `compositeId`, plus a billingMode and, for ADVANCE, a quantity \u2014 that quantity is a prepaid pool of slots shared across the wrapped items. Tell the user this second step is required, or they will wonder why a composite they created bills nothing.",
@@ -22502,7 +22502,7 @@ function registerCustomerTools(server, cnk) {
     "clocknext_get_customer_balances",
     {
       title: "Clocknext: get customer balances",
-      description: "Fetch a customer's current wallet / credit / outcome / unit balances. Use it to confirm a purchase granted the expected entitlements, or that a test signal drew the balance down as expected.",
+      description: "Fetch a customer's current balances: `wallet`, `credits`, `outcomes`, `units` and `composites` (the prepaid composite pools). Each credit and unit carries its `agentKey`, each outcome its steps, and each composite its `refId`. Use it to confirm a purchase granted the expected entitlements, or that a test signal drew the balance down as expected.",
       inputSchema: { id: external_exports.string().describe("The Clocknext customer id.") },
       annotations: { readOnlyHint: true, openWorldHint: true }
     },

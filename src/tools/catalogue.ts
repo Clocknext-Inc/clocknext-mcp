@@ -21,8 +21,9 @@ import { errMsg, errorResult, jsonResult } from "./util";
  * Every update tool is a PARTIAL update, like the API behind it: send the id
  * plus only the fields to change; everything left out keeps its stored value.
  *
- * "Archive" maps to `setActive(id, false)` — a reversible deactivation, NOT a hard
- * delete (hard delete exists on the API but is intentionally not exposed here).
+ * "Archive" maps to `setActive(id, false)`: it stops new sales and keeps the item
+ * for current customers. "Restore" (unarchive) sells it again. The public API
+ * has no delete for a credit, an outcome, a unit or a plan.
  */
 
 // ---------- shared field schemas ----------
