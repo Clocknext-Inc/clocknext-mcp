@@ -57,8 +57,8 @@ export class AuthError extends ClocknextError {}
 /** 400 — the request body or query failed validation. */
 export class ValidationError extends ClocknextError {}
 /** 403 — the key may not do this. The two lock refusals below are the
- *  common cases; a plain ForbiddenError is any other 403 (for example a
- *  sandbox that already holds its 25 customers). */
+ *  common cases; a plain ForbiddenError is any other 403 (for example an
+ *  `organizationId` on `/portal/token` that is not the key's organisation). */
 export class ForbiddenError extends ClocknextError {}
 /** 403 `FEATURE_LOCKED` — the organisation's Clocknext plan does not include
  *  this feature. `feature` names it (e.g. `COMPOSITES`, `PURCHASES`). */

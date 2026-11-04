@@ -22449,8 +22449,7 @@ function registerCustomerTools(server, cnk) {
         "",
         "Rules:",
         "- `name` and `email` are required; everything else is optional profile.",
-        "- Returns the customer `id` \u2014 pass it as `customerId` to clocknext_create_purchase and to the signals your product code sends.",
-        "- A sandbox holds at most 25 customers, archived ones included. Past that, a create is refused (403 ForbiddenError) \u2014 reuse an existing test customer (clocknext_list_customers) instead."
+        "- Returns the customer `id` \u2014 pass it as `customerId` to clocknext_create_purchase and to the signals your product code sends."
       ].join("\n"),
       inputSchema: customerFields,
       annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: true }
@@ -22570,7 +22569,6 @@ function registerCustomerTools(server, cnk) {
         "",
         "Rules:",
         "- Each customer needs name + email; up to 200 per call. For a larger base, call again in \u2264200-row chunks.",
-        "- A sandbox holds at most 25 customers, archived ones included; import a real user base into the live organisation only.",
         "- Match results back to your users by email.",
         "- MCP-only bulk endpoint (no SDK / public API)."
       ].join("\n"),
