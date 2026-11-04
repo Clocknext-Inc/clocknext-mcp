@@ -55,7 +55,6 @@ Each component is one of six types, in one of two billing modes.
 | `entitlements` | yes | ≥1 line (table above). |
 | `useWalletForArrear` | no | Pay metered usage from the prepaid wallet as it happens — see [`wallet.md`](wallet.md). Default false. |
 | `cost` | no | The plan's total price per cycle (USD). Leave it out to price the plan at the sum of its ADVANCE lines; send it only for a different headline price. Must be left out (or 0) on a FREE or all-ARREAR plan. The server stores the difference as the read-only `priceAdjustment`. |
-| `carryForward` | no | **Deprecated** — accepted but ignored by the billing engine. |
 
 There is no `currencyCode`: a plan always uses the workspace's primary currency (Settings →
 Organization → Currencies, USD when none is set). There is no `isActive` either — a new plan is
