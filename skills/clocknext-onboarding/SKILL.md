@@ -191,7 +191,7 @@ what the MCP will create or change, get the approval for that step, execute only
 ## State details
 
 ### S1–S2 · Environment
-`clocknext_whoami`. Report the org and whether it's **sandbox** (a disposable twin — safe)
+`clocknext_whoami`. Report the org and whether it's **sandbox** (a disposable sandbox — safe)
 or **live** (purchases raise real invoices). Recommend sandbox for building and testing,
 then ask S2's one question. If they choose live, respect it — the money gates are the
 guardrails; don't nag (and `references/testing.md` follows the same rule).
@@ -478,7 +478,7 @@ one sentence of purpose before each action; no silent state-changing tool calls.
 ## Worked examples (the shape to copy)
 
 **1 — Sandbox selection (S1→S2):**
-> **You:** "You're on the **SANDBOX** org 'Acme' — a disposable twin where no real money
+> **You:** "You're on the **SANDBOX** org 'Acme' — a disposable sandbox where no real money
 > can move; live is where purchases raise real invoices. Build and test here on sandbox
 > (my recommendation), or switch to live?" ⏸
 > **User:** "Sandbox."

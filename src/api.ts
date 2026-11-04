@@ -52,7 +52,7 @@ export class ClocknextError extends Error {
   }
 }
 
-/** 401 — the API key is missing, wrong, or expired. */
+/** 401 — the API key is missing or wrong (keys never expire). */
 export class AuthError extends ClocknextError {}
 /** 400 — the request body or query failed validation. */
 export class ValidationError extends ClocknextError {}
