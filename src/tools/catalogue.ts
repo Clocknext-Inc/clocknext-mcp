@@ -280,12 +280,6 @@ const planInput: z.ZodRawShape = {
     .describe(
       "Billing cadence. FREE is a one-time grant with no invoice.",
     ),
-  carryForward: z
-    .boolean()
-    .optional()
-    .describe(
-      "DEPRECATED — still accepted for back-compat but no longer read by the backend; setting it has no effect (carry-forward is fixed policy now: wallet money carries, allowances reset).",
-    ),
   useWalletForArrear: z
     .boolean()
     .optional()
@@ -735,7 +729,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClocknextApi): vo
         "- Line ids stay the same: a line sent with its `id` updates that line; one sent without an `id` updates the saved line of the same type and item. Only a new line gets a new id; a saved line left out is removed. An unknown `id`, the same `id` twice, or an `id` sent with a different type or item is a 400.",
         "- Price: without `cost` the plan keeps its saved price, unless the lines really change (added, removed, or a billingMode/quantity/amount/rollover changed) — then it resets to the sum of the new ADVANCE lines at today's prices. Sending the same lines back keeps the price.",
         "- An item already on the plan may stay even if since archived; a newly added one must be active.",
-        "- Changes apply to new purchases; customers already on the plan keep their terms until they re-purchase. carryForward is deprecated and ignored.",
+        "- Changes apply to new purchases; customers already on the plan keep their terms until they re-purchase.",
       ].join("\n"),
       archive: [
         "Archive a plan (isActive→false) — the API never deletes; this is how a plan is retired.",
