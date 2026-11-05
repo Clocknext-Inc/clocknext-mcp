@@ -1,6 +1,6 @@
 {
   "name": "clocknext",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "description": "Meter usage and manage usage-based billing from AI coding tools via the Clocknext API.",
   "author": {
     "name": "Clocknext",
