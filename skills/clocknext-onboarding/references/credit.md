@@ -26,8 +26,7 @@ Fields (see also the mixer in [`pricing-and-models.md`](pricing-and-models.md)):
 The mixer is saved as the credit's model bundle, and **Clocknext works out `basePrice` and
 `pricePerCredit` from it** at the models' live prices; a disabled/unknown model, a split ≠ 100
 or a cache-write share on a model without a cache-write price is rejected. You never hand-type
-a price. The credit's token volume (`tokensPerCredit`) is the sum of the mixer's tokens — a
-display figure; the money draw-down is cost-based (below).
+a price. The money draw-down is cost-based (below).
 
 **Update is partial** (`clocknext_update_credit`): pass the id plus only the fields to change.
 Send `models` to re-price; leave it out to keep the current base price.
