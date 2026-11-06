@@ -74,7 +74,7 @@ nothing would absorb every signal in the organisation.
 
 | Mode | `quantity` means | Behaviour |
 | --- | --- | --- |
-| **ADVANCE** | a **prepaid pool of slots** | Each distinct tag value claims one slot when its occurrence completes. Repeat signals under the same value reuse the slot already claimed, at no extra cost. The pool is **shared** across whichever wrapped items each occurrence used. Running past the pool is allowed: the overdraw carries as debt into the next cycle's pool, like an overdrawn credit. The pool resets each cycle. |
+| **ADVANCE** | a **prepaid pool of slots** | Each completion takes one slot. The edge keeps no occurrence state, so 2 completions of the same composite value take 2 slots (send an `idempotencyKey` on retries). The pool is **shared** across whichever wrapped items each occurrence used. Running past the pool is allowed: the pool goes below 0 and the negative balance carries into the next cycle's pool, like a negative credit balance. The pool resets each cycle. |
 | **ARREAR** | nothing prepaid | Completed occurrences are counted on the cycle-end line. |
 
 ## At runtime — two calls, and the second one is the one people forget
@@ -88,8 +88,11 @@ await cnk.signals.credit({ customerId, model, agentKey: "transcribe", tokens, co
 await cnk.signals.unit({ customerId, agentKey: "minutes", quantity: 4, composite });
 ```
 
-Every signal sharing that `value` belongs to the same occurrence. The occurrence opens on
-the first tagged signal and **costs nothing** while open.
+Every signal sharing that composite value belongs to the same occurrence. A signal with the
+composite block is billed to the composite instead of to its own entitlement, and it
+**counts nothing** by itself. If the composite would bill the signal but the value is empty
+(`""`, blanks or `null`), the signal stays **Pending** (`COMPOSITE_VALUE_MISSING`) until you
+fix it and retry.
 
 **2. Close it** — this is the moment it bills:
 
@@ -102,16 +105,21 @@ the work ended, so closing is a **declaration**, never inferred from which signa
 arrived — tagged signals may arrive in any order and the occurrence stays open and unbilled
 until you say so.
 
-Both are safe to repeat: closing twice answers `ALREADY_COMPLETED` and cannot bill again.
-Closing **early** is safe too — before every wrapped item has reported, or while an ADVANCE
-pool is full, the server parks the request and applies it when the blocker clears.
+Closing is **not** safe to repeat by itself: the edge keeps no occurrence state, so closing
+the same composite value twice **counts twice**. Send an `idempotencyKey` and reuse it on every
+retry of that call (the SDK makes one per call). Closing before every wrapped item has
+reported is fine, and a full ADVANCE pool does not block it (the pool goes below 0). A
+completion that the edge cannot process stays a **Pending signal** until someone retries it:
+for example the composite is not sold on the plan (`NOT_SOLD`), it is archived, or the block
+names no composite (`NO_COMPOSITE_PROPERTY`).
 
 ### The outcome shortcut
-An **outcome never needs step 2**. Its own `complete: true` closes its run *and* the matching
-composite occurrence together. Mind the edge: if the outcome is the last thing to report, the
-occurrence ends at the outcome rather than at the workflow's real boundary. When the tag
-should span the whole workflow, send the outcome steps **without** `complete: true` and close
-the composite yourself instead.
+An **outcome does not need step 2**. Send the same `composite` on
+`signals.completeOutcome()`: when the plan sells the composite, the composite bills that
+completion and the outcome counts nothing. Mind the boundary: the occurrence then ends at the
+outcome rather than at the workflow's real end. When the composite should span the whole
+workflow, leave `composite` off `completeOutcome()` and close the composite yourself with
+`completeComposite()` instead.
 
 ### A wallet signal cannot be tagged
 Composites group entitlement traffic; raw wallet spend is metered as money, not entitlement.
@@ -122,7 +130,8 @@ rollup that will never exist.
 Read the composite back with `clocknext_list_composites` and copy the `refId` from there.
 This matters more than it looks: a tag naming no live composite is **silently ignored, not
 rejected** — the signal bills normally and the rollup just never happens, so a typo reads
-exactly like success and nothing anywhere reports it.
+exactly like success and nothing anywhere reports it. (`completeComposite()` with such a key
+is different: it stays Pending with `NO_COMPOSITE_PROPERTY`.)
 
 ## Gotchas
 - **Created but not on a plan → bills nothing, silently.** The most common failure.

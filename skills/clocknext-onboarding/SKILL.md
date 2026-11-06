@@ -401,7 +401,8 @@ bills:
 3. `clocknext_get_credit` / `get_outcome` / `get_unit` — every `agentKey` the code will
    send actually resolves, and is sold on that plan. An `agentKey` matching nothing is
    the second most common mis-wire, and ingest will not tell you: the route answers
-   `202` and the worker drops it later.
+   `202`, and the edge then keeps the signal as a Pending signal (for example
+   `UNKNOWN_CREDIT` or `NOT_IN_PLAN`). Nothing reports it at the call site.
 4. `clocknext_get_customer_balances` — there is allowance to draw against.
 
 Report what you checked and what the first real signal is expected to cost, derived from
@@ -428,15 +429,19 @@ mode substitutes for this question.
 
 ### S29 · Real signal
 Fire exactly one approved signal **through the product's own code path** (the SDK call you
-wired in). The MCP has **no record-usage tool** — it prices signals but never bills, so there
-is nothing to fall back on and you must never improvise one. Report that the code ran, then
+wired in). The MCP has **no record-usage tool** — it never sends or prices a signal (the edge
+prices each signal), so there is nothing to fall back on and you must never improvise one. Report that the code ran, then
 ask one question about entering verification. Do not read back usage in S29 — and do not
 call the run itself proof: ingest is asynchronous, so "the code ran" is not "the signal
 billed".
 
 ### S30 · Verify usage and balance
 Separately read the usage log back through the product's SDK, `signals.usageLog({ customerId })`
-(the log landed with expected model/tokens/cost) — the MCP has no usage-read tool — and call
+(the log landed with expected model/tokens/cost) — the MCP has no usage-read tool. Also read
+`signals.list({ customerId, status: "PENDING" })`: it must be empty. A Pending signal did not
+bill; its `error.message` names the cause (an unknown `agentKey`, a model that is not
+enabled, no active plan). Fix the cause, send it again with `signals.retry([signalId])`, and
+read both back again. Then call
 `clocknext_get_customer_balances` (balance moved where applicable;
 Unit event count changes are used for Units). Unit
 consumption is confirmed through the product's supported Unit usage/event-count readback — the
@@ -562,7 +567,7 @@ agent must reject the forbidden progression in every case:
 | Manually in the Clocknext customer choice | Give exact fields and ask the user to confirm visibility; never call `clocknext_create_customer`. |
 | One mapped call site with three remaining | Stay in `MAP_EACH_CALL_TO_ENTITLEMENT`; do not enter code metering until all mappings are confirmed. |
 | Retry the same credit/outcome event | Reuse the same logical idempotency key; never generate a new event key per attempt. |
-| Retry a Unit event | Explain that Unit has no idempotency-key field; use the product's supported deduplication/idempotency boundary and verify via Unit usage counts, not balance alone. |
+| Retry a Unit event | Reuse the same logical `idempotencyKey`, as for credit/outcome events (every signal route takes one); verify via Unit usage counts, not balance alone. |
 | Resume after interruption with `pending_action` present | Reconcile the action ID, target, and arguments before execution; do not trust the transcript. |
 | “Do everything” or “auto mode” | Treat it as no authorization beyond the current named pending action. |
 
