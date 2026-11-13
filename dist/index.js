@@ -22436,7 +22436,7 @@ var customerFields = {
   taxId: external_exports.string().nullish().describe("Tax identifier shown on invoices (VAT / GST / EIN\u2026)."),
   notes: external_exports.string().nullish().describe("Internal notes about the customer."),
   logoUrl: external_exports.string().nullish().describe("URL of the customer's logo image."),
-  currencyCode: external_exports.string().optional().describe("ISO 4217 (3 letters); must be enabled for the org. Defaults to the org currency.")
+  currencyCode: external_exports.string().optional().describe("ISO 4217 (3 letters); must be enabled for the org. Defaults to the org currency. A label only: every invoice and charge is USD, and Stripe, Paddle or the customer's bank converts.")
 };
 var customerObject = external_exports.object(customerFields);
 function registerCustomerTools(server, cnk) {
