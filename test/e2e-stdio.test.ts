@@ -10,10 +10,10 @@
  *   E3  search_docs + get_doc against the public docs.
  *   E4  write_env writes the key into a .env and never returns it; it refuses a
  *       wrong file name and a .env that git would commit.
- *   E5  Credits / outcomes / units / plans / composites: list (all / active /
+ *   E5  Credits / outcomes / units / plans / composites / packages: list (all / active /
  *       archived), get, create, update, archive, unarchive.
  *   E6  Customers: create, get, list, a wrong cursor (400), balances, plan,
- *       purchase, bulk import. Balances after the purchase need a server with
+ *       purchase, the subscription and its packages (add, remove), bulk import. Balances after the purchase need a server with
  *       an edge (it reads usage from ClickHouse): set CN_TEST_EDGE=1 for it.
  *   E7  Errors: a wrong id is a NotFoundError (404); a wrong key is an
  *       AuthError (401).
@@ -63,6 +63,15 @@ const EXPECTED_TOOLS = [
   "clocknext_update_composite",
   "clocknext_archive_composite",
   "clocknext_unarchive_composite",
+  "clocknext_list_packages",
+  "clocknext_get_package",
+  "clocknext_create_package",
+  "clocknext_update_package",
+  "clocknext_archive_package",
+  "clocknext_unarchive_package",
+  "clocknext_get_subscription",
+  "clocknext_add_subscription_packages",
+  "clocknext_remove_subscription_package",
   "clocknext_create_customer",
   "clocknext_get_customer",
   "clocknext_list_customers",
@@ -290,7 +299,30 @@ async function main(): Promise<void> {
   const ids = (l: Json[]) => l.map((e) => e.id).sort().join();
   check("update_plan with the same lines → ok, ids and cost kept", r.ok && ids(linesAfter) === ids(lines) && Number(r.data.cost) === 99, r.text);
 
+  r = await call(client, "clocknext_create_package", {
+    name: `${P} package`,
+    subtotalUsd: 4,
+    entitlements: [
+      { type: "CREDIT", creditId, quantity: 10 },
+      { type: "FLAT", amount: 1 },
+    ],
+  });
+  const packageId = r.data.id as string;
+  check("create_package → id", r.ok && typeof packageId === "string", r.text);
+  check("…price saved", Number(r.data.subtotalUsd) === 4, r.text);
+  r = await call(client, "clocknext_get_package", { id: packageId });
+  const packageLines = (r.data.entitlements ?? []) as Json[];
+  check("get_package → 2 entitlements", r.ok && packageLines.length === 2, r.text);
+  r = await call(client, "clocknext_update_package", { id: packageId, entitlements: packageLines });
+  check("update_package with the same entitlements → ids kept", r.ok && ids((r.data.entitlements ?? []) as Json[]) === ids(packageLines), r.text);
+  r = await call(client, "clocknext_create_package", {
+    name: `${P} two flats`,
+    entitlements: [{ type: "FLAT", amount: 1 }, { type: "FLAT", amount: 2 }],
+  });
+  check("create_package with a second flat fee → 400", !r.ok && /\(400\)/.test(r.text), r.text);
+
   for (const [resource, id] of [
+    ["package", packageId],
     ["credit", creditId],
     ["outcome", outcomeId],
     ["unit", tieredId],
@@ -325,7 +357,29 @@ async function main(): Promise<void> {
   r = await call(client, "clocknext_get_customer_balances", { id: customerId });
   check("get_customer_balances before a purchase → answers", r.ok, r.text);
   r = await call(client, "clocknext_create_purchase", { customerId, planId });
-  check("create_purchase → purchase id", r.ok && typeof r.data.id === "string", r.text);
+  const subscriptionId = r.data.id as string;
+  check("create_purchase → purchase id", r.ok && typeof subscriptionId === "string", r.text);
+  r = await call(client, "clocknext_get_subscription", { id: subscriptionId });
+  check("get_subscription → packages list", r.ok && Array.isArray(r.data.packages), r.text);
+  r = await call(client, "clocknext_add_subscription_packages", {
+    subscriptionId,
+    packageIds: [packageId],
+    recordAsPaid: { mode: "OTHER", reference: `${P}` },
+    idempotencyKey: `${P}-attach`,
+  });
+  if (r.ok) {
+    const purchasePackageId = r.data.purchasePackages?.[0]?.id as string;
+    check("add_subscription_packages (recorded as paid) → ACTIVE", r.data.purchasePackages?.[0]?.status === "ACTIVE", r.text);
+    r = await call(client, "clocknext_remove_subscription_package", { subscriptionId, purchasePackageId, atPeriodEnd: true, reason: "e2e" });
+    check("remove_subscription_package atPeriodEnd → ENDING", r.ok && r.data.purchasePackage?.status === "ENDING", r.text);
+    r = await call(client, "clocknext_remove_subscription_package", { subscriptionId, purchasePackageId, atPeriodEnd: true });
+    check("…again → PACKAGE_ALREADY_ENDING", !r.ok && /PACKAGE_ALREADY_ENDING/.test(r.text), r.text);
+  } else {
+    // The purchase is not running yet (its first invoice is unpaid): the refusal names its code.
+    check("add_subscription_packages refused → names SUBSCRIPTION_NOT_ACTIVE", /SUBSCRIPTION_NOT_ACTIVE/.test(r.text), r.text);
+    r = await call(client, "clocknext_remove_subscription_package", { subscriptionId, purchasePackageId: "no-such-package" });
+    check("remove_subscription_package with a wrong id → PACKAGE_NOT_FOUND", !r.ok && /PACKAGE_NOT_FOUND/.test(r.text), r.text);
+  }
   r = await call(client, "clocknext_get_customer_plan", { id: customerId });
   check("get_customer_plan after the purchase → answers", r.ok, r.text);
   console.log(`      plan: ${r.text.replace(/\s+/g, " ").slice(0, 200)}`);

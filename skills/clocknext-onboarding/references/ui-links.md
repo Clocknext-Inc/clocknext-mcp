@@ -13,6 +13,7 @@ enter** — a bare link isn't guidance. Always render as a real markdown link, e
 | Create or price one named outcome | `{base}/outcomes` | `clocknext_create_outcome` for one named outcome |
 | Create or price one named unit | `{base}/units` | `clocknext_create_unit` for one named unit |
 | Create or update one named plan | `{base}/plans` | `clocknext_create_plan`/`update_plan` for one named plan |
+| Create or update one named package (top-up / add-on) | `{base}/packages` | `clocknext_create_package`/`update_package` for one named package |
 | Create one named test customer | `{base}/customers` | `clocknext_create_customer` for one named customer |
 
 For **credits and outcomes**, the Manually in the Clocknext path is the richer one and worth
