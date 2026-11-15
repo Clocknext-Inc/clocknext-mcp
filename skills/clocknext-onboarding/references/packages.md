@@ -31,9 +31,8 @@ The entitlements are grouped by kind — the same shape in a request and in a re
   subscription on the plan's billing cycle until it is removed, and it is always billed
   up-front. Sending any of those is a 400.
 - The same entitlement can't be listed twice; each one must be active.
-- `cost` is the package price the customer pays each cycle (USD, before tax). Leave it out
-  to charge the sum of the entitlements' list prices. `priceAdjustment` (the cost less the
-  list prices) is read-only. Ask the user for the price — never invent one.
+- `cost` is required on create: the package price the customer pays each cycle (USD, before
+  tax). Ask the user for the price — never invent one.
 
 ## The rule people miss: the plan must have it, billed up-front
 

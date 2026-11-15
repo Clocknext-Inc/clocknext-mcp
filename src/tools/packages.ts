@@ -119,7 +119,7 @@ export function registerPackageTools(server: McpServer, cnk: ClocknextApi): void
     {
       title: "Clocknext: get package",
       description:
-        "Get one package by id — name, description, price (`cost`, and `priceAdjustment` = the cost less the entitlements' list prices, read-only), active state, and its grouped entitlements (`credits`, `outcomes`, `units`, `composites`: [{ id, name, quantity }], and `flatFee`).",
+        "Get one package by id — name, description, price (`cost`), active state, and its grouped entitlements (`credits`, `outcomes`, `units`, `composites`: [{ id, name, quantity }], and `flatFee`).",
       inputSchema: { id: z.string().describe("The package id (from clocknext_list_packages).") },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
@@ -141,7 +141,7 @@ export function registerPackageTools(server: McpServer, cnk: ClocknextApi): void
         "",
         "Rules:",
         PACKAGE_RULES,
-        "- `cost` is the package price the customer pays each billing cycle of the plan, in USD before tax. Leave it out to charge the sum of the entitlements' list prices. `priceAdjustment` (the cost less the list prices) is read-only. Ask the user for the price — do not invent one.",
+        "- `cost` is required: the package price the customer pays each billing cycle of the plan, in USD before tax. Ask the user for the price — do not invent one.",
         "- Creating a package CHARGES NOBODY. A customer pays for it only when it is added to their subscription with clocknext_add_subscription_packages.",
         "- A name already in use is refused (409). There is no delete: retire a package with clocknext_archive_package.",
       ].join("\n"),
@@ -151,8 +151,7 @@ export function registerPackageTools(server: McpServer, cnk: ClocknextApi): void
         cost: z
           .number()
           .min(0)
-          .optional()
-          .describe("The package price in USD, before tax, each billing cycle. Default: the entitlements' list prices."),
+          .describe("Required. The package price in USD, before tax, each billing cycle. Ask the user."),
         entitlements: packageEntitlements.describe(
           "At least one entitlement: { credits, outcomes, units, composites: [{ id, quantity }], flatFee }. A group left out is empty.",
         ),

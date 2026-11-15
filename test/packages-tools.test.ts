@@ -201,26 +201,27 @@ async function main(): Promise<void> {
   check("create_package returns the package", /pkg_3/.test(textOf(created)), textOf(created));
   check(
     "create_package refuses a wallet group",
-    !parses("clocknext_create_package", { name: "W", entitlements: { wallet: 10 } }),
+    !parses("clocknext_create_package", { name: "W", cost: 1, entitlements: { wallet: 10 } }),
   );
   check(
     "create_package refuses the old flat list",
     !parses("clocknext_create_package", {
       name: "L",
+      cost: 1,
       entitlements: [{ type: "CREDIT", creditId: "cr_1", quantity: 1 }],
     }),
   );
   check(
     "create_package refuses a fractional quantity",
-    !parses("clocknext_create_package", { name: "Q", entitlements: { credits: [{ id: "cr_1", quantity: 1.5 }] } }),
+    !parses("clocknext_create_package", { name: "Q", cost: 1, entitlements: { credits: [{ id: "cr_1", quantity: 1.5 }] } }),
   );
   check(
     "create_package refuses a quantity of 0",
-    !parses("clocknext_create_package", { name: "Z", entitlements: { credits: [{ id: "cr_1", quantity: 0 }] } }),
+    !parses("clocknext_create_package", { name: "Z", cost: 1, entitlements: { credits: [{ id: "cr_1", quantity: 0 }] } }),
   );
   check(
     "create_package refuses a flat fee below $0",
-    !parses("clocknext_create_package", { name: "F", entitlements: { flatFee: -1 } }),
+    !parses("clocknext_create_package", { name: "F", cost: 1, entitlements: { flatFee: -1 } }),
   );
   check(
     "create_package refuses a price below $0",
@@ -234,19 +235,29 @@ async function main(): Promise<void> {
     "create_package refuses billingMode / rollover on an item",
     !parses("clocknext_create_package", {
       name: "B",
+      cost: 1,
       entitlements: { credits: [{ id: "cr_1", quantity: 1, billingMode: "ADVANCE" }] },
     }) &&
       !parses("clocknext_create_package", {
         name: "R",
+      cost: 1,
         entitlements: { credits: [{ id: "cr_1", quantity: 1, rollover: true }] },
       }),
   );
   reply = success({ created: true, package: { id: "pkg_4" } }, 201);
-  const nothing = await call("clocknext_create_package", { name: "E", entitlements: {} });
+  const nothing = await call("clocknext_create_package", { name: "E", cost: 1, entitlements: {} });
   check(
     "create_package with no entitlement is an error and sends nothing",
     "result" in nothing && nothing.result?.isError === true && nothing.requests?.length === 0,
     JSON.stringify(nothing),
+  );
+  check(
+    "create_package requires cost",
+    !parses("clocknext_create_package", { name: "C", entitlements: { credits: [{ id: "cr_1", quantity: 1 }] } }),
+  );
+  check(
+    "update_package does not require cost",
+    parses("clocknext_update_package", { id: "pkg_1", entitlements: { credits: [{ id: "cr_1", quantity: 1 }] } }),
   );
   const createShape = tool("clocknext_create_package")?.config.inputSchema ?? {};
   for (const field of ["subtotalUsd", "priceAdjustment", "priceAdjustmentUsd", "billingCycle", "billingMode", "rollover", "isActive", "currencyCode", "components"]) {
@@ -504,7 +515,7 @@ async function main(): Promise<void> {
   check("create_package says there is no wallet", /wallet/i.test(create), create);
   check("create_package says there is no rollover", /rollover/i.test(create), create);
   check("create_package names cost", /`cost`/.test(create), create);
-  check("create_package names priceAdjustment as read-only", /priceAdjustment/.test(create), create);
+  check("create_package says cost is required", /`cost` is required/i.test(create), create);
   check("create_package names flatFee", /flatFee/.test(create), create);
   const add = describeOf("clocknext_add_subscription_packages");
   for (const code of [
@@ -541,6 +552,7 @@ async function main(): Promise<void> {
   for (const name of expected) {
     const text = JSON.stringify(tool(name)?.config ?? {});
     check(`${name} never says "dashboard"`, !/dashboard/i.test(describeOf(name)));
+    check(`${name} names no price adjustment`, !/priceAdjustment|price adjustment/i.test(text));
     check(
       `${name} names no old field or status (subtotalUsd, removalReason, AWAITING_PAYMENT status, ENDING, ENDED)`,
       !/subtotalUsd|priceAdjustmentUsd|removalReason|AWAITING_PAYMENT|\bENDING\b|\bENDED\b/.test(text.replace(/PACKAGE_AWAITING_PAYMENT|PACKAGE_ALREADY_ENDING|PACKAGE_ENDED/g, "")),
@@ -576,6 +588,8 @@ async function main(): Promise<void> {
     !/subtotalUsd|priceAdjustmentUsd|removalReason|AWAITING_PAYMENT|\bENDING\b|\bENDED\b/.test(docs),
     docs.match(/subtotalUsd|priceAdjustmentUsd|removalReason|AWAITING_PAYMENT|\bENDING\b|\bENDED\b/g)?.join(",") ?? "",
   );
+  check("the skill texts name no package price adjustment", !/priceAdjustment|price adjustment/i.test(reference) && !/priceAdjustment/.test(skill));
+  check("references/packages.md says cost is required", /`cost` is required/i.test(reference));
   check("references/packages.md names the grouped entitlements", /flatFee/.test(reference) && /composites/.test(reference));
 
   console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILED`);

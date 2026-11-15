@@ -326,6 +326,7 @@ async function main(): Promise<void> {
   check("update_package cost → saved", r.ok && Number(r.data.cost) === 3.5, r.text);
   r = await call(client, "clocknext_create_package", {
     name: `${P} same credit twice`,
+    cost: 1,
     entitlements: { credits: [{ id: creditId, quantity: 1 }, { id: creditId, quantity: 2 }] },
   });
   check("create_package with the same credit twice → 400", !r.ok && /\(400\)/.test(r.text), r.text);
