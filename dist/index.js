@@ -22724,7 +22724,6 @@ function registerListModels(server, cnk) {
 }
 
 // src/tools/packages.ts
-var ENTITLEMENT_TYPES = ["CREDIT", "OUTCOME", "UNIT", "COMPOSITE", "FLAT"];
 var RECORDED_PAYMENT_MODES = [
   "CASH",
   "BANK_TRANSFER",
@@ -22734,23 +22733,23 @@ var RECORDED_PAYMENT_MODES = [
   "UPI",
   "OTHER"
 ];
-var packageEntitlement = external_exports.object({
-  id: external_exports.string().optional().describe(
-    "Update only: the id of an entitlement the package already holds (from clocknext_get_package). Send it back to keep that entitlement; leave it out for a new one."
-  ),
-  type: external_exports.enum(ENTITLEMENT_TYPES).describe(
-    "CREDIT / OUTCOME / UNIT / COMPOSITE (with its id and a quantity) or FLAT (a fee, with an amount). There is no WALLET: a package never holds a wallet."
-  ),
-  creditId: external_exports.string().optional().describe("CREDIT: the credit id (from clocknext_list_credits)."),
-  outcomeId: external_exports.string().optional().describe("OUTCOME: the outcome id (from clocknext_list_outcomes)."),
-  unitId: external_exports.string().optional().describe("UNIT: the unit id (from clocknext_list_units)."),
-  compositeId: external_exports.string().optional().describe("COMPOSITE: the composite id (from clocknext_list_composites)."),
-  quantity: external_exports.number().int().positive().optional().describe("CREDIT / OUTCOME / UNIT / COMPOSITE: how many the package grants each cycle \u2014 a whole number above 0."),
-  amount: external_exports.number().min(0).optional().describe("FLAT only: the fee in USD. One flat fee per package at most.")
-});
+var packageItem = external_exports.object({
+  id: external_exports.string().min(1).describe("The credit's / outcome's / unit's / composite's own id (from its list tool)."),
+  quantity: external_exports.number().int().positive().describe("How many the package grants each billing cycle \u2014 a whole number above 0.")
+}).strict();
+var GROUPS = ["credits", "outcomes", "units", "composites"];
+var packageEntitlements = external_exports.object({
+  credits: external_exports.array(packageItem).optional().describe("Credits: [{ id, quantity }] (ids from clocknext_list_credits)."),
+  outcomes: external_exports.array(packageItem).optional().describe("Outcomes: [{ id, quantity }] (ids from clocknext_list_outcomes)."),
+  units: external_exports.array(packageItem).optional().describe("Units: [{ id, quantity }] (ids from clocknext_list_units)."),
+  composites: external_exports.array(packageItem).optional().describe("Composites: [{ id, quantity }] (ids from clocknext_list_composites)."),
+  flatFee: external_exports.number().min(0).nullish().describe("One flat fee in USD, at most one per package. null = no flat fee.")
+}).strict();
+var ENTITLEMENTS_SHAPE = "- `entitlements` is grouped: `{ credits: [{ id, quantity }], outcomes: [...], units: [...], composites: [...], flatFee }`. `id` is the credit's / outcome's / unit's / composite's own id; `quantity` is a whole number above 0; `flatFee` is USD (one at most). A response adds each item's `name`.";
 var PACKAGE_RULES = [
   `- A package is one or more entitlements and one price, added to a customer's subscription ON TOP of its plan \u2014 a top-up or an add-on ("500 extra AI credits for $4"). It renews with the subscription on the plan's billing cycle until it is removed, and it is always paid in advance.`,
   "- It has NO billing cycle, billing mode or rollover of its own (it follows the plan), it NEVER holds a wallet (extra wallet money belongs in the Reserved wallet), and it holds one flat fee at most. Sending any of those is a 400.",
+  ENTITLEMENTS_SHAPE,
   "- Each entitlement except a flat fee must ALSO be on the customer's plan as ADVANCE (billed up-front, not metered). The catalog accepts any active entitlement, but adding the package to a subscription whose plan lacks it, or meters it, is refused (PACKAGE_ENTITLEMENT_NOT_ON_PLAN / PACKAGE_ENTITLEMENT_METERED). Check the target plan with clocknext_get_plan first.",
   "- The same entitlement can't be listed twice. Every entitlement must be active and belong to this organisation."
 ].join("\n");
@@ -22760,7 +22759,7 @@ function registerPackageTools(server, cnk) {
     {
       title: "Clocknext: list packages",
       description: [
-        "List the organisation's packages, oldest first \u2014 each with its id, name, price (`subtotalUsd`), active state and entitlements.",
+        "List the organisation's packages, oldest first \u2014 each with its id, name, price (`cost`), active state and entitlements.",
         "",
         "Rules:",
         "- A package is a top-up or add-on that a customer's subscription gets on top of its plan. Its `id` is what clocknext_add_subscription_packages takes.",
@@ -22786,7 +22785,7 @@ function registerPackageTools(server, cnk) {
     "clocknext_get_package",
     {
       title: "Clocknext: get package",
-      description: "Get one package by id \u2014 name, description, price (`subtotalUsd`, and `priceAdjustmentUsd` = the price less the entitlements' list prices), active state, and its entitlements with their ids.",
+      description: "Get one package by id \u2014 name, description, price (`cost`, and `priceAdjustment` = the cost less the entitlements' list prices, read-only), active state, and its grouped entitlements (`credits`, `outcomes`, `units`, `composites`: [{ id, name, quantity }], and `flatFee`).",
       inputSchema: { id: external_exports.string().describe("The package id (from clocknext_list_packages).") },
       annotations: { readOnlyHint: true, openWorldHint: true }
     },
@@ -22807,15 +22806,17 @@ function registerPackageTools(server, cnk) {
         "",
         "Rules:",
         PACKAGE_RULES,
-        "- `subtotalUsd` is the package price each billing cycle of the plan. Leave it out to charge the sum of the entitlements' list prices. Ask the user for the price \u2014 do not invent one.",
+        "- `cost` is the package price the customer pays each billing cycle of the plan, in USD before tax. Leave it out to charge the sum of the entitlements' list prices. `priceAdjustment` (the cost less the list prices) is read-only. Ask the user for the price \u2014 do not invent one.",
         "- Creating a package CHARGES NOBODY. A customer pays for it only when it is added to their subscription with clocknext_add_subscription_packages.",
         "- A name already in use is refused (409). There is no delete: retire a package with clocknext_archive_package."
       ].join("\n"),
       inputSchema: {
         name: external_exports.string().min(1).describe("Package name, e.g. 'Booster'. Unique in the organisation."),
         description: external_exports.string().optional().describe("Optional description."),
-        subtotalUsd: external_exports.number().min(0).optional().describe("The package price in USD, before tax, each billing cycle. Default: the entitlements' list prices."),
-        entitlements: external_exports.array(packageEntitlement).min(1).describe("At least one entitlement. CREDIT / OUTCOME / UNIT / COMPOSITE need their id and a quantity; FLAT needs an amount.")
+        cost: external_exports.number().min(0).optional().describe("The package price in USD, before tax, each billing cycle. Default: the entitlements' list prices."),
+        entitlements: packageEntitlements.describe(
+          "At least one entitlement: { credits, outcomes, units, composites: [{ id, quantity }], flatFee }. A group left out is empty."
+        )
       },
       annotations: {
         readOnlyHint: false,
@@ -22825,6 +22826,11 @@ function registerPackageTools(server, cnk) {
       }
     },
     async (args) => {
+      if (!hasEntitlement(args.entitlements)) {
+        return errorResult(
+          "A package needs at least one entitlement: a credit, outcome, unit or composite ({ id, quantity }) or a flatFee."
+        );
+      }
       try {
         return jsonResult(await cnk.packages.create(definedOnly2(args)));
       } catch (err) {
@@ -22841,8 +22847,8 @@ function registerPackageTools(server, cnk) {
         "",
         "Rules:",
         "- Partial update: pass the id plus ONLY the fields to change; everything you leave out keeps its stored value.",
-        "- `entitlements`, when passed, is the COMPLETE new list. Send each entitlement you keep with its `id` (from clocknext_get_package); one left out is removed.",
-        "- Without `subtotalUsd`, a new entitlements list resets the price to the sum of their list prices. An update without entitlements keeps the price.",
+        "- `entitlements`: each group you pass (`credits`, `outcomes`, `units`, `composites`) is the complete new list for that group; a group you leave out keeps its current items (this tool reads them back first). `flatFee`: a number sets it, null removes it, left out keeps it.",
+        "- Without `cost`, new entitlements reset the price to the sum of their list prices. An update without entitlements keeps the price.",
         PACKAGE_RULES,
         "- An edit changes nothing for customers who already have the package: their subscription keeps its own copy."
       ].join("\n"),
@@ -22850,17 +22856,29 @@ function registerPackageTools(server, cnk) {
         id: external_exports.string().describe("The package id to update."),
         name: external_exports.string().min(1).optional().describe("New name."),
         description: external_exports.string().nullish().describe("New description (null clears it)."),
-        subtotalUsd: external_exports.number().min(0).optional().describe("New price in USD, before tax."),
-        entitlements: external_exports.array(packageEntitlement).min(1).optional().describe("The complete new list of entitlements; send each kept one's id back.")
+        cost: external_exports.number().min(0).optional().describe("New price in USD, before tax, each billing cycle."),
+        entitlements: packageEntitlements.optional().describe("The groups to change; a group left out keeps its current items.")
       },
       annotations: { readOnlyHint: false, idempotentHint: true, openWorldHint: true }
     },
-    async ({ id, ...fields }) => {
+    async ({ id, entitlements, ...fields }) => {
       const body = definedOnly2(fields);
-      if (Object.keys(body).length === 0) {
+      if (Object.keys(body).length === 0 && entitlements === void 0) {
         return errorResult("Nothing to update \u2014 pass the package id plus at least one field to change.");
       }
       try {
+        if (entitlements !== void 0) {
+          const current = await cnk.packages.get(id);
+          const merged = {};
+          for (const group of GROUPS) {
+            merged[group] = entitlements[group] ?? (current.entitlements?.[group] ?? []).map(toItem);
+          }
+          merged.flatFee = entitlements.flatFee !== void 0 ? entitlements.flatFee : current.entitlements?.flatFee ?? null;
+          if (!hasEntitlement(merged)) {
+            return errorResult("A package needs at least one entitlement \u2014 this update would leave it empty.");
+          }
+          body.entitlements = merged;
+        }
         return jsonResult(await cnk.packages.update(id, body));
       } catch (err) {
         return errorResult(errMsg(err));
@@ -22915,7 +22933,7 @@ function registerPackageTools(server, cnk) {
         "",
         "Rules:",
         "- The subscription id is the purchase id: `plan.purchaseId` from clocknext_get_customer_plan, or the id clocknext_create_purchase returned.",
-        "- `packages` lists the packages that are AWAITING_PAYMENT, ACTIVE or ENDING, oldest first; ended ones are left out. Each one's `id` is the purchasePackageId that clocknext_remove_subscription_package takes."
+        "- `packages` lists the packages that are SCHEDULED (invoice not paid yet), ACTIVE or MARKED_FOR_CANCELLATION (running until `endsAt`), oldest first; CANCELLED ones are left out. Each has `cost`, its grouped `entitlements` (the copy taken when it was added) and `cancelReason`. Its `id` is the purchasePackageId that clocknext_remove_subscription_package takes."
       ].join("\n"),
       inputSchema: { id: external_exports.string().describe("The subscription id (= the purchase id).") },
       annotations: { readOnlyHint: true, openWorldHint: true }
@@ -22937,7 +22955,7 @@ function registerPackageTools(server, cnk) {
         "",
         "Rules:",
         "- \u26D4 Raises a REAL invoice (real money on a live org). Only call this after the user explicitly approved this exact attach \u2014 which packages, on which customer's subscription, for how much \u2014 in a question dedicated to it alone.",
-        "- The packages are AWAITING_PAYMENT until the invoice is paid (the result has its `payUrl`), then ACTIVE. With `recordAsPaid` the invoice is recorded as paid (paid outside Clocknext) and they are ACTIVE at once \u2014 only when the user says it was really paid.",
+        "- The packages are SCHEDULED until the invoice is paid (the result has its `payUrl`), then ACTIVE. With `recordAsPaid` the invoice is recorded as paid (paid outside Clocknext) and they are ACTIVE at once \u2014 only when the user says it was really paid.",
         "- Each package entitlement (except a flat fee) must be on the subscription's plan as ADVANCE. Check with clocknext_get_customer_plan / clocknext_get_plan before calling.",
         "- Pass an `idempotencyKey` and reuse it if you retry after a timeout or network error: the same key with the same packages answers with the first attach (`replayed: true`) and writes nothing, so a retry never bills twice.",
         "- Returns `purchasePackages` (in the order sent; each `id` is what clocknext_remove_subscription_package takes), `invoice` and `replayed`.",
@@ -22990,8 +23008,9 @@ function registerPackageTools(server, cnk) {
         "Remove a package from a customer's subscription, like cancelling a subscription.",
         "",
         "Rules:",
-        "- By default it ends NOW (`endedReason: REMOVED`): what is left of the package is taken back (its amount less what was used \u2014 the package is used first). Nothing is refunded.",
-        "- `atPeriodEnd: true` ends it at the end of the paid period instead: it is ENDING until `endsAt`, and keeps working until then. An ENDING package removed without atPeriodEnd ends now.",
+        "- By default it ends NOW (status CANCELLED, `endedReason: REMOVED`): what is left of the package is taken back (its amount less what was used \u2014 the package is used first). Nothing is refunded.",
+        "- `atPeriodEnd: true` ends it at the end of the paid period instead: it is MARKED_FOR_CANCELLATION until `endsAt`, and keeps working until then. A package marked for cancellation that is removed without atPeriodEnd ends now.",
+        "- `reason` is kept as the package's `cancelReason`.",
         "- On a subscription on hold it ends now either way, and its line comes off the unpaid renewal invoice (same number and pay link); `invoice` in the result is that renewal. Otherwise `invoice` is null.",
         "- Ask the user which they want before calling: removing now takes back what the customer has not used yet.",
         "- The purchasePackageId is the `id` of an entry in the subscription's `packages` (clocknext_get_subscription), not the catalog package id.",
@@ -22999,9 +23018,9 @@ function registerPackageTools(server, cnk) {
         "Refusals (`code` in the error):",
         "- INVALID_REQUEST (400): a bad body.",
         "- PACKAGE_NOT_FOUND (404): no such package on this subscription.",
-        "- PACKAGE_ENDED (409): it has already ended.",
-        "- PACKAGE_AWAITING_PAYMENT (409): it is not paid yet \u2014 void its invoice instead (in the Clocknext product).",
-        "- PACKAGE_ALREADY_ENDING (409): atPeriodEnd: true on a package that is already ENDING.",
+        "- PACKAGE_ENDED (409): it is already CANCELLED.",
+        "- PACKAGE_AWAITING_PAYMENT (409): it is SCHEDULED (its invoice is not paid yet) \u2014 void its invoice instead (in the Clocknext product).",
+        "- PACKAGE_ALREADY_ENDING (409): atPeriodEnd: true on a package that is already MARKED_FOR_CANCELLATION.",
         "- RENEWAL_PAID_IN_PART (409): on hold, and part of the held renewal is already paid.",
         "- CHARGE_IN_FLIGHT (409): on hold, and a card charge on the renewal is settling \u2014 retry in a few minutes.",
         "- USAGE_UNAVAILABLE (409): removing now, but the usage can't be read right now \u2014 retry in a minute."
@@ -23010,7 +23029,7 @@ function registerPackageTools(server, cnk) {
         subscriptionId: external_exports.string().describe("The subscription id (= the purchase id)."),
         purchasePackageId: external_exports.string().describe("The package's id on the subscription (from clocknext_get_subscription `packages[].id`)."),
         atPeriodEnd: external_exports.boolean().optional().describe("true = end at the end of the paid period. Omit (or false) = end now."),
-        reason: external_exports.string().max(200).optional().describe("Optional reason, at most 200 characters; kept as `removalReason`.")
+        reason: external_exports.string().max(200).optional().describe("Optional reason, at most 200 characters; kept as `cancelReason`.")
       },
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true }
     },
@@ -23027,6 +23046,13 @@ function registerPackageTools(server, cnk) {
       }
     }
   );
+}
+function hasEntitlement(e) {
+  if (!e) return false;
+  return GROUPS.some((g) => (e[g]?.length ?? 0) > 0) || e.flatFee !== void 0 && e.flatFee !== null;
+}
+function toItem(row) {
+  return { id: row.id, quantity: row.quantity };
 }
 function definedOnly2(args) {
   const out = {};

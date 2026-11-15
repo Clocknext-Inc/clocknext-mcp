@@ -4,7 +4,7 @@
  *
  *   GET    /api/v1/packages?active=true       list (archived ones listed unless active=true)
  *   GET    /api/v1/packages/:id               one package
- *   POST   /api/v1/packages                   create { name, description?, subtotalUsd?, entitlements }
+ *   POST   /api/v1/packages                   create { name, description?, cost?, entitlements: { credits, outcomes, units, composites, flatFee } }
  *   PATCH  /api/v1/packages/:id               partial update
  *   POST   /api/v1/packages/:id/archive       archive
  *   POST   /api/v1/packages/:id/unarchive     unarchive
@@ -45,6 +45,8 @@ const fakeServer = {
 type Sent = { method: string; url: string; body: unknown };
 const sent: Sent[] = [];
 let reply: { status: number; json: unknown } = { status: 200, json: {} };
+/** Replies used in order before `reply` (for a tool that sends more than one request). */
+let queue: { status: number; json: unknown }[] = [];
 
 globalThis.fetch = (async (input: string | URL, init?: RequestInit) => {
   sent.push({
@@ -52,8 +54,9 @@ globalThis.fetch = (async (input: string | URL, init?: RequestInit) => {
     url: String(input),
     body: init?.body ? JSON.parse(String(init.body)) : undefined,
   });
-  return new Response(JSON.stringify(reply.json), {
-    status: reply.status,
+  const next = queue.shift() ?? reply;
+  return new Response(JSON.stringify(next.json), {
+    status: next.status,
     headers: { "content-type": "application/json" },
   });
 }) as typeof fetch;
@@ -167,12 +170,12 @@ async function main(): Promise<void> {
   const created = await call("clocknext_create_package", {
     name: "Booster",
     description: "500 extra credits",
-    subtotalUsd: 4,
-    entitlements: [
-      { type: "CREDIT", creditId: "cr_1", quantity: 500 },
-      { type: "COMPOSITE", compositeId: "pm_1", quantity: 5 },
-      { type: "FLAT", amount: 2 },
-    ],
+    cost: 4,
+    entitlements: {
+      credits: [{ id: "cr_1", quantity: 500 }],
+      composites: [{ id: "pm_1", quantity: 5 }],
+      flatFee: 2,
+    },
   });
   check("create_package parses", !("parseError" in created), String((created as { parseError?: string }).parseError));
   check(
@@ -181,63 +184,78 @@ async function main(): Promise<void> {
     JSON.stringify(created.request),
   );
   check(
-    "create_package sends the body the API takes",
+    "create_package sends the body the API takes (cost, grouped entitlements)",
     JSON.stringify(created.request?.body) ===
       JSON.stringify({
         name: "Booster",
         description: "500 extra credits",
-        subtotalUsd: 4,
-        entitlements: [
-          { type: "CREDIT", creditId: "cr_1", quantity: 500 },
-          { type: "COMPOSITE", compositeId: "pm_1", quantity: 5 },
-          { type: "FLAT", amount: 2 },
-        ],
+        cost: 4,
+        entitlements: {
+          credits: [{ id: "cr_1", quantity: 500 }],
+          composites: [{ id: "pm_1", quantity: 5 }],
+          flatFee: 2,
+        },
       }),
     JSON.stringify(created.request?.body),
   );
   check("create_package returns the package", /pkg_3/.test(textOf(created)), textOf(created));
   check(
-    "create_package refuses a WALLET entitlement",
-    !parses("clocknext_create_package", { name: "W", entitlements: [{ type: "WALLET", amount: 10 }] }),
+    "create_package refuses a wallet group",
+    !parses("clocknext_create_package", { name: "W", entitlements: { wallet: 10 } }),
   );
   check(
-    "create_package refuses PRICING_METRIC (the API takes COMPOSITE)",
+    "create_package refuses the old flat list",
     !parses("clocknext_create_package", {
-      name: "P",
-      entitlements: [{ type: "PRICING_METRIC", compositeId: "pm_1", quantity: 1 }],
+      name: "L",
+      entitlements: [{ type: "CREDIT", creditId: "cr_1", quantity: 1 }],
     }),
   );
   check(
     "create_package refuses a fractional quantity",
-    !parses("clocknext_create_package", {
-      name: "Q",
-      entitlements: [{ type: "CREDIT", creditId: "cr_1", quantity: 1.5 }],
-    }),
+    !parses("clocknext_create_package", { name: "Q", entitlements: { credits: [{ id: "cr_1", quantity: 1.5 }] } }),
+  );
+  check(
+    "create_package refuses a quantity of 0",
+    !parses("clocknext_create_package", { name: "Z", entitlements: { credits: [{ id: "cr_1", quantity: 0 }] } }),
+  );
+  check(
+    "create_package refuses a flat fee below $0",
+    !parses("clocknext_create_package", { name: "F", entitlements: { flatFee: -1 } }),
   );
   check(
     "create_package refuses a price below $0",
     !parses("clocknext_create_package", {
       name: "N",
-      subtotalUsd: -1,
-      entitlements: [{ type: "CREDIT", creditId: "cr_1", quantity: 1 }],
+      cost: -1,
+      entitlements: { credits: [{ id: "cr_1", quantity: 1 }] },
     }),
   );
   check(
-    "create_package needs at least one entitlement",
-    !parses("clocknext_create_package", { name: "E", entitlements: [] }),
+    "create_package refuses billingMode / rollover on an item",
+    !parses("clocknext_create_package", {
+      name: "B",
+      entitlements: { credits: [{ id: "cr_1", quantity: 1, billingMode: "ADVANCE" }] },
+    }) &&
+      !parses("clocknext_create_package", {
+        name: "R",
+        entitlements: { credits: [{ id: "cr_1", quantity: 1, rollover: true }] },
+      }),
+  );
+  reply = success({ created: true, package: { id: "pkg_4" } }, 201);
+  const nothing = await call("clocknext_create_package", { name: "E", entitlements: {} });
+  check(
+    "create_package with no entitlement is an error and sends nothing",
+    "result" in nothing && nothing.result?.isError === true && nothing.requests?.length === 0,
+    JSON.stringify(nothing),
   );
   const createShape = tool("clocknext_create_package")?.config.inputSchema ?? {};
-  for (const field of ["billingCycle", "billingMode", "rollover", "isActive", "currencyCode", "components", "priceAdjustmentUsd"]) {
+  for (const field of ["subtotalUsd", "priceAdjustment", "priceAdjustmentUsd", "billingCycle", "billingMode", "rollover", "isActive", "currencyCode", "components"]) {
     check(`create_package has no ${field} field`, !(field in createShape));
-  }
-  const entitlementShape = getEntitlementShape("clocknext_create_package");
-  for (const field of ["billingMode", "rollover", "pricingMetricId"]) {
-    check(`a package entitlement has no ${field} field`, !(field in entitlementShape));
   }
 
   console.log("catalog: update");
   reply = success({ updated: true, package: { id: "pkg_1" } });
-  const renamed = await call("clocknext_update_package", { id: "pkg_1", name: "Booster XL" });
+  const renamed = await call("clocknext_update_package", { id: "pkg_1", name: "Booster XL", cost: 3.5 });
   check(
     "update_package sends PATCH /api/v1/packages/pkg_1",
     renamed.request?.method === "PATCH" && renamed.request?.url === `${BASE}/api/v1/packages/pkg_1`,
@@ -245,18 +263,67 @@ async function main(): Promise<void> {
   );
   check(
     "update_package sends only the fields passed",
-    JSON.stringify(renamed.request?.body) === JSON.stringify({ name: "Booster XL" }),
+    JSON.stringify(renamed.request?.body) === JSON.stringify({ name: "Booster XL", cost: 3.5 }),
     JSON.stringify(renamed.request?.body),
   );
-  const relisted = await call("clocknext_update_package", {
+  check("update_package with no entitlements reads nothing first", renamed.requests?.length === 1, JSON.stringify(renamed));
+
+  // The API empties a group left out of `entitlements`; the tool keeps it, like update_composite.
+  queue = [
+    success({
+      package: {
+        id: "pkg_1",
+        entitlements: {
+          credits: [{ id: "cr_1", name: "AI credits", quantity: 500 }],
+          outcomes: [{ id: "oc_1", name: "Lead", quantity: 2 }],
+          units: [],
+          composites: [],
+          flatFee: 2,
+        },
+      },
+    }),
+    success({ updated: true, package: { id: "pkg_1" } }),
+  ];
+  const regrouped = await call("clocknext_update_package", {
     id: "pkg_1",
-    entitlements: [{ id: "pkc_1", type: "CREDIT", creditId: "cr_1", quantity: 800 }],
+    entitlements: { credits: [{ id: "cr_1", quantity: 800 }] },
   });
   check(
-    "update_package sends an entitlement's id back",
-    JSON.stringify(relisted.request?.body) ===
-      JSON.stringify({ entitlements: [{ id: "pkc_1", type: "CREDIT", creditId: "cr_1", quantity: 800 }] }),
-    JSON.stringify(relisted.request?.body),
+    "update_package reads the package first, then PATCHes",
+    regrouped.requests?.length === 2 && regrouped.requests[0].method === "GET" && regrouped.requests[1].method === "PATCH",
+    JSON.stringify(regrouped.requests),
+  );
+  check(
+    "update_package keeps the groups (and flat fee) it was not sent",
+    JSON.stringify(regrouped.request?.body) ===
+      JSON.stringify({
+        entitlements: {
+          credits: [{ id: "cr_1", quantity: 800 }],
+          outcomes: [{ id: "oc_1", quantity: 2 }],
+          units: [],
+          composites: [],
+          flatFee: 2,
+        },
+      }),
+    JSON.stringify(regrouped.request?.body),
+  );
+  queue = [
+    success({
+      package: {
+        id: "pkg_1",
+        entitlements: { credits: [{ id: "cr_1", name: "AI credits", quantity: 500 }], outcomes: [], units: [], composites: [], flatFee: 2 },
+      },
+    }),
+    success({ updated: true, package: { id: "pkg_1" } }),
+  ];
+  const noFee = await call("clocknext_update_package", { id: "pkg_1", entitlements: { flatFee: null } });
+  check(
+    "update_package flatFee=null removes the flat fee",
+    JSON.stringify(noFee.request?.body) ===
+      JSON.stringify({
+        entitlements: { credits: [{ id: "cr_1", quantity: 500 }], outcomes: [], units: [], composites: [], flatFee: null },
+      }),
+    JSON.stringify(noFee.request?.body),
   );
   const cleared = await call("clocknext_update_package", { id: "pkg_1", description: null });
   check(
@@ -264,6 +331,7 @@ async function main(): Promise<void> {
     JSON.stringify(cleared.request?.body) === JSON.stringify({ description: null }),
     JSON.stringify(cleared.request?.body),
   );
+  check("update_package has no subtotalUsd field", !("subtotalUsd" in (tool("clocknext_update_package")?.config.inputSchema ?? {})));
   const empty = await call("clocknext_update_package", { id: "pkg_1" });
   check(
     "update_package with nothing to change is an error and sends nothing",
@@ -300,7 +368,7 @@ async function main(): Promise<void> {
   console.log("subscription: add packages");
   reply = success(
     {
-      purchasePackages: [{ id: "pp_1", status: "AWAITING_PAYMENT" }],
+      purchasePackages: [{ id: "pp_1", status: "SCHEDULED" }],
       invoice: { id: "inv_1", payUrl: "https://pay" },
       replayed: false,
     },
@@ -386,7 +454,7 @@ async function main(): Promise<void> {
   );
 
   console.log("subscription: remove a package");
-  reply = success({ purchasePackage: { id: "pp_1", status: "ENDED" }, invoice: null });
+  reply = success({ purchasePackage: { id: "pp_1", status: "CANCELLED" }, invoice: null });
   const removedNow = await call("clocknext_remove_subscription_package", {
     subscriptionId: "pur_1",
     purchasePackageId: "pp_1",
@@ -402,7 +470,7 @@ async function main(): Promise<void> {
     JSON.stringify(removedNow.request?.body) === JSON.stringify({}),
     JSON.stringify(removedNow.request?.body),
   );
-  reply = success({ purchasePackage: { id: "pp_1", status: "ENDING" }, invoice: null });
+  reply = success({ purchasePackage: { id: "pp_1", status: "MARKED_FOR_CANCELLATION" }, invoice: null });
   const removedLater = await call("clocknext_remove_subscription_package", {
     subscriptionId: "pur_1",
     purchasePackageId: "pp_1",
@@ -435,6 +503,9 @@ async function main(): Promise<void> {
   check("create_package says there is no billing cycle", /billing cycle/i.test(create), create);
   check("create_package says there is no wallet", /wallet/i.test(create), create);
   check("create_package says there is no rollover", /rollover/i.test(create), create);
+  check("create_package names cost", /`cost`/.test(create), create);
+  check("create_package names priceAdjustment as read-only", /priceAdjustment/.test(create), create);
+  check("create_package names flatFee", /flatFee/.test(create), create);
   const add = describeOf("clocknext_add_subscription_packages");
   for (const code of [
     "SUBSCRIPTION_NOT_FOUND",
@@ -451,6 +522,11 @@ async function main(): Promise<void> {
   const remove = describeOf("clocknext_remove_subscription_package");
   check("remove_subscription_package says it removes now by default", /now/i.test(remove), remove);
   check("remove_subscription_package names atPeriodEnd", /atPeriodEnd/.test(remove), remove);
+  check("remove_subscription_package names MARKED_FOR_CANCELLATION", /MARKED_FOR_CANCELLATION/.test(remove), remove);
+  check("remove_subscription_package names cancelReason", /cancelReason/.test(remove), remove);
+  const getSub = describeOf("clocknext_get_subscription");
+  check("get_subscription names SCHEDULED and MARKED_FOR_CANCELLATION", /SCHEDULED/.test(getSub) && /MARKED_FOR_CANCELLATION/.test(getSub), getSub);
+  check("add_subscription_packages names SCHEDULED", /SCHEDULED/.test(add), add);
   for (const code of [
     "PACKAGE_NOT_FOUND",
     "PACKAGE_ENDED",
@@ -463,7 +539,13 @@ async function main(): Promise<void> {
     check(`remove_subscription_package names ${code}`, remove.includes(code), remove);
   }
   for (const name of expected) {
+    const text = JSON.stringify(tool(name)?.config ?? {});
     check(`${name} never says "dashboard"`, !/dashboard/i.test(describeOf(name)));
+    check(
+      `${name} names no old field or status (subtotalUsd, removalReason, AWAITING_PAYMENT status, ENDING, ENDED)`,
+      !/subtotalUsd|priceAdjustmentUsd|removalReason|AWAITING_PAYMENT|\bENDING\b|\bENDED\b/.test(text.replace(/PACKAGE_AWAITING_PAYMENT|PACKAGE_ALREADY_ENDING|PACKAGE_ENDED/g, "")),
+      text.match(/subtotalUsd|priceAdjustmentUsd|removalReason|AWAITING_PAYMENT|\bENDING\b|\bENDED\b/g)?.join(",") ?? "",
+    );
   }
   check(
     "add_subscription_packages is not idempotent and not read-only",
@@ -488,20 +570,16 @@ async function main(): Promise<void> {
     // missing
   }
   check("references/packages.md exists", reference.length > 0);
+  const docs = (skill + reference).replace(/PACKAGE_AWAITING_PAYMENT|PACKAGE_ALREADY_ENDING|PACKAGE_ENDED/g, "");
+  check(
+    "the skill texts name no old package field or status",
+    !/subtotalUsd|priceAdjustmentUsd|removalReason|AWAITING_PAYMENT|\bENDING\b|\bENDED\b/.test(docs),
+    docs.match(/subtotalUsd|priceAdjustmentUsd|removalReason|AWAITING_PAYMENT|\bENDING\b|\bENDED\b/g)?.join(",") ?? "",
+  );
+  check("references/packages.md names the grouped entitlements", /flatFee/.test(reference) && /composites/.test(reference));
 
   console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILED`);
   process.exit(failures === 0 ? 0 : 1);
-}
-
-/** The fields of one package entitlement, read from a tool's schema. */
-function getEntitlementShape(name: string): z.ZodRawShape {
-  const list = tool(name)?.config.inputSchema?.entitlements as z.ZodTypeAny | undefined;
-  if (!list) return {};
-  let inner: z.ZodTypeAny = list;
-  while (!(inner instanceof z.ZodArray)) {
-    inner = (inner as z.ZodOptional<z.ZodTypeAny>)._def.innerType;
-  }
-  return ((inner as z.ZodArray<z.ZodTypeAny>).element as z.ZodObject<z.ZodRawShape>).shape;
 }
 
 main().catch((err) => {
