@@ -565,6 +565,9 @@ export class ClocknextApi {
       input: {
         packageIds: string[];
         recordAsPaid?: { mode: string; reference?: string };
+        /** A reference or PO number, at most 500 characters; kept on each
+         *  package and shown on the package invoice. Blank is stored as null. */
+        notes?: string;
         idempotencyKey?: string;
       },
     ): Promise<unknown> => {

@@ -9,7 +9,7 @@
  *   POST   /api/v1/packages/:id/archive       archive
  *   POST   /api/v1/packages/:id/unarchive     unarchive
  *   GET    /api/v1/subscriptions/:id          the subscription, with its `packages`
- *   POST   /api/v1/subscriptions/:id/packages { packageIds, recordAsPaid?, idempotencyKey? }
+ *   POST   /api/v1/subscriptions/:id/packages { packageIds, recordAsPaid?, notes?, idempotencyKey? }
  *   POST   /api/v1/subscriptions/:id/packages/:purchasePackageId/remove { atPeriodEnd?, reason? }
  *
  * A package has no billing cycle, billing mode, rollover or wallet; it holds
@@ -418,6 +418,24 @@ async function main(): Promise<void> {
       JSON.stringify({ packageIds: ["pkg_1"], recordAsPaid: { mode: "BANK_TRANSFER", reference: "TX-9" } }),
     JSON.stringify(paid.request?.body),
   );
+  const noted = await call("clocknext_add_subscription_packages", {
+    subscriptionId: "pur_1",
+    packageIds: ["pkg_1"],
+    notes: "PO-4471",
+  });
+  check(
+    "add_subscription_packages sends notes",
+    JSON.stringify(noted.request?.body) === JSON.stringify({ packageIds: ["pkg_1"], notes: "PO-4471" }),
+    JSON.stringify(noted.request?.body),
+  );
+  check(
+    "add_subscription_packages takes notes of 500 characters",
+    parses("clocknext_add_subscription_packages", { subscriptionId: "pur_1", packageIds: ["pkg_1"], notes: "x".repeat(500) }),
+  );
+  check(
+    "add_subscription_packages refuses notes over 500 characters",
+    !parses("clocknext_add_subscription_packages", { subscriptionId: "pur_1", packageIds: ["pkg_1"], notes: "x".repeat(501) }),
+  );
   check(
     "add_subscription_packages refuses no package ids",
     !parses("clocknext_add_subscription_packages", { subscriptionId: "pur_1", packageIds: [] }),
@@ -529,6 +547,8 @@ async function main(): Promise<void> {
   ]) {
     check(`add_subscription_packages names ${code}`, add.includes(code), add);
   }
+  check("add_subscription_packages names notes", /`notes`/.test(add), add);
+  check("add_subscription_packages says the notes show on the invoice", /notes[^\n]*invoice/i.test(add), add);
   check("add_subscription_packages says it raises a real invoice", /invoice/i.test(add) && /real/i.test(add), add);
   const remove = describeOf("clocknext_remove_subscription_package");
   check("remove_subscription_package says it removes now by default", /now/i.test(remove), remove);
@@ -536,6 +556,7 @@ async function main(): Promise<void> {
   check("remove_subscription_package names MARKED_FOR_CANCELLATION", /MARKED_FOR_CANCELLATION/.test(remove), remove);
   check("remove_subscription_package names cancelReason", /cancelReason/.test(remove), remove);
   const getSub = describeOf("clocknext_get_subscription");
+  check("get_subscription names the package notes", /`notes`/.test(getSub), getSub);
   check("get_subscription names SCHEDULED and MARKED_FOR_CANCELLATION", /SCHEDULED/.test(getSub) && /MARKED_FOR_CANCELLATION/.test(getSub), getSub);
   check("add_subscription_packages names SCHEDULED", /SCHEDULED/.test(add), add);
   for (const code of [
@@ -590,6 +611,7 @@ async function main(): Promise<void> {
   );
   check("the skill texts name no package price adjustment", !/priceAdjustment|price adjustment/i.test(reference) && !/priceAdjustment/.test(skill));
   check("references/packages.md says cost is required", /`cost` is required/i.test(reference));
+  check("references/packages.md names the attach notes", /`notes`/.test(reference));
   check("references/packages.md names the grouped entitlements", /flatFee/.test(reference) && /composites/.test(reference));
 
   console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILED`);

@@ -282,7 +282,7 @@ export function registerPackageTools(server: McpServer, cnk: ClocknextApi): void
         "",
         "Rules:",
         "- The subscription id is the purchase id: `plan.purchaseId` from clocknext_get_customer_plan, or the id clocknext_create_purchase returned.",
-        "- `packages` lists the packages that are SCHEDULED (invoice not paid yet), ACTIVE or MARKED_FOR_CANCELLATION (running until `endsAt`), oldest first; CANCELLED ones are left out. Each has `cost`, its grouped `entitlements` (the copy taken when it was added) and `cancelReason`. Its `id` is the purchasePackageId that clocknext_remove_subscription_package takes.",
+        "- `packages` lists the packages that are SCHEDULED (invoice not paid yet), ACTIVE or MARKED_FOR_CANCELLATION (running until `endsAt`), oldest first; CANCELLED ones are left out. Each has `cost`, its grouped `entitlements` (the copy taken when it was added), `notes` (the note sent when it was added, or null) and `cancelReason`. Its `id` is the purchasePackageId that clocknext_remove_subscription_package takes.",
       ].join("\n"),
       inputSchema: { id: z.string().describe("The subscription id (= the purchase id).") },
       annotations: { readOnlyHint: true, openWorldHint: true },
@@ -307,6 +307,7 @@ export function registerPackageTools(server: McpServer, cnk: ClocknextApi): void
         "- ⛔ Raises a REAL invoice (real money on a live org). Only call this after the user explicitly approved this exact attach — which packages, on which customer's subscription, for how much — in a question dedicated to it alone.",
         "- The packages are SCHEDULED until the invoice is paid (the result has its `payUrl`), then ACTIVE. When the org uses the invoice balance for new invoices, the customer's invoice balance pays it first: paid in full, the invoice comes back PAID with no `payUrl` and the packages are ACTIVE at once; paid in part, the invoice stays OPEN for the rest. With `recordAsPaid` the invoice is recorded as paid (paid outside Clocknext) and they are ACTIVE at once — only when the user says it was really paid; the balance is then not used.",
         "- Each package entitlement (except a flat fee) must be on the subscription's plan as ADVANCE. Check with clocknext_get_customer_plan / clocknext_get_plan before calling.",
+        "- `notes` (optional, at most 500 characters) is a reference or PO number for this attach: kept on each package as `notes` and shown on the package invoice. Blank is stored as null.",
         "- Pass an `idempotencyKey` and reuse it if you retry after a timeout or network error: the same key with the same packages answers with the first attach (`replayed: true`) and writes nothing, so a retry never bills twice.",
         "- Returns `purchasePackages` (in the order sent; each `id` is what clocknext_remove_subscription_package takes), `invoice` and `replayed`.",
         "",
@@ -337,6 +338,11 @@ export function registerPackageTools(server: McpServer, cnk: ClocknextApi): void
           })
           .optional()
           .describe("Record the invoice as already paid, so the packages start now. Only when the user says it was really paid."),
+        notes: z
+          .string()
+          .max(500)
+          .optional()
+          .describe("Optional note for this attach, at most 500 characters — a reference or PO number. Kept on each package and shown on the package invoice."),
         idempotencyKey: z
           .string()
           .min(1)
@@ -351,12 +357,13 @@ export function registerPackageTools(server: McpServer, cnk: ClocknextApi): void
         openWorldHint: true,
       },
     },
-    async ({ subscriptionId, packageIds, recordAsPaid, idempotencyKey }) => {
+    async ({ subscriptionId, packageIds, recordAsPaid, notes, idempotencyKey }) => {
       try {
         return jsonResult(
           await cnk.subscriptions.addPackages(subscriptionId, {
             packageIds,
             ...(recordAsPaid ? { recordAsPaid } : {}),
+            ...(notes !== undefined ? { notes } : {}),
             ...(idempotencyKey ? { idempotencyKey } : {}),
           }),
         );
