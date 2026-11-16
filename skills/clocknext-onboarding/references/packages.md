@@ -67,8 +67,10 @@ The subscription id is the purchase id (`plan.purchaseId` from `clocknext_get_cu
   MARKED_FOR_CANCELLATION ones; CANCELLED ones left out). Each has its `cost`, the grouped
   `entitlements` copied when it was added, and `cancelReason`.
 - `clocknext_add_subscription_packages` — **⛔ raises a real invoice**, one line per
-  package, full price. The packages are SCHEDULED until it is paid, then ACTIVE;
-  `recordAsPaid` records it as paid (only when the user says it really was). Pass an
+  package, full price. The packages are SCHEDULED until it is paid, then ACTIVE. When the
+  org uses the invoice balance for new invoices, the customer's invoice balance pays it first:
+  in full → PAID, no `payUrl`, ACTIVE at once (do not send a pay link); in part → OPEN for the
+  rest. `recordAsPaid` records it as paid (only when the user says it really was). Pass an
   `idempotencyKey` and reuse it on a retry so it never bills twice. This is never covered by
   Gate 1: it needs its own approval (`ADD_PACKAGES_TO_SUBSCRIPTION` — named packages, named
   customer, the amount), asked alone.
