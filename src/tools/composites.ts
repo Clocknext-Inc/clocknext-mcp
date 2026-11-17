@@ -179,7 +179,7 @@ export function registerCompositeTools(server: McpServer, cnk: ClocknextApi): vo
         "- Partial update: pass the id plus ONLY the fields to change; everything you leave out keeps its stored value.",
         "- creditIds / outcomeIds / unitIds: each list you pass is the complete new list for that kind; a kind you leave out keeps its current items. The composite must still wrap at least one item. Items it already wraps may stay even if since archived; a newly added one must be active (and a unit FLAT-priced).",
         "- Renaming `refId` cuts ingest over at once: signals still sending the old tag go untagged, silently. Ship the new tag in the product's code first, then rename.",
-        "- A new `price` applies to purchases made after the change; existing purchases keep the price they were bought at.",
+        "- A new `price` reaches every live customer's metered (ARREAR) completions at once. A prepaid (ADVANCE) quantity and the plan's price keep the price of the purchase; new purchases use the plan's price.",
       ].join("\n"),
       inputSchema: {
         id: z.string().describe("The composite id to update."),
