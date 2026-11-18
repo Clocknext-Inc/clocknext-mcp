@@ -341,7 +341,8 @@ report it, and ask the same single phase-transition question. This is a sequenci
 not a second money gate or a new financial scope. Do not purchase in S18.
 S19 executes the approved subscription phase only after that transition answer: announce
 that this is the invoice-raising phase already covered by Gate 1, call
-`clocknext_create_purchase` — leave `autoPayment` unset/false for a test. An unpaid invoice
+`clocknext_create_purchase` — leave `autoPayment` unset/false for a test (`true` pays the first
+invoice at once from the customer's invoice balance and saved card). An unpaid invoice
 is never voided by its age, so say that the test invoice stays open until it is paid, or
 until the user voids it manually in the Clocknext. Report the invoice id and amount,
 ask one next-state question, and STOP. The transition question is not a new money gate.

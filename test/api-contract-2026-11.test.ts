@@ -222,6 +222,15 @@ async function main(): Promise<void> {
     "create_purchase has no voidAfterMinutes (the API ignores it)",
     !("voidAfterMinutes" in tool("clocknext_create_purchase").config.inputSchema!),
   );
+  {
+    // SE-541: autoPayment now also pays the FIRST invoice (balance, then saved card); the agent must know that.
+    const desc = String((tool("clocknext_create_purchase").config.inputSchema!.autoPayment as z.ZodTypeAny).description ?? "");
+    check(
+      "create_purchase autoPayment says it pays the first invoice from the balance and the saved card",
+      /first invoice/i.test(desc) && /balance/i.test(desc) && /saved card/i.test(desc),
+      desc,
+    );
+  }
 
   console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILED`);
   process.exit(failures === 0 ? 0 : 1);
