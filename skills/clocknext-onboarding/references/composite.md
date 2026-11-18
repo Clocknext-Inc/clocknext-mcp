@@ -120,6 +120,8 @@ rollup that will never exist.
 
 ## Check the refId before you wire it
 Read the composite back with `clocknext_list_composites` and copy the `refId` from there.
+The list is one page, newest first: if the composite is not on it, follow `nextCursor`
+(pass it as `cursor`) until it is `null` — or read it by id with `clocknext_get_composite`.
 This matters more than it looks: a tag naming no live composite is **silently ignored, not
 rejected** — the signal bills normally and the rollup just never happens, so a typo reads
 exactly like success and nothing anywhere reports it.
