@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ClocknextApi } from "../api";
 import { errMsg, errorResult, jsonResult } from "./util";
+import { listPageArgs, listPageRules } from "./list-page";
 
 /**
  * Operate-mode catalogue tools — CRUD (create / read / update / archive) over the
@@ -400,7 +401,8 @@ const unitInput: z.ZodRawShape = {
 // ---------- the CRUD factory ----------
 
 interface Api {
-  list: (params: { active?: boolean }) => Promise<unknown>;
+  /** One cursor page (`GET <base>`), newest first; always sends `limit`. */
+  page: (params: { active?: boolean; limit?: number; cursor?: string }) => Promise<{ items: unknown[]; nextCursor: string | null }>;
   get: (id: string) => Promise<unknown>;
   create: (input: unknown) => Promise<unknown>;
   update: (id: string, input: unknown) => Promise<unknown>;
@@ -454,30 +456,26 @@ function registerCrud(
     `clocknext_list_${plural}`,
     {
       title: `Clocknext: list ${plural}`,
-      description: desc.list,
-      inputSchema: {
-        active: z
-          .boolean()
-          .optional()
-          .describe(
-            `Filter by active state: true = only active ${plural}, false = only archived ${plural}, omit = all.`,
-          ),
-      },
+      description: [desc.list, "", "Paging:", listPageRules(plural)].join("\n"),
+      inputSchema: listPageArgs(
+        plural,
+        `Filter by active state: true = only active ${plural}, false = only archived ${plural}, omit = both.`,
+      ),
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    async ({ active }) => {
+    async ({ active, limit, cursor }) => {
       try {
-        const rows = await api.list(active === undefined ? {} : { active });
-        // The API only special-cases `active=true`; `active=false` comes back
-        // unfiltered. Filter here so the documented contract holds both ways
-        // (a no-op for `true`, which the backend already narrowed).
+        const page = await api.page({ active, limit, cursor });
+        // The server filters `active` strictly (SE-194); the check here only
+        // guards against an older server that ignored `active=false`.
         const filtered =
-          active === undefined || !Array.isArray(rows)
-            ? rows
-            : (rows as { isActive?: boolean }[]).filter((r) => r.isActive === active);
+          active === undefined
+            ? page.items
+            : (page.items as { isActive?: boolean }[]).filter((r) => r.isActive === active);
         return jsonResult({
-          count: Array.isArray(filtered) ? filtered.length : undefined,
+          count: filtered.length,
           [plural]: filtered,
+          nextCursor: page.nextCursor,
         });
       } catch (err) {
         return errorResult(errMsg(err));
@@ -703,7 +701,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClocknextApi): vo
     resource: "plan",
     plural: "plans",
     api: {
-      list: (p) => cnk.plans.list(p),
+      page: (p) => cnk.plans.page(p),
       get: (id) => cnk.plans.get(id),
       create: (i) => cnk.plans.create(i as never),
       update: (id, i) => cnk.plans.update(id, i as never),
@@ -753,7 +751,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClocknextApi): vo
     resource: "credit",
     plural: "credits",
     api: {
-      list: (p) => cnk.credits.list(p),
+      page: (p) => cnk.credits.page(p),
       get: (id) => cnk.credits.get(id),
       create: (i) => cnk.credits.create(i as never),
       update: (id, i) => cnk.credits.update(id, i as never),
@@ -798,7 +796,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClocknextApi): vo
     resource: "outcome",
     plural: "outcomes",
     api: {
-      list: (p) => cnk.outcomes.list(p),
+      page: (p) => cnk.outcomes.page(p),
       get: (id) => cnk.outcomes.get(id),
       create: (i) => cnk.outcomes.create(i as never),
       update: (id, i) => cnk.outcomes.update(id, i as never),
@@ -843,7 +841,7 @@ export function registerCatalogueTools(server: McpServer, cnk: ClocknextApi): vo
     resource: "unit",
     plural: "units",
     api: {
-      list: (p) => cnk.units.list(p),
+      page: (p) => cnk.units.page(p),
       get: (id) => cnk.units.get(id),
       create: (i) => cnk.units.create(i as never),
       update: (id, i) => cnk.units.update(id, i as never),

@@ -21149,6 +21149,7 @@ var StdioServerTransport = class {
 var DEFAULT_BASE_URL = "https://payments.clocknext.com";
 var DEFAULT_TIMEOUT_MS = 1e4;
 var MAX_ATTEMPTS = 5;
+var DEFAULT_PAGE_LIMIT = 50;
 var BASE_DELAY_MS = 200;
 var MAX_DELAY_MS = 1e4;
 var ClocknextError = class extends Error {
@@ -21427,14 +21428,31 @@ var ClocknextApi = class {
    */
   catalogue(basePath, listKey, itemKey) {
     return {
-      /** `GET <base>` — every row, or only active ones with `{ active: true }`. */
-      list: async (params = {}) => {
+      /**
+       * `GET <base>` — ONE cursor page, newest first (`createdAt` desc, then
+       * `id` desc). `active: true` = active only, `false` = archived only,
+       * left out = both. Always sends `limit` (default 50, max 200): a
+       * request with neither `limit` nor `cursor` gets the deprecated unpaged
+       * answer until 2027-03-01 and a 50-item page after it, so sending it
+       * keeps this call on one contract. Pass `nextCursor` back as `cursor`
+       * for the next page; it is `null` on the last page.
+       */
+      page: async (params = {}) => {
         const result = await this.request({
           method: "GET",
           path: basePath,
-          query: activeQuery(params)
+          query: {
+            ...activeQuery(params),
+            limit: params.limit ?? DEFAULT_PAGE_LIMIT,
+            cursor: params.cursor
+          }
         });
-        return result[listKey] ?? [];
+        const items = result[listKey];
+        const nextCursor = result.nextCursor;
+        return {
+          items: Array.isArray(items) ? items : [],
+          nextCursor: typeof nextCursor === "string" ? nextCursor : null
+        };
       },
       /** `GET <base>/:id`. */
       get: async (id) => {
@@ -21649,6 +21667,24 @@ function registerAddModel(server, cnk) {
   );
 }
 
+// src/tools/list-page.ts
+function listPageArgs(plural, activeText) {
+  return {
+    active: external_exports.boolean().optional().describe(activeText),
+    limit: external_exports.number().int().min(1).max(200).optional().describe(`How many ${plural} on this page, 1\u2013200. Default 50.`),
+    cursor: external_exports.string().optional().describe(
+      "The `nextCursor` of the previous page, to read the next one. Send the same `active` as on that page. Leave it out for the first page."
+    )
+  };
+}
+function listPageRules(plural) {
+  return [
+    `- Newest first (the most recently created ${plural} come first). One page per call: at most \`limit\` items (default 50, max 200), plus \`nextCursor\`.`,
+    `- \`nextCursor\` not null = there are more ${plural}: call again with \`cursor\` set to it (and the same \`active\`). \`null\` = this is the last page.`,
+    `- Before you conclude that a ${plural.replace(/s$/, "")} does not exist (or pick a name / agentKey as "unused"), read every page until \`nextCursor\` is null.`
+  ].join("\n");
+}
+
 // src/tools/catalogue.ts
 var mixerLine = external_exports.object({
   model: external_exports.string().min(1).describe(
@@ -21840,21 +21876,21 @@ function registerCrud(server, opts) {
     `clocknext_list_${plural}`,
     {
       title: `Clocknext: list ${plural}`,
-      description: desc.list,
-      inputSchema: {
-        active: external_exports.boolean().optional().describe(
-          `Filter by active state: true = only active ${plural}, false = only archived ${plural}, omit = all.`
-        )
-      },
+      description: [desc.list, "", "Paging:", listPageRules(plural)].join("\n"),
+      inputSchema: listPageArgs(
+        plural,
+        `Filter by active state: true = only active ${plural}, false = only archived ${plural}, omit = both.`
+      ),
       annotations: { readOnlyHint: true, openWorldHint: true }
     },
-    async ({ active }) => {
+    async ({ active, limit, cursor }) => {
       try {
-        const rows = await api.list(active === void 0 ? {} : { active });
-        const filtered = active === void 0 || !Array.isArray(rows) ? rows : rows.filter((r) => r.isActive === active);
+        const page = await api.page({ active, limit, cursor });
+        const filtered = active === void 0 ? page.items : page.items.filter((r) => r.isActive === active);
         return jsonResult({
-          count: Array.isArray(filtered) ? filtered.length : void 0,
-          [plural]: filtered
+          count: filtered.length,
+          [plural]: filtered,
+          nextCursor: page.nextCursor
         });
       } catch (err) {
         return errorResult(errMsg(err));
@@ -22042,7 +22078,7 @@ function registerCatalogueTools(server, cnk) {
     resource: "plan",
     plural: "plans",
     api: {
-      list: (p) => cnk.plans.list(p),
+      page: (p) => cnk.plans.page(p),
       get: (id) => cnk.plans.get(id),
       create: (i) => cnk.plans.create(i),
       update: (id, i) => cnk.plans.update(id, i),
@@ -22091,7 +22127,7 @@ function registerCatalogueTools(server, cnk) {
     resource: "credit",
     plural: "credits",
     api: {
-      list: (p) => cnk.credits.list(p),
+      page: (p) => cnk.credits.page(p),
       get: (id) => cnk.credits.get(id),
       create: (i) => cnk.credits.create(i),
       update: (id, i) => cnk.credits.update(id, i),
@@ -22135,7 +22171,7 @@ function registerCatalogueTools(server, cnk) {
     resource: "outcome",
     plural: "outcomes",
     api: {
-      list: (p) => cnk.outcomes.list(p),
+      page: (p) => cnk.outcomes.page(p),
       get: (id) => cnk.outcomes.get(id),
       create: (i) => cnk.outcomes.create(i),
       update: (id, i) => cnk.outcomes.update(id, i),
@@ -22179,7 +22215,7 @@ function registerCatalogueTools(server, cnk) {
     resource: "unit",
     plural: "units",
     api: {
-      list: (p) => cnk.units.list(p),
+      page: (p) => cnk.units.page(p),
       get: (id) => cnk.units.get(id),
       create: (i) => cnk.units.create(i),
       update: (id, i) => cnk.units.update(id, i),
@@ -22232,20 +22268,22 @@ function registerCompositeTools(server, cnk) {
         "- Call it BEFORE clocknext_create_plan / clocknext_update_plan too: the `id` here is what a COMPOSITE line references as compositeId. `id` and `refId` are NOT interchangeable \u2014 the plan wants the id, the signal wants the refId.",
         "- A composite is restricted to a set of credits/outcomes/units. Only signals naming something in that set may carry its tag. Empty lists mean unrestricted (legacy rows only).",
         "- Pass active=true for only the ones a new signal can still be tagged with. Archived composites keep every row they already own.",
-        "- To change one, use clocknext_update_composite; to retire one, clocknext_archive_composite. Never create a second composite as a workaround \u2014 the old one keeps resolving and both stay live."
+        "- To change one, use clocknext_update_composite; to retire one, clocknext_archive_composite. Never create a second composite as a workaround \u2014 the old one keeps resolving and both stay live.",
+        "",
+        "Paging:",
+        listPageRules("composites")
       ].join("\n"),
-      inputSchema: {
-        active: external_exports.boolean().optional().describe(
-          "true = only composites that still accept new traffic, false = only archived ones, omit = all."
-        )
-      },
+      inputSchema: listPageArgs(
+        "composites",
+        "true = only composites that still accept new traffic, false = only archived ones, omit = both."
+      ),
       annotations: { readOnlyHint: true, openWorldHint: true }
     },
-    async ({ active }) => {
+    async ({ active, limit, cursor }) => {
       try {
-        const rows = await cnk.composites.list(active === void 0 ? {} : { active });
-        const filtered = active === void 0 ? rows : rows.filter((r) => r.isActive === active);
-        return jsonResult({ count: filtered.length, composites: filtered });
+        const page = await cnk.composites.page({ active, limit, cursor });
+        const filtered = active === void 0 ? page.items : page.items.filter((r) => r.isActive === active);
+        return jsonResult({ count: filtered.length, composites: filtered, nextCursor: page.nextCursor });
       } catch (err) {
         return errorResult(errMsg(err));
       }

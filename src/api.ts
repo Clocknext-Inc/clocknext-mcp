@@ -21,13 +21,16 @@
  *     but ONLY for replay-safe requests (GET / PUT / DELETE). A POST or PATCH
  *     is never retried automatically, so a timeout can't create something twice.
  *
- * The method names below (`cnk.credits.list`, `cnk.plans.update`, …) mirror the
+ * The method names below (`cnk.credits.page`, `cnk.plans.update`, …) mirror the
  * SDK's on purpose, so the tool files read the same as before.
  */
 
 const DEFAULT_BASE_URL = "https://payments.clocknext.com";
 const DEFAULT_TIMEOUT_MS = 10_000;
 const MAX_ATTEMPTS = 5;
+/** The page size a catalogue list asks for when the caller gives none — the
+ *  server's own default, sent explicitly so every list call is paged. */
+const DEFAULT_PAGE_LIMIT = 50;
 const BASE_DELAY_MS = 200;
 const MAX_DELAY_MS = 10_000;
 
@@ -428,14 +431,33 @@ export class ClocknextApi {
    */
   private catalogue(basePath: string, listKey: string, itemKey: string) {
     return {
-      /** `GET <base>` — every row, or only active ones with `{ active: true }`. */
-      list: async (params: { active?: boolean } = {}): Promise<unknown[]> => {
-        const result = await this.request<Record<string, unknown[]>>({
+      /**
+       * `GET <base>` — ONE cursor page, newest first (`createdAt` desc, then
+       * `id` desc). `active: true` = active only, `false` = archived only,
+       * left out = both. Always sends `limit` (default 50, max 200): a
+       * request with neither `limit` nor `cursor` gets the deprecated unpaged
+       * answer until 2027-03-01 and a 50-item page after it, so sending it
+       * keeps this call on one contract. Pass `nextCursor` back as `cursor`
+       * for the next page; it is `null` on the last page.
+       */
+      page: async (
+        params: { active?: boolean; limit?: number; cursor?: string } = {},
+      ): Promise<{ items: unknown[]; nextCursor: string | null }> => {
+        const result = await this.request<Record<string, unknown>>({
           method: "GET",
           path: basePath,
-          query: activeQuery(params),
+          query: {
+            ...activeQuery(params),
+            limit: params.limit ?? DEFAULT_PAGE_LIMIT,
+            cursor: params.cursor,
+          },
         });
-        return result[listKey] ?? [];
+        const items = result[listKey];
+        const nextCursor = result.nextCursor;
+        return {
+          items: Array.isArray(items) ? items : [],
+          nextCursor: typeof nextCursor === "string" ? nextCursor : null,
+        };
       },
 
       /** `GET <base>/:id`. */
