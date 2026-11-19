@@ -291,7 +291,7 @@ const planInput: z.ZodRawShape = {
     .boolean()
     .optional()
     .describe(
-      "Pay metered usage from the wallet. Default false. When true, every metered (ARREAR) CREDIT/OUTCOME/UNIT/COMPOSITE line is paid FROM the customer's prepaid WALLET as usage happens — one invoice per cycle — instead of a separate arrear invoice at cycle end. The wallet may go negative mid-cycle; the next cycle's wallet top-up absorbs the overdraft. Backend rejects it (400) unless ALL THREE hold: (1) the plan has at least one ARREAR credit/outcome/unit/composite component; (2) the plan has a WALLET component; (3) that WALLET component is billingMode ADVANCE (a metered/ARREAR wallet is refused as double-billing). Margin is PRESERVED: wallet-funded ARREAR usage debits the wallet at the CUSTOMER price (margin included) — only plain type:'wallet' signals debit at raw model cost with no margin.",
+      "Pay metered usage from the wallet. Default false. When true, every metered (ARREAR) CREDIT/OUTCOME/UNIT/COMPOSITE line is paid FROM the customer's prepaid WALLET as usage happens — one invoice per cycle — instead of a separate arrear invoice at cycle end. The wallet may go negative mid-cycle; the next cycle's wallet top-up absorbs the negative balance. Backend rejects it (400) unless ALL THREE hold: (1) the plan has at least one ARREAR credit/outcome/unit/composite component; (2) the plan has a WALLET component; (3) that WALLET component is billingMode ADVANCE (a metered/ARREAR wallet is refused as double-billing). Margin is PRESERVED: wallet-funded ARREAR usage debits the wallet at the CUSTOMER price (margin included) — only plain type:'wallet' signals debit at raw model cost with no margin.",
     ),
   cost: z
     .number()
@@ -589,7 +589,7 @@ function registerCrud(
         "",
         "Rules:",
         `- This and clocknext_archive_${resource} are the only way to change active state — no update tool takes isActive.`,
-        `- Prefer this over creating a replacement: agentKeys/identities are unique org-wide, so a parked ${resource} must be revived, never duplicated.`,
+        `- Prefer this over creating a replacement: agentKeys/identities are unique org-wide, so an archived ${resource} must be restored, never duplicated.`,
       ].join("\n"),
       inputSchema: { id: z.string().describe(`The ${resource} id to reactivate.`) },
       annotations: {

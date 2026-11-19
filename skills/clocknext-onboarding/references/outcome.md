@@ -45,16 +45,22 @@ Three steps, base costs **$0.10 + $0.05 + $0.15**, margin **25%**:
     pricePerOutcome  = 0.30 × 1.25 = $0.375   ← charged once per completed outcome
 
 ## Completion — how it actually bills (important)
-Billing is **declared, never inferred**. At runtime the product advances steps by their
-`agentKey`, tying them to one workflow **run**, and marks the final signal complete:
+Billing is **declared, never inferred**. At runtime the product sends one signal for each
+step, by the step's `agentKey`, with one `runId` for the whole workflow **run**. When the run
+ends, the product closes it with a separate call that names the OUTCOME's own `agentKey`:
 ```ts
-signals.outcome({ customerId, model, agentKey: "<step key>", tokens, runId, complete })  // SDK
-// or POST /api/v1/signal/outcome  { customerId, agentKey, runId, complete?,
-//                                   usage: { model, inputTokens, outputTokens, cacheTokens } }  (REST)
+signals.outcome({ customerId, model, agentKey: "<step key>", tokens, runId })      // SDK, each step
+signals.completeOutcome({ customerId, runId, agentKey: "<outcome key>" })          // SDK, once, at the end
+// REST: POST /api/v1/signal/outcome           { customerId, agentKey, runId,
+//                                               usage: { model, inputTokens, outputTokens, cacheTokens } }
+//       POST /api/v1/signal/outcome/complete  { customerId, runId, agentKey }   (no usage)
 ```
-- Signals with `complete: false` are **attached to the run but cost nothing**.
-- The signal carrying **`complete: true` closes the run and bills exactly `pricePerOutcome` once.**
-- A duplicate `complete: true` is **idempotent** — no second charge.
+- Step signals record their cost and **bill nothing**.
+- The completion **bills exactly `pricePerOutcome` once**.
+- A step signal with `complete: true` is refused with **400** (`complete: false` or `null`
+  passes and is ignored). The run ends only at `/outcome/complete`.
+- The edge keeps no run state: **a second completion of the same run bills again**. Send an
+  `idempotencyKey` and reuse it on every retry of that call (the SDK makes one per call).
 - The completion charge is `pricePerOutcome`, which you can read from
   `clocknext_get_outcome`. There is no MCP tool that previews what a run will cost — a run
   is only ever opened, advanced and completed by the product's own SDK calls.
@@ -70,7 +76,9 @@ See [`plans.md`](plans.md).
 ## Common mistakes
 - **Making a non-LLM step an outcome step.** Fixed-cost events are [units](unit.md).
 - **Expecting per-step billing.** You're billed per *completed outcome*, once.
-- **Forgetting `complete: true`.** Without it a run never bills — it stays open and free.
+- **Forgetting `signals.completeOutcome()`.** Without it a run never bills — it stays open and free.
+- **Sending `complete: true` on a step.** The route answers 400. Close the run with
+  `signals.completeOutcome()` instead.
 - **Non-unique step names / agent keys** within one outcome — each must be unique, and every
   `agentKey` must also be unique across the organization.
 - **Forgetting the outcome's own `agentKey`**, or reusing a step's key for it. Both are

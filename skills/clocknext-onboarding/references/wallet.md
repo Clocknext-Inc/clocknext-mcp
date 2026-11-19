@@ -29,7 +29,7 @@ invoice at cycle end**. Turn on `useWalletForArrear` on the plan and that metere
 
 - **One invoice per cycle** — the wallet top-up. No separate arrear usage invoice.
 - The wallet **may go negative** mid-cycle; the **next cycle's ADVANCE top-up absorbs the
-  overdraft** (e.g. −$20 balance + $100 top-up = $80).
+  negative balance** (e.g. −$20 balance + $100 top-up = $80).
 - Note the debit basis differs from a plain wallet signal: wallet-funded **ARREAR credit** debits
   the **customer cost (margin included)** — `creditsUsed × pricePerCredit`; a wallet-funded
   **ARREAR outcome** debits `pricePerOutcome` on completion. (A plain `type:"wallet"` signal is
@@ -40,7 +40,7 @@ invoice at cycle end**. Turn on `useWalletForArrear` on the plan and that metere
 `useWalletForArrear: true` is accepted only when the plan has:
 1. **at least one ARREAR** credit/outcome/unit/composite component (something to fund), **and**
 2. a **WALLET** component (the funding source), **and**
-3. that wallet is **ADVANCE** (a metered/ARREAR wallet would bill the same overdraft twice).
+3. that wallet is **ADVANCE** (a metered/ARREAR wallet would bill the same negative balance twice).
 
 ## Set it up
 - As a plain prepaid balance: add a **WALLET component** to the plan with an `amount` (USD), in

@@ -50,7 +50,8 @@ agentKey rule below). One line each:
 // selected by the user in the mapping state; never copy or invent them.
 type TokenCounts = { input: number; output: number; cache?: number };
 export const meterChat  = (customerId: string, model: string, t: TokenCounts, agentKey: string, idempotencyKey: string) => clocknext()?.signals.credit({ customerId, model, agentKey, tokens: t, idempotencyKey });
-export const meterStep  = (customerId: string, model: string, t: TokenCounts, runId: string, agentKey: string, idempotencyKey: string, complete = false) => clocknext()?.signals.outcome({ customerId, model, agentKey, tokens: t, runId, complete, idempotencyKey }); // outcome = the STEP key; runId groups one run; complete:true on the LAST step bills it
+export const meterStep  = (customerId: string, model: string, t: TokenCounts, runId: string, agentKey: string, idempotencyKey: string) => clocknext()?.signals.outcome({ customerId, model, agentKey, tokens: t, runId, idempotencyKey }); // agentKey = the STEP key; runId groups one run; a step never bills
+export const endRun     = (customerId: string, runId: string, outcomeKey: string, idempotencyKey: string) => clocknext()?.signals.completeOutcome({ customerId, runId, agentKey: outcomeKey, idempotencyKey }); // agentKey = the OUTCOME's own key; this bills the run once
 export const meterWallet= (customerId: string, model: string, t: TokenCounts, idempotencyKey: string) => clocknext()?.signals.wallet({ customerId, model, tokens: t, idempotencyKey }); // USD at cost, no margin
 export const meterSeat  = async (customerId: string, agentKey: string) => {
   await clocknext()?.signals.unit({ customerId, agentKey });
@@ -71,15 +72,20 @@ await clocknext()?.signals.completeComposite({ customerId, composite }); // ← 
 ```
 
 The close is a **declaration** — never inferred from which signals arrived — so it belongs on
-the line before the workflow's own `return`. An OUTCOME is the exception: its `complete: true`
-closes its run and the occurrence together. Details: `references/composite.md`.
+the line before the workflow's own `return`. An OUTCOME is the exception: send the same
+`composite` on `signals.completeOutcome()`, and the composite bills that completion instead of
+the outcome, with no `completeComposite()` call. Details: `references/composite.md`.
 
 ### 3. When (and only when) to deviate
-- **Gate a request on balance** (reject when out of allowance) → that call uses
-  `{ wait: true }` and catches the typed `AllowanceError`. Do NOT gate on `res.usageLog`:
-  ingestion is durable, so the server normally answers `202` and `usageLog` is `null` —
-  `res.queued` tells you which answer you got. To read a balance directly, use
-  `cnk.customers.balances(id)`. This is the ONLY reason to block on a send.
+- **Gate a request on balance** (reject when out of allowance) → read the balance BEFORE the
+  call with `cnk.customers.balances(id)`. A signal never does it for you: a signal route
+  answers `202 { queued, signalId, replayed }` (or 400, 401, 429, 503), never 422 and never a
+  usage log, and a signal is never refused for lack of balance (the balance can go below 0).
+  The edge checks and prices the signal after the `202`. A signal that it cannot process
+  (an unknown `agentKey`, a model that is not enabled, no active plan) stays a **Pending
+  signal** with a refusal code in its message. Find it with
+  `signals.list({ status: "PENDING" })`, fix the cause, then send it again with
+  `signals.retry([signalId])`.
 - **At-least-once** (queues/your own retries) → pass your own stable `idempotencyKey`.
   The key must identify the logical billable event (for example, a durable request or job
   id), not a fresh attempt number. Reuse the same key on every retry so an application retry
