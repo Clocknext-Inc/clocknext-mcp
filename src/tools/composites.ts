@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ClocknextApi } from "../api";
 import { errMsg, errorResult, jsonResult } from "./util";
+import { listPageArgs, listPageRules } from "./list-page";
 
 /**
  * Composite catalogue tools — list, get, create, update and archive / unarchive
@@ -33,27 +34,26 @@ export function registerCompositeTools(server: McpServer, cnk: ClocknextApi): vo
         "- A composite is restricted to a set of credits/outcomes/units. Only signals naming something in that set may carry its tag. Empty lists mean unrestricted (legacy rows only).",
         "- Pass active=true for only the ones a new signal can still be tagged with. Archived composites keep every row they already own.",
         "- To change one, use clocknext_update_composite; to retire one, clocknext_archive_composite. Never create a second composite as a workaround — the old one keeps resolving and both stay live.",
+        "",
+        "Paging:",
+        listPageRules("composites"),
       ].join("\n"),
-      inputSchema: {
-        active: z
-          .boolean()
-          .optional()
-          .describe(
-            "true = only composites that still accept new traffic, false = only archived ones, omit = all.",
-          ),
-      },
+      inputSchema: listPageArgs(
+        "composites",
+        "true = only composites that still accept new traffic, false = only archived ones, omit = both.",
+      ),
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    async ({ active }) => {
+    async ({ active, limit, cursor }) => {
       try {
-        const rows = await cnk.composites.list(active === undefined ? {} : { active });
-        // The API only filters `active=true`; `active=false` comes back
-        // unfiltered. Filter here, like the other list tools.
+        const page = await cnk.composites.page({ active, limit, cursor });
+        // The server filters `active` strictly (SE-194); the check here only
+        // guards against an older server that ignored `active=false`.
         const filtered =
           active === undefined
-            ? rows
-            : (rows as { isActive?: boolean }[]).filter((r) => r.isActive === active);
-        return jsonResult({ count: filtered.length, composites: filtered });
+            ? page.items
+            : (page.items as { isActive?: boolean }[]).filter((r) => r.isActive === active);
+        return jsonResult({ count: filtered.length, composites: filtered, nextCursor: page.nextCursor });
       } catch (err) {
         return errorResult(errMsg(err));
       }

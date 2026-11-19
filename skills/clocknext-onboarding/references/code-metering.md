@@ -105,7 +105,8 @@ never ask the user to paste the key into the chat.
 Every credit/outcome signal carries an `agentKey` that must **exactly match** a created
 entitlement. The mapping is the user's decision, never yours:
 1. Pull the real keys: `clocknext_list_credits`, `clocknext_list_outcomes` (each **step** has
-   its own key), `clocknext_list_units`.
+   its own key), `clocknext_list_units`. Each returns one page, newest first: follow
+   `nextCursor` (pass it as `cursor`) until it is `null`, so no key is missed.
 2. For **every** call site you're about to meter, show the candidate entitlements **by name**
    and **ask, in plain words, which one this call should charge against** — **one
    call site per question, one turn each (cadence)**, never a batched mapping table. The

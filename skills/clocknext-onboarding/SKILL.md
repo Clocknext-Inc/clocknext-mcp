@@ -201,7 +201,12 @@ List models, credits, outcomes, units, plans, and customers. For each candidate 
 read its current plan/subscription with `clocknext_get_customer_plan`; if purchase history
 cannot be read by MCP, direct the user to the Clocknext product and ask them to report any active or
 scheduled purchase. Report what exists so everything downstream
-reuses instead of duplicating. If an entitlement exists but is archived/inactive, the fix
+reuses instead of duplicating. The catalogue list tools (`clocknext_list_credits` /
+`_outcomes` / `_units` / `_plans` / `_composites`) return **one page, newest first** (default
+50, max 200, `limit`) plus `nextCursor`: call again with `cursor` = `nextCursor` until it is
+`null`. Read **every page** before you report what exists — an entitlement or agentKey on
+page 2 is still there. `active` is left out here (both active and archived); `active=false`
+lists only archived ones. If an entitlement exists but is archived/inactive, the fix
 later is `clocknext_unarchive_credit`/`_unit`/`_outcome`/`_plan` — NOT an update:
 **no update tool takes `isActive` — archive / unarchive are the only way to change active
 state.** NEVER create a second entitlement on an occupied agentKey — agentKeys are
