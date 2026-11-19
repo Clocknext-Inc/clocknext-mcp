@@ -34,7 +34,7 @@ const customerFields = {
   currencyCode: z
     .string()
     .optional()
-    .describe("ISO 4217 (3 letters); must be enabled for the org. Defaults to the org currency."),
+    .describe("ISO 4217 (3 letters); must be enabled for the org. Defaults to the org currency. A label only: every invoice and charge is USD, and Stripe, Paddle or the customer's bank converts."),
 } satisfies z.ZodRawShape;
 
 const customerObject = z.object(customerFields);
