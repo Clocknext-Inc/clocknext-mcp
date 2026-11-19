@@ -21761,9 +21761,6 @@ var planInput = {
   billingCycle: external_exports.enum(["MONTHLY", "QUARTERLY", "SEMI_ANNUAL", "YEARLY", "FREE"]).describe(
     "Billing cadence. FREE is a one-time grant with no invoice."
   ),
-  carryForward: external_exports.boolean().optional().describe(
-    "DEPRECATED \u2014 still accepted for back-compat but no longer read by the backend; setting it has no effect (carry-forward is fixed policy now: wallet money carries, allowances reset)."
-  ),
   useWalletForArrear: external_exports.boolean().optional().describe(
     "Pay metered usage from the wallet. Default false. When true, every metered (ARREAR) CREDIT/OUTCOME/UNIT/COMPOSITE line is paid FROM the customer's prepaid WALLET as usage happens \u2014 one invoice per cycle \u2014 instead of a separate arrear invoice at cycle end. The wallet may go negative mid-cycle; the next cycle's wallet top-up absorbs the overdraft. Backend rejects it (400) unless ALL THREE hold: (1) the plan has at least one ARREAR credit/outcome/unit/composite component; (2) the plan has a WALLET component; (3) that WALLET component is billingMode ADVANCE (a metered/ARREAR wallet is refused as double-billing). Margin is PRESERVED: wallet-funded ARREAR usage debits the wallet at the CUSTOMER price (margin included) \u2014 only plain type:'wallet' signals debit at raw model cost with no margin."
   ),
@@ -22075,7 +22072,7 @@ function registerCatalogueTools(server, cnk) {
         "- Line ids stay the same: a line sent with its `id` updates that line; one sent without an `id` updates the saved line of the same type and item. Only a new line gets a new id; a saved line left out is removed. An unknown `id`, the same `id` twice, or an `id` sent with a different type or item is a 400.",
         "- Price: without `cost` the plan keeps its saved price, unless the lines really change (added, removed, or a billingMode/quantity/amount/rollover changed) \u2014 then it resets to the sum of the new ADVANCE lines at today's prices. Sending the same lines back keeps the price.",
         "- An item already on the plan may stay even if since archived; a newly added one must be active.",
-        "- Changes apply to new purchases; customers already on the plan keep their terms until they re-purchase. carryForward is deprecated and ignored."
+        "- Changes apply to new purchases; customers already on the plan keep their terms until they re-purchase."
       ].join("\n"),
       archive: [
         "Archive a plan (isActive\u2192false) \u2014 the API never deletes; this is how a plan is retired.",
