@@ -148,6 +148,7 @@ export function registerCustomerTools(server: McpServer, cnk: ClocknextApi): voi
         "Rules:",
         "- ⛔ Raises a REAL invoice (real money on a live org). Only call this after the user explicitly approved this purchase in a question dedicated to it alone — never bundled with another question, never inferred from an earlier yes.",
         "- ⛔ If the customer already has a scheduled/active purchase, the new one AUTO-CANCELS it when it activates (old status→CANCELLED, its open invoices voided, credit balances reset — this is how 'change plan' works). Check clocknext_get_customer_plan first and SAY SO in the approval question.",
+        "- autoPayment: true pays the first invoice right away from the invoice balance and the saved card. Leave it unset for a test.",
         "- Do this after clocknext_create_customer + clocknext_create_plan.",
         "- A usage signal only prices if the customer has an active plan whose components match the meter (credit / outcome / unit).",
       ].join("\n"),
@@ -161,7 +162,12 @@ export function registerCustomerTools(server: McpServer, cnk: ClocknextApi): voi
           .optional()
           .describe("YYYY-MM-DD. Default today; must be a valid, non-past date."),
         notes: z.string().optional().describe("Internal notes for this purchase."),
-        autoPayment: z.boolean().optional().describe("Charge automatically when the invoice is due."),
+        autoPayment: z
+          .boolean()
+          .optional()
+          .describe(
+            "true: the FIRST invoice is paid at once — the customer's invoice balance first, then their saved card (charged right after the call; the answer's invoice has autoPayment.status \"PROCESSING\" and no payUrl) — and later invoices are charged to the saved card. ⛔ This moves real money; leave it unset/false for a test. Unset/false: nothing is paid for them, the first invoice waits for its payUrl.",
+          ),
       },
       annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: true },
     },
