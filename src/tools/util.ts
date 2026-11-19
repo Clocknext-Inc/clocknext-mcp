@@ -23,7 +23,9 @@ export function errMsg(err: unknown): string {
     // A locked feature also names the feature, so the agent can tell the user
     // which part of their Clocknext plan to upgrade.
     const feature = err instanceof FeatureLockedError && err.feature ? ` [feature: ${err.feature}]` : "";
-    return `Clocknext ${err.constructor.name}${err.status ? ` (${err.status})` : ""}: ${err.message}${feature}`;
+    // A refusal code (e.g. PACKAGE_ARCHIVED) tells the agent what to do next.
+    const code = err.code ? ` [code: ${err.code}]` : "";
+    return `Clocknext ${err.constructor.name}${err.status ? ` (${err.status})` : ""}: ${err.message}${code}${feature}`;
   }
   return err instanceof Error ? err.message : String(err);
 }

@@ -29,9 +29,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/codegen/code.js
+// node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/codegen/code.js"(exports) {
+  "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.regexpCode = exports.getEsmExportName = exports.getProperty = exports.safeStringify = exports.stringify = exports.strConcat = exports.addCodeArg = exports.str = exports._ = exports.nil = exports._Code = exports.Name = exports.IDENTIFIER = exports._CodeOrName = void 0;
@@ -183,9 +183,9 @@ var require_code = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/codegen/scope.js
+// node_modules/ajv/dist/compile/codegen/scope.js
 var require_scope = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
+  "node_modules/ajv/dist/compile/codegen/scope.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ValueScope = exports.ValueScopeName = exports.Scope = exports.varKinds = exports.UsedValueState = void 0;
@@ -328,9 +328,9 @@ var require_scope = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/codegen/index.js
+// node_modules/ajv/dist/compile/codegen/index.js
 var require_codegen = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/codegen/index.js"(exports) {
+  "node_modules/ajv/dist/compile/codegen/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.or = exports.and = exports.not = exports.CodeGen = exports.operators = exports.varKinds = exports.ValueScopeName = exports.ValueScope = exports.Scope = exports.Name = exports.regexpCode = exports.stringify = exports.getProperty = exports.nil = exports.strConcat = exports.str = exports._ = void 0;
@@ -1048,9 +1048,9 @@ var require_codegen = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/util.js
+// node_modules/ajv/dist/compile/util.js
 var require_util = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/util.js"(exports) {
+  "node_modules/ajv/dist/compile/util.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.checkStrictMode = exports.getErrorPath = exports.Type = exports.useFunc = exports.setEvaluated = exports.evaluatedPropsToName = exports.mergeEvaluated = exports.eachItem = exports.unescapeJsonPointer = exports.escapeJsonPointer = exports.escapeFragment = exports.unescapeFragment = exports.schemaRefOrVal = exports.schemaHasRulesButRef = exports.schemaHasRules = exports.checkUnknownRules = exports.alwaysValidSchema = exports.toHash = void 0;
@@ -1215,9 +1215,9 @@ var require_util = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/names.js
+// node_modules/ajv/dist/compile/names.js
 var require_names = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/names.js"(exports) {
+  "node_modules/ajv/dist/compile/names.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -1254,9 +1254,9 @@ var require_names = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/errors.js
+// node_modules/ajv/dist/compile/errors.js
 var require_errors = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/errors.js"(exports) {
+  "node_modules/ajv/dist/compile/errors.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendErrors = exports.resetErrorsCount = exports.reportExtraError = exports.reportError = exports.keyword$DataError = exports.keywordError = void 0;
@@ -1376,9 +1376,9 @@ var require_errors = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/validate/boolSchema.js
+// node_modules/ajv/dist/compile/validate/boolSchema.js
 var require_boolSchema = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
+  "node_modules/ajv/dist/compile/validate/boolSchema.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.boolOrEmptySchema = exports.topBoolOrEmptySchema = void 0;
@@ -1427,9 +1427,9 @@ var require_boolSchema = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/rules.js
+// node_modules/ajv/dist/compile/rules.js
 var require_rules = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/rules.js"(exports) {
+  "node_modules/ajv/dist/compile/rules.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getRules = exports.isJSONType = void 0;
@@ -1458,9 +1458,9 @@ var require_rules = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/validate/applicability.js
+// node_modules/ajv/dist/compile/validate/applicability.js
 var require_applicability = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
+  "node_modules/ajv/dist/compile/validate/applicability.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
@@ -1481,9 +1481,9 @@ var require_applicability = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/validate/dataType.js
+// node_modules/ajv/dist/compile/validate/dataType.js
 var require_dataType = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
+  "node_modules/ajv/dist/compile/validate/dataType.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.reportTypeError = exports.checkDataTypes = exports.checkDataType = exports.coerceAndCheckDataType = exports.getJSONTypes = exports.getSchemaTypes = exports.DataType = void 0;
@@ -1665,9 +1665,9 @@ var require_dataType = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/validate/defaults.js
+// node_modules/ajv/dist/compile/validate/defaults.js
 var require_defaults = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
+  "node_modules/ajv/dist/compile/validate/defaults.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.assignDefaults = void 0;
@@ -1702,9 +1702,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/code.js
+// node_modules/ajv/dist/vocabularies/code.js
 var require_code2 = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/code.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/code.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateUnion = exports.validateArray = exports.usePattern = exports.callValidateCode = exports.schemaProperties = exports.allSchemaProperties = exports.noPropertyInData = exports.propertyInData = exports.isOwnProperty = exports.hasPropFunc = exports.reportMissingProp = exports.checkMissingProp = exports.checkReportMissingProp = void 0;
@@ -1835,9 +1835,9 @@ var require_code2 = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/validate/keyword.js
+// node_modules/ajv/dist/compile/validate/keyword.js
 var require_keyword = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
+  "node_modules/ajv/dist/compile/validate/keyword.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateKeywordUsage = exports.validSchemaType = exports.funcKeywordCode = exports.macroKeywordCode = void 0;
@@ -1953,9 +1953,9 @@ var require_keyword = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/validate/subschema.js
+// node_modules/ajv/dist/compile/validate/subschema.js
 var require_subschema = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
+  "node_modules/ajv/dist/compile/validate/subschema.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.extendSubschemaMode = exports.extendSubschemaData = exports.getSubschema = void 0;
@@ -2036,9 +2036,9 @@ var require_subschema = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/fast-deep-equal/index.js
+// node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "../clocknext-mcp/node_modules/fast-deep-equal/index.js"(exports, module) {
+  "node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     module.exports = function equal(a, b) {
       if (a === b) return true;
@@ -2071,9 +2071,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/json-schema-traverse/index.js
+// node_modules/json-schema-traverse/index.js
 var require_json_schema_traverse = __commonJS({
-  "../clocknext-mcp/node_modules/json-schema-traverse/index.js"(exports, module) {
+  "node_modules/json-schema-traverse/index.js"(exports, module) {
     "use strict";
     var traverse = module.exports = function(schema, opts, cb) {
       if (typeof opts == "function") {
@@ -2159,9 +2159,9 @@ var require_json_schema_traverse = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/resolve.js
+// node_modules/ajv/dist/compile/resolve.js
 var require_resolve = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/resolve.js"(exports) {
+  "node_modules/ajv/dist/compile/resolve.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getSchemaRefs = exports.resolveUrl = exports.normalizeId = exports._getFullPath = exports.getFullPath = exports.inlineRef = void 0;
@@ -2315,9 +2315,9 @@ var require_resolve = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/validate/index.js
+// node_modules/ajv/dist/compile/validate/index.js
 var require_validate = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/validate/index.js"(exports) {
+  "node_modules/ajv/dist/compile/validate/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getData = exports.KeywordCxt = exports.validateFunctionCode = void 0;
@@ -2823,9 +2823,9 @@ var require_validate = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/runtime/validation_error.js
+// node_modules/ajv/dist/runtime/validation_error.js
 var require_validation_error = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/runtime/validation_error.js"(exports) {
+  "node_modules/ajv/dist/runtime/validation_error.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ValidationError2 = class extends Error {
@@ -2839,9 +2839,9 @@ var require_validation_error = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/ref_error.js
+// node_modules/ajv/dist/compile/ref_error.js
 var require_ref_error = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/ref_error.js"(exports) {
+  "node_modules/ajv/dist/compile/ref_error.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var resolve_1 = require_resolve();
@@ -2856,9 +2856,9 @@ var require_ref_error = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/compile/index.js
+// node_modules/ajv/dist/compile/index.js
 var require_compile = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/compile/index.js"(exports) {
+  "node_modules/ajv/dist/compile/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.resolveSchema = exports.getCompilingSchema = exports.resolveRef = exports.compileSchema = exports.SchemaEnv = void 0;
@@ -3080,9 +3080,9 @@ var require_compile = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/refs/data.json
+// node_modules/ajv/dist/refs/data.json
 var require_data = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/refs/data.json"(exports, module) {
+  "node_modules/ajv/dist/refs/data.json"(exports, module) {
     module.exports = {
       $id: "https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#",
       description: "Meta-schema for $data reference (JSON AnySchema extension proposal)",
@@ -3099,9 +3099,9 @@ var require_data = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/fast-uri/lib/utils.js
+// node_modules/fast-uri/lib/utils.js
 var require_utils = __commonJS({
-  "../clocknext-mcp/node_modules/fast-uri/lib/utils.js"(exports, module) {
+  "node_modules/fast-uri/lib/utils.js"(exports, module) {
     "use strict";
     var isUUID = RegExp.prototype.test.bind(/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iu);
     var isIPv4 = RegExp.prototype.test.bind(/^(?:(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$/u);
@@ -3412,9 +3412,9 @@ var require_utils = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/fast-uri/lib/schemes.js
+// node_modules/fast-uri/lib/schemes.js
 var require_schemes = __commonJS({
-  "../clocknext-mcp/node_modules/fast-uri/lib/schemes.js"(exports, module) {
+  "node_modules/fast-uri/lib/schemes.js"(exports, module) {
     "use strict";
     var { isUUID } = require_utils();
     var URN_REG = /([\da-z][\d\-a-z]{0,31}):((?:[\w!$'()*+,\-.:;=@]|%[\da-f]{2})+)/iu;
@@ -3622,9 +3622,9 @@ var require_schemes = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/fast-uri/index.js
+// node_modules/fast-uri/index.js
 var require_fast_uri = __commonJS({
-  "../clocknext-mcp/node_modules/fast-uri/index.js"(exports, module) {
+  "node_modules/fast-uri/index.js"(exports, module) {
     "use strict";
     var { normalizeIPv6, removeDotSegments, recomposeAuthority, normalizePercentEncoding, normalizePathEncoding, escapePreservingEscapes, reescapeHostDelimiters, isIPv4, nonSimpleDomain } = require_utils();
     var { SCHEMES, getSchemeHandler } = require_schemes();
@@ -3934,9 +3934,9 @@ var require_fast_uri = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/runtime/uri.js
+// node_modules/ajv/dist/runtime/uri.js
 var require_uri = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/runtime/uri.js"(exports) {
+  "node_modules/ajv/dist/runtime/uri.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var uri = require_fast_uri();
@@ -3945,9 +3945,9 @@ var require_uri = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/core.js
+// node_modules/ajv/dist/core.js
 var require_core = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/core.js"(exports) {
+  "node_modules/ajv/dist/core.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = void 0;
@@ -4556,9 +4556,9 @@ var require_core = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/core/id.js
+// node_modules/ajv/dist/vocabularies/core/id.js
 var require_id = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/core/id.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var def = {
@@ -4571,9 +4571,9 @@ var require_id = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/core/ref.js
+// node_modules/ajv/dist/vocabularies/core/ref.js
 var require_ref = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/core/ref.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.callRef = exports.getValidate = void 0;
@@ -4693,9 +4693,9 @@ var require_ref = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/core/index.js
+// node_modules/ajv/dist/vocabularies/core/index.js
 var require_core2 = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/core/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var id_1 = require_id();
@@ -4714,9 +4714,9 @@ var require_core2 = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/limitNumber.js
+// node_modules/ajv/dist/vocabularies/validation/limitNumber.js
 var require_limitNumber = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/limitNumber.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -4746,9 +4746,9 @@ var require_limitNumber = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/multipleOf.js
+// node_modules/ajv/dist/vocabularies/validation/multipleOf.js
 var require_multipleOf = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/multipleOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -4774,9 +4774,9 @@ var require_multipleOf = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/runtime/ucs2length.js
+// node_modules/ajv/dist/runtime/ucs2length.js
 var require_ucs2length = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
+  "node_modules/ajv/dist/runtime/ucs2length.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function ucs2length(str) {
@@ -4800,9 +4800,9 @@ var require_ucs2length = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/limitLength.js
+// node_modules/ajv/dist/vocabularies/validation/limitLength.js
 var require_limitLength = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/limitLength.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -4832,9 +4832,9 @@ var require_limitLength = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/pattern.js
+// node_modules/ajv/dist/vocabularies/validation/pattern.js
 var require_pattern = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/pattern.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -4869,9 +4869,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/limitProperties.js
+// node_modules/ajv/dist/vocabularies/validation/limitProperties.js
 var require_limitProperties = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/limitProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -4898,9 +4898,9 @@ var require_limitProperties = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/required.js
+// node_modules/ajv/dist/vocabularies/validation/required.js
 var require_required = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/required.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -4980,9 +4980,9 @@ var require_required = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/limitItems.js
+// node_modules/ajv/dist/vocabularies/validation/limitItems.js
 var require_limitItems = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/limitItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5009,9 +5009,9 @@ var require_limitItems = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/runtime/equal.js
+// node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var equal = require_fast_deep_equal();
@@ -5020,9 +5020,9 @@ var require_equal = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
+// node_modules/ajv/dist/vocabularies/validation/uniqueItems.js
 var require_uniqueItems = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/uniqueItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var dataType_1 = require_dataType();
@@ -5087,9 +5087,9 @@ var require_uniqueItems = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/const.js
+// node_modules/ajv/dist/vocabularies/validation/const.js
 var require_const = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/const.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5116,9 +5116,9 @@ var require_const = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/enum.js
+// node_modules/ajv/dist/vocabularies/validation/enum.js
 var require_enum = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/enum.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5165,9 +5165,9 @@ var require_enum = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/index.js
+// node_modules/ajv/dist/vocabularies/validation/index.js
 var require_validation = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/validation/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var limitNumber_1 = require_limitNumber();
@@ -5203,9 +5203,9 @@ var require_validation = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
+// node_modules/ajv/dist/vocabularies/applicator/additionalItems.js
 var require_additionalItems = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/additionalItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateAdditionalItems = void 0;
@@ -5256,9 +5256,9 @@ var require_additionalItems = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/items.js
+// node_modules/ajv/dist/vocabularies/applicator/items.js
 var require_items = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/items.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateTuple = void 0;
@@ -5313,9 +5313,9 @@ var require_items = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
+// node_modules/ajv/dist/vocabularies/applicator/prefixItems.js
 var require_prefixItems = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/prefixItems.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var items_1 = require_items();
@@ -5330,9 +5330,9 @@ var require_prefixItems = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/items2020.js
+// node_modules/ajv/dist/vocabularies/applicator/items2020.js
 var require_items2020 = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/items2020.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5365,9 +5365,9 @@ var require_items2020 = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/contains.js
+// node_modules/ajv/dist/vocabularies/applicator/contains.js
 var require_contains = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/contains.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5459,9 +5459,9 @@ var require_contains = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/dependencies.js
+// node_modules/ajv/dist/vocabularies/applicator/dependencies.js
 var require_dependencies = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/dependencies.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.validateSchemaDeps = exports.validatePropertyDeps = exports.error = void 0;
@@ -5553,9 +5553,9 @@ var require_dependencies = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
+// node_modules/ajv/dist/vocabularies/applicator/propertyNames.js
 var require_propertyNames = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/propertyNames.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5596,9 +5596,9 @@ var require_propertyNames = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
+// node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js
 var require_additionalProperties = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/additionalProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -5702,9 +5702,9 @@ var require_additionalProperties = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/properties.js
+// node_modules/ajv/dist/vocabularies/applicator/properties.js
 var require_properties = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/properties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var validate_1 = require_validate();
@@ -5760,9 +5760,9 @@ var require_properties = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
+// node_modules/ajv/dist/vocabularies/applicator/patternProperties.js
 var require_patternProperties = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/patternProperties.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -5834,9 +5834,9 @@ var require_patternProperties = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/not.js
+// node_modules/ajv/dist/vocabularies/applicator/not.js
 var require_not = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/not.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -5865,9 +5865,9 @@ var require_not = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/anyOf.js
+// node_modules/ajv/dist/vocabularies/applicator/anyOf.js
 var require_anyOf = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/anyOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var code_1 = require_code2();
@@ -5882,9 +5882,9 @@ var require_anyOf = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/oneOf.js
+// node_modules/ajv/dist/vocabularies/applicator/oneOf.js
 var require_oneOf = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/oneOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -5940,9 +5940,9 @@ var require_oneOf = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/allOf.js
+// node_modules/ajv/dist/vocabularies/applicator/allOf.js
 var require_allOf = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/allOf.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -5967,9 +5967,9 @@ var require_allOf = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/if.js
+// node_modules/ajv/dist/vocabularies/applicator/if.js
 var require_if = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/if.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6036,9 +6036,9 @@ var require_if = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/thenElse.js
+// node_modules/ajv/dist/vocabularies/applicator/thenElse.js
 var require_thenElse = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/thenElse.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var util_1 = require_util();
@@ -6054,9 +6054,9 @@ var require_thenElse = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/index.js
+// node_modules/ajv/dist/vocabularies/applicator/index.js
 var require_applicator = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/applicator/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var additionalItems_1 = require_additionalItems();
@@ -6102,9 +6102,9 @@ var require_applicator = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/format/format.js
+// node_modules/ajv/dist/vocabularies/format/format.js
 var require_format = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/format/format.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6192,9 +6192,9 @@ var require_format = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/format/index.js
+// node_modules/ajv/dist/vocabularies/format/index.js
 var require_format2 = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/format/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var format_1 = require_format();
@@ -6203,9 +6203,9 @@ var require_format2 = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/metadata.js
+// node_modules/ajv/dist/vocabularies/metadata.js
 var require_metadata = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/metadata.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.contentVocabulary = exports.metadataVocabulary = void 0;
@@ -6226,9 +6226,9 @@ var require_metadata = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/draft7.js
+// node_modules/ajv/dist/vocabularies/draft7.js
 var require_draft7 = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/draft7.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var core_1 = require_core2();
@@ -6248,9 +6248,9 @@ var require_draft7 = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/discriminator/types.js
+// node_modules/ajv/dist/vocabularies/discriminator/types.js
 var require_types = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/discriminator/types.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DiscrError = void 0;
@@ -6262,9 +6262,9 @@ var require_types = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/vocabularies/discriminator/index.js
+// node_modules/ajv/dist/vocabularies/discriminator/index.js
 var require_discriminator = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
+  "node_modules/ajv/dist/vocabularies/discriminator/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var codegen_1 = require_codegen();
@@ -6367,9 +6367,9 @@ var require_discriminator = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/refs/json-schema-draft-07.json
+// node_modules/ajv/dist/refs/json-schema-draft-07.json
 var require_json_schema_draft_07 = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
+  "node_modules/ajv/dist/refs/json-schema-draft-07.json"(exports, module) {
     module.exports = {
       $schema: "http://json-schema.org/draft-07/schema#",
       $id: "http://json-schema.org/draft-07/schema#",
@@ -6524,9 +6524,9 @@ var require_json_schema_draft_07 = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv/dist/ajv.js
+// node_modules/ajv/dist/ajv.js
 var require_ajv = __commonJS({
-  "../clocknext-mcp/node_modules/ajv/dist/ajv.js"(exports, module) {
+  "node_modules/ajv/dist/ajv.js"(exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.MissingRefError = exports.ValidationError = exports.CodeGen = exports.Name = exports.nil = exports.stringify = exports.str = exports._ = exports.KeywordCxt = exports.Ajv = void 0;
@@ -6594,9 +6594,9 @@ var require_ajv = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv-formats/dist/formats.js
+// node_modules/ajv-formats/dist/formats.js
 var require_formats = __commonJS({
-  "../clocknext-mcp/node_modules/ajv-formats/dist/formats.js"(exports) {
+  "node_modules/ajv-formats/dist/formats.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatNames = exports.fastFormats = exports.fullFormats = void 0;
@@ -6797,9 +6797,9 @@ var require_formats = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv-formats/dist/limit.js
+// node_modules/ajv-formats/dist/limit.js
 var require_limit = __commonJS({
-  "../clocknext-mcp/node_modules/ajv-formats/dist/limit.js"(exports) {
+  "node_modules/ajv-formats/dist/limit.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.formatLimitDefinition = void 0;
@@ -6869,9 +6869,9 @@ var require_limit = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/ajv-formats/dist/index.js
+// node_modules/ajv-formats/dist/index.js
 var require_dist = __commonJS({
-  "../clocknext-mcp/node_modules/ajv-formats/dist/index.js"(exports, module) {
+  "node_modules/ajv-formats/dist/index.js"(exports, module) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var formats_1 = require_formats();
@@ -6911,7 +6911,7 @@ var require_dist = __commonJS({
   }
 });
 
-// ../clocknext-mcp/node_modules/zod/v3/external.js
+// node_modules/zod/v3/external.js
 var external_exports = {};
 __export(external_exports, {
   BRAND: () => BRAND,
@@ -7023,7 +7023,7 @@ __export(external_exports, {
   void: () => voidType
 });
 
-// ../clocknext-mcp/node_modules/zod/v3/helpers/util.js
+// node_modules/zod/v3/helpers/util.js
 var util;
 (function(util2) {
   util2.assertEqual = (_) => {
@@ -7157,7 +7157,7 @@ var getParsedType = (data) => {
   }
 };
 
-// ../clocknext-mcp/node_modules/zod/v3/ZodError.js
+// node_modules/zod/v3/ZodError.js
 var ZodIssueCode = util.arrayToEnum([
   "invalid_type",
   "invalid_literal",
@@ -7275,7 +7275,7 @@ ZodError.create = (issues) => {
   return error2;
 };
 
-// ../clocknext-mcp/node_modules/zod/v3/locales/en.js
+// node_modules/zod/v3/locales/en.js
 var errorMap = (issue2, _ctx) => {
   let message;
   switch (issue2.code) {
@@ -7378,7 +7378,7 @@ var errorMap = (issue2, _ctx) => {
 };
 var en_default = errorMap;
 
-// ../clocknext-mcp/node_modules/zod/v3/errors.js
+// node_modules/zod/v3/errors.js
 var overrideErrorMap = en_default;
 function setErrorMap(map) {
   overrideErrorMap = map;
@@ -7387,7 +7387,7 @@ function getErrorMap() {
   return overrideErrorMap;
 }
 
-// ../clocknext-mcp/node_modules/zod/v3/helpers/parseUtil.js
+// node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
   const { data, path, errorMaps, issueData } = params;
   const fullPath = [...path, ...issueData.path || []];
@@ -7497,14 +7497,14 @@ var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
-// ../clocknext-mcp/node_modules/zod/v3/helpers/errorUtil.js
+// node_modules/zod/v3/helpers/errorUtil.js
 var errorUtil;
 (function(errorUtil2) {
   errorUtil2.errToObj = (message) => typeof message === "string" ? { message } : message || {};
   errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
 })(errorUtil || (errorUtil = {}));
 
-// ../clocknext-mcp/node_modules/zod/v3/types.js
+// node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
   constructor(parent, value, path, key) {
     this._cachedPath = [];
@@ -10952,7 +10952,7 @@ var coerce = {
 };
 var NEVER = INVALID;
 
-// ../clocknext-mcp/node_modules/zod/v4/core/core.js
+// node_modules/zod/v4/core/core.js
 var NEVER2 = Object.freeze({
   status: "aborted"
 });
@@ -11011,7 +11011,7 @@ function config(newConfig) {
   return globalConfig;
 }
 
-// ../clocknext-mcp/node_modules/zod/v4/core/util.js
+// node_modules/zod/v4/core/util.js
 var util_exports = {};
 __export(util_exports, {
   BIGINT_FORMAT_RANGES: () => BIGINT_FORMAT_RANGES,
@@ -11532,7 +11532,7 @@ var Class = class {
   }
 };
 
-// ../clocknext-mcp/node_modules/zod/v4/core/errors.js
+// node_modules/zod/v4/core/errors.js
 var initializer = (inst, def) => {
   inst.name = "$ZodError";
   Object.defineProperty(inst, "_zod", {
@@ -11607,7 +11607,7 @@ function formatError(error2, _mapper) {
   return fieldErrors;
 }
 
-// ../clocknext-mcp/node_modules/zod/v4/core/parse.js
+// node_modules/zod/v4/core/parse.js
 var _parse = (_Err) => (schema, value, _ctx, _params) => {
   const ctx = _ctx ? Object.assign(_ctx, { async: false }) : { async: false };
   const result = schema._zod.run({ value, issues: [] }, ctx);
@@ -11659,7 +11659,7 @@ var _safeParseAsync = (_Err) => async (schema, value, _ctx) => {
 };
 var safeParseAsync = /* @__PURE__ */ _safeParseAsync($ZodRealError);
 
-// ../clocknext-mcp/node_modules/zod/v4/core/regexes.js
+// node_modules/zod/v4/core/regexes.js
 var cuid = /^[cC][^\s-]{8,}$/;
 var cuid2 = /^[0-9a-z]+$/;
 var ulid = /^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/;
@@ -11717,7 +11717,7 @@ var _null = /null/i;
 var lowercase = /^[^A-Z]*$/;
 var uppercase = /^[^a-z]*$/;
 
-// ../clocknext-mcp/node_modules/zod/v4/core/checks.js
+// node_modules/zod/v4/core/checks.js
 var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
   var _a;
   inst._zod ?? (inst._zod = {});
@@ -12102,7 +12102,7 @@ var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (ins
   };
 });
 
-// ../clocknext-mcp/node_modules/zod/v4/core/doc.js
+// node_modules/zod/v4/core/doc.js
 var Doc = class {
   constructor(args = []) {
     this.content = [];
@@ -12138,14 +12138,14 @@ var Doc = class {
   }
 };
 
-// ../clocknext-mcp/node_modules/zod/v4/core/versions.js
+// node_modules/zod/v4/core/versions.js
 var version = {
   major: 4,
   minor: 0,
   patch: 0
 };
 
-// ../clocknext-mcp/node_modules/zod/v4/core/schemas.js
+// node_modules/zod/v4/core/schemas.js
 var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   var _a;
   inst ?? (inst = {});
@@ -13383,7 +13383,7 @@ function handleRefineResult(result, payload, input, inst) {
   }
 }
 
-// ../clocknext-mcp/node_modules/zod/v4/locales/en.js
+// node_modules/zod/v4/locales/en.js
 var parsedType = (data) => {
   const t = typeof data;
   switch (t) {
@@ -13501,7 +13501,7 @@ function en_default2() {
   };
 }
 
-// ../clocknext-mcp/node_modules/zod/v4/core/registries.js
+// node_modules/zod/v4/core/registries.js
 var $ZodRegistry = class {
   constructor() {
     this._map = /* @__PURE__ */ new Map();
@@ -13549,7 +13549,7 @@ function registry() {
 }
 var globalRegistry = /* @__PURE__ */ registry();
 
-// ../clocknext-mcp/node_modules/zod/v4/core/api.js
+// node_modules/zod/v4/core/api.js
 function _string(Class2, params) {
   return new Class2({
     type: "string",
@@ -13988,7 +13988,7 @@ function _refine(Class2, fn, _params) {
   return schema;
 }
 
-// ../clocknext-mcp/node_modules/zod/v4/core/to-json-schema.js
+// node_modules/zod/v4/core/to-json-schema.js
 var JSONSchemaGenerator = class {
   constructor(params) {
     this.counter = 0;
@@ -14755,7 +14755,7 @@ function isTransforming(_schema, _ctx) {
   throw new Error(`Unknown schema type: ${def.type}`);
 }
 
-// ../clocknext-mcp/node_modules/zod/v4/mini/schemas.js
+// node_modules/zod/v4/mini/schemas.js
 var ZodMiniType = /* @__PURE__ */ $constructor("ZodMiniType", (inst, def) => {
   if (!inst._zod)
     throw new Error("Uninitialized schema in ZodMiniType.");
@@ -14801,7 +14801,7 @@ function object(shape, params) {
   return new ZodMiniObject(def);
 }
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
   const schema = s;
   return !!schema._zod;
@@ -14961,7 +14961,7 @@ function getLiteralValue(schema) {
   return void 0;
 }
 
-// ../clocknext-mcp/node_modules/zod/v4/classic/iso.js
+// node_modules/zod/v4/classic/iso.js
 var iso_exports2 = {};
 __export(iso_exports2, {
   ZodISODate: () => ZodISODate,
@@ -15002,7 +15002,7 @@ function duration2(params) {
   return _isoDuration(ZodISODuration, params);
 }
 
-// ../clocknext-mcp/node_modules/zod/v4/classic/errors.js
+// node_modules/zod/v4/classic/errors.js
 var initializer2 = (inst, issues) => {
   $ZodError.init(inst, issues);
   inst.name = "ZodError";
@@ -15036,13 +15036,13 @@ var ZodRealError = $constructor("ZodError", initializer2, {
   Parent: Error
 });
 
-// ../clocknext-mcp/node_modules/zod/v4/classic/parse.js
+// node_modules/zod/v4/classic/parse.js
 var parse2 = /* @__PURE__ */ _parse(ZodRealError);
 var parseAsync2 = /* @__PURE__ */ _parseAsync(ZodRealError);
 var safeParse3 = /* @__PURE__ */ _safeParse(ZodRealError);
 var safeParseAsync3 = /* @__PURE__ */ _safeParseAsync(ZodRealError);
 
-// ../clocknext-mcp/node_modules/zod/v4/classic/schemas.js
+// node_modules/zod/v4/classic/schemas.js
 var ZodType2 = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
   $ZodType.init(inst, def);
   inst.def = def;
@@ -15653,10 +15653,10 @@ function preprocess(fn, schema) {
   return pipe(transform(fn), schema);
 }
 
-// ../clocknext-mcp/node_modules/zod/v4/classic/external.js
+// node_modules/zod/v4/classic/external.js
 config(en_default2());
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
 var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
 var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
@@ -17187,12 +17187,12 @@ var UrlElicitationRequiredError = class extends McpError {
   }
 };
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/interfaces.js
 function isTerminal(status) {
   return status === "completed" || status === "failed" || status === "cancelled";
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/Options.js
+// node_modules/zod-to-json-schema/dist/esm/Options.js
 var ignoreOverride = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use");
 var defaultOptions = {
   name: void 0,
@@ -17226,7 +17226,7 @@ var getDefaultOptions = (options) => typeof options === "string" ? {
   ...options
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/Refs.js
+// node_modules/zod-to-json-schema/dist/esm/Refs.js
 var getRefs = (options) => {
   const _options = getDefaultOptions(options);
   const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
@@ -17247,7 +17247,7 @@ var getRefs = (options) => {
   };
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/errorMessages.js
+// node_modules/zod-to-json-schema/dist/esm/errorMessages.js
 function addErrorMessage(res, key, errorMessage, refs) {
   if (!refs?.errorMessages)
     return;
@@ -17263,7 +17263,7 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
   addErrorMessage(res, key, errorMessage, refs);
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
+// node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
 var getRelativePath = (pathA, pathB) => {
   let i = 0;
   for (; i < pathA.length && i < pathB.length; i++) {
@@ -17273,7 +17273,7 @@ var getRelativePath = (pathA, pathB) => {
   return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/any.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/any.js
 function parseAnyDef(refs) {
   if (refs.target !== "openAi") {
     return {};
@@ -17289,7 +17289,7 @@ function parseAnyDef(refs) {
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/array.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/array.js
 function parseArrayDef(def, refs) {
   const res = {
     type: "array"
@@ -17313,7 +17313,7 @@ function parseArrayDef(def, refs) {
   return res;
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/bigint.js
 function parseBigintDef(def, refs) {
   const res = {
     type: "integer",
@@ -17359,24 +17359,24 @@ function parseBigintDef(def, refs) {
   return res;
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/boolean.js
 function parseBooleanDef() {
   return {
     type: "boolean"
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/branded.js
 function parseBrandedDef(_def, refs) {
   return parseDef(_def.type._def, refs);
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/catch.js
 var parseCatchDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/date.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/date.js
 function parseDateDef(def, refs, overrideDateStrategy) {
   const strategy = overrideDateStrategy ?? refs.dateStrategy;
   if (Array.isArray(strategy)) {
@@ -17435,7 +17435,7 @@ var integerDateParser = (def, refs) => {
   return res;
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/default.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/default.js
 function parseDefaultDef(_def, refs) {
   return {
     ...parseDef(_def.innerType._def, refs),
@@ -17443,12 +17443,12 @@ function parseDefaultDef(_def, refs) {
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/effects.js
 function parseEffectsDef(_def, refs) {
   return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef(refs);
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/enum.js
 function parseEnumDef(def) {
   return {
     type: "string",
@@ -17456,7 +17456,7 @@ function parseEnumDef(def) {
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/intersection.js
 var isJsonSchema7AllOfType = (type) => {
   if ("type" in type && type.type === "string")
     return false;
@@ -17498,7 +17498,7 @@ function parseIntersectionDef(def, refs) {
   } : void 0;
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/literal.js
 function parseLiteralDef(def, refs) {
   const parsedType2 = typeof def.value;
   if (parsedType2 !== "bigint" && parsedType2 !== "number" && parsedType2 !== "boolean" && parsedType2 !== "string") {
@@ -17518,7 +17518,7 @@ function parseLiteralDef(def, refs) {
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/string.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/string.js
 var emojiRegex2 = void 0;
 var zodPatterns = {
   /**
@@ -17843,7 +17843,7 @@ function stringifyRegExpWithFlags(regex, refs) {
   return pattern;
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/record.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/record.js
 function parseRecordDef(def, refs) {
   if (refs.target === "openAi") {
     console.warn("Warning: OpenAI may not support records in schemas! Try an array of key-value pairs instead.");
@@ -17895,7 +17895,7 @@ function parseRecordDef(def, refs) {
   return schema;
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/map.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/map.js
 function parseMapDef(def, refs) {
   if (refs.mapStrategy === "record") {
     return parseRecordDef(def, refs);
@@ -17920,7 +17920,7 @@ function parseMapDef(def, refs) {
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/nativeEnum.js
 function parseNativeEnumDef(def) {
   const object3 = def.values;
   const actualKeys = Object.keys(def.values).filter((key) => {
@@ -17934,7 +17934,7 @@ function parseNativeEnumDef(def) {
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/never.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/never.js
 function parseNeverDef(refs) {
   return refs.target === "openAi" ? void 0 : {
     not: parseAnyDef({
@@ -17944,7 +17944,7 @@ function parseNeverDef(refs) {
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/null.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/null.js
 function parseNullDef(refs) {
   return refs.target === "openApi3" ? {
     enum: ["null"],
@@ -17954,7 +17954,7 @@ function parseNullDef(refs) {
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/union.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/union.js
 var primitiveMappings = {
   ZodString: "string",
   ZodNumber: "number",
@@ -18022,7 +18022,7 @@ var asAnyOf = (def, refs) => {
   return anyOf.length ? { anyOf } : void 0;
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/nullable.js
 function parseNullableDef(def, refs) {
   if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
     if (refs.target === "openApi3") {
@@ -18054,7 +18054,7 @@ function parseNullableDef(def, refs) {
   return base && { anyOf: [base, { type: "null" }] };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/number.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/number.js
 function parseNumberDef(def, refs) {
   const res = {
     type: "number"
@@ -18103,7 +18103,7 @@ function parseNumberDef(def, refs) {
   return res;
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/object.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/object.js
 function parseObjectDef(def, refs) {
   const forceOptionalIntoNullable = refs.target === "openAi";
   const result = {
@@ -18173,7 +18173,7 @@ function safeIsOptional(schema) {
   }
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/optional.js
 var parseOptionalDef = (def, refs) => {
   if (refs.currentPath.toString() === refs.propertyPath?.toString()) {
     return parseDef(def.innerType._def, refs);
@@ -18192,7 +18192,7 @@ var parseOptionalDef = (def, refs) => {
   } : parseAnyDef(refs);
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/pipeline.js
 var parsePipelineDef = (def, refs) => {
   if (refs.pipeStrategy === "input") {
     return parseDef(def.in._def, refs);
@@ -18212,12 +18212,12 @@ var parsePipelineDef = (def, refs) => {
   };
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/promise.js
 function parsePromiseDef(def, refs) {
   return parseDef(def.type._def, refs);
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/set.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/set.js
 function parseSetDef(def, refs) {
   const items = parseDef(def.valueType._def, {
     ...refs,
@@ -18237,7 +18237,7 @@ function parseSetDef(def, refs) {
   return schema;
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/tuple.js
 function parseTupleDef(def, refs) {
   if (def.rest) {
     return {
@@ -18265,24 +18265,24 @@ function parseTupleDef(def, refs) {
   }
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/undefined.js
 function parseUndefinedDef(refs) {
   return {
     not: parseAnyDef(refs)
   };
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/unknown.js
 function parseUnknownDef(refs) {
   return parseAnyDef(refs);
 }
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
+// node_modules/zod-to-json-schema/dist/esm/parsers/readonly.js
 var parseReadonlyDef = (def, refs) => {
   return parseDef(def.innerType._def, refs);
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/selectParser.js
+// node_modules/zod-to-json-schema/dist/esm/selectParser.js
 var selectParser = (def, typeName, refs) => {
   switch (typeName) {
     case ZodFirstPartyTypeKind.ZodString:
@@ -18358,7 +18358,7 @@ var selectParser = (def, typeName, refs) => {
   }
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/parseDef.js
+// node_modules/zod-to-json-schema/dist/esm/parseDef.js
 function parseDef(def, refs, forceResolution = false) {
   const seenItem = refs.seen.get(def);
   if (refs.override) {
@@ -18414,7 +18414,7 @@ var addMeta = (def, refs, jsonSchema) => {
   return jsonSchema;
 };
 
-// ../clocknext-mcp/node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
+// node_modules/zod-to-json-schema/dist/esm/zodToJsonSchema.js
 var zodToJsonSchema = (schema, options) => {
   const refs = getRefs(options);
   let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name2, schema2]) => ({
@@ -18476,7 +18476,7 @@ var zodToJsonSchema = (schema, options) => {
   return combined;
 };
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-json-schema-compat.js
 function mapMiniTarget(t) {
   if (!t)
     return "draft-7";
@@ -18518,7 +18518,7 @@ function parseWithCompat(schema, data) {
   return result.data;
 }
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js
 var DEFAULT_REQUEST_TIMEOUT_MSEC = 6e4;
 var Protocol = class {
   constructor(_options) {
@@ -19472,7 +19472,7 @@ function mergeCapabilities(base, additional) {
   return result;
 }
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/validation/ajv-provider.js
 var import_ajv = __toESM(require_ajv(), 1);
 var import_ajv_formats = __toESM(require_dist(), 1);
 function createDefaultAjvInstance() {
@@ -19540,7 +19540,7 @@ var AjvJsonSchemaValidator = class {
   }
 };
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/server.js
 var ExperimentalServerTasks = class {
   constructor(_server) {
     this._server = _server;
@@ -19753,7 +19753,7 @@ var ExperimentalServerTasks = class {
   }
 };
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/helpers.js
 function assertToolsCallTaskCapability(requests, method, entityName) {
   if (!requests) {
     throw new Error(`${entityName} does not support task creation (required for ${method})`);
@@ -19788,7 +19788,7 @@ function assertClientRequestTaskCapability(requests, method, entityName) {
   }
 }
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js
 var Server = class extends Protocol {
   /**
    * Initializes this server with the given name and version information.
@@ -20159,7 +20159,7 @@ var Server = class extends Protocol {
   }
 };
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/completable.js
 var COMPLETABLE_SYMBOL = /* @__PURE__ */ Symbol.for("mcp.completable");
 function isCompletable(schema) {
   return !!schema && typeof schema === "object" && COMPLETABLE_SYMBOL in schema;
@@ -20173,7 +20173,7 @@ var McpZodTypeKind;
   McpZodTypeKind2["Completable"] = "McpCompletable";
 })(McpZodTypeKind || (McpZodTypeKind = {}));
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/toolNameValidation.js
 var TOOL_NAME_REGEX = /^[A-Za-z0-9._-]{1,128}$/;
 function validateToolName(name) {
   const warnings = [];
@@ -20231,7 +20231,7 @@ function validateAndWarnToolName(name) {
   return result.isValid;
 }
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/experimental/tasks/mcp-server.js
 var ExperimentalMcpServerTasks = class {
   constructor(_mcpServer) {
     this._mcpServer = _mcpServer;
@@ -20246,7 +20246,7 @@ var ExperimentalMcpServerTasks = class {
   }
 };
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
 var McpServer = class {
   constructor(serverInfo, options) {
     this._registeredResources = {};
@@ -21038,10 +21038,10 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 import process2 from "process";
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 var STDIO_DEFAULT_MAX_BUFFER_SIZE = 10 * 1024 * 1024;
 var ReadBuffer = class {
   constructor(options) {
@@ -21078,7 +21078,7 @@ function serializeMessage(message) {
   return JSON.stringify(message) + "\n";
 }
 
-// ../clocknext-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
+// node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
   constructor(_stdin = process2.stdin, _stdout = process2.stdout, options) {
     this._stdin = _stdin;
@@ -21154,11 +21154,15 @@ var MAX_DELAY_MS = 1e4;
 var ClocknextError = class extends Error {
   status;
   retryable;
+  /** The refusal code the server named in `statusDetail.code` (for example
+   *  `PACKAGE_ENTITLEMENT_NOT_ON_PLAN`), when it named one. */
+  code;
   constructor(message, opts = {}) {
     super(message);
     this.name = new.target.name;
     this.status = opts.status;
     this.retryable = opts.retryable ?? false;
+    this.code = opts.code;
     Object.setPrototypeOf(this, new.target.prototype);
   }
 };
@@ -21365,10 +21369,12 @@ var ClocknextApi = class {
       const message2 = detail?.message ?? `Request failed with status ${response.status}.`;
       const result = body.result;
       const feature = typeof result?.feature === "string" ? result.feature : response.headers.get("x-feature-locked") ?? void 0;
-      throw errorFromResponse(response.status, message2, retryAfterMs, {
+      const error2 = errorFromResponse(response.status, message2, retryAfterMs, {
         code: detail?.code,
         feature
       });
+      if (detail?.code) error2.code = detail.code;
+      throw error2;
     }
     const oldEnvelope = body;
     if (response.ok && oldEnvelope.ok !== false) {
@@ -21420,6 +21426,8 @@ var ClocknextApi = class {
   plans = this.catalogue("/api/v1/plans", "plans", "plan");
   /** Composites have no DELETE on the API — retire one by archiving it. */
   composites = this.catalogue("/api/v1/composites", "composites", "composite");
+  /** Packages: entitlements plus one price, added to a subscription. No DELETE. */
+  packages = this.catalogue("/api/v1/packages", "packages", "package");
   /**
    * The same five calls for every catalogue resource. `listKey` / `itemKey`
    * are the fields the server nests the result under, e.g. `{ credits: [...] }`
@@ -21522,6 +21530,40 @@ var ClocknextApi = class {
       });
     }
   };
+  // --- Subscriptions (`:id` is the purchase id) ------------------------------
+  subscriptions = {
+    /** `GET /api/v1/subscriptions/:id` — the period running now, its
+     *  `packages`, and the periods it renewed out of. */
+    get: async (id) => {
+      const result = await this.request({
+        method: "GET",
+        path: idPath("/api/v1/subscriptions", id)
+      });
+      return result.subscription;
+    },
+    /** `POST /api/v1/subscriptions/:id/packages` — add packages; raises one
+     *  invoice. Returns `{ purchasePackages, invoice, replayed }`. */
+    addPackages: (id, input) => {
+      return this.request({
+        method: "POST",
+        path: `${idPath("/api/v1/subscriptions", id)}/packages`,
+        body: input,
+        // Raises an invoice: a timeout would report failure for an attach
+        // that DID go through, so allow headroom (like a purchase).
+        timeoutMs: 6e4
+      });
+    },
+    /** `POST /api/v1/subscriptions/:id/packages/:purchasePackageId/remove`.
+     *  Returns `{ purchasePackage, invoice }`. */
+    removePackage: (id, purchasePackageId, input) => {
+      return this.request({
+        method: "POST",
+        path: `${idPath(`${idPath("/api/v1/subscriptions", id)}/packages`, purchasePackageId)}/remove`,
+        body: input,
+        timeoutMs: 6e4
+      });
+    }
+  };
   // --- Purchases -------------------------------------------------------------
   purchases = {
     /** `POST /api/v1/purchases` — subscribe a customer to a plan. */
@@ -21567,7 +21609,8 @@ function errorResult(message) {
 function errMsg(err) {
   if (err instanceof ClocknextError) {
     const feature = err instanceof FeatureLockedError && err.feature ? ` [feature: ${err.feature}]` : "";
-    return `Clocknext ${err.constructor.name}${err.status ? ` (${err.status})` : ""}: ${err.message}${feature}`;
+    const code = err.code ? ` [code: ${err.code}]` : "";
+    return `Clocknext ${err.constructor.name}${err.status ? ` (${err.status})` : ""}: ${err.message}${code}${feature}`;
   }
   return err instanceof Error ? err.message : String(err);
 }
@@ -22680,6 +22723,348 @@ function registerListModels(server, cnk) {
   );
 }
 
+// src/tools/packages.ts
+var RECORDED_PAYMENT_MODES = [
+  "CASH",
+  "BANK_TRANSFER",
+  "WIRE_TRANSFER",
+  "CARD",
+  "CHEQUE",
+  "UPI",
+  "OTHER"
+];
+var packageItem = external_exports.object({
+  id: external_exports.string().min(1).describe("The credit's / outcome's / unit's / composite's own id (from its list tool)."),
+  quantity: external_exports.number().int().positive().describe("How many the package grants each billing cycle \u2014 a whole number above 0.")
+}).strict();
+var GROUPS = ["credits", "outcomes", "units", "composites"];
+var packageEntitlements = external_exports.object({
+  credits: external_exports.array(packageItem).optional().describe("Credits: [{ id, quantity }] (ids from clocknext_list_credits)."),
+  outcomes: external_exports.array(packageItem).optional().describe("Outcomes: [{ id, quantity }] (ids from clocknext_list_outcomes)."),
+  units: external_exports.array(packageItem).optional().describe("Units: [{ id, quantity }] (ids from clocknext_list_units)."),
+  composites: external_exports.array(packageItem).optional().describe("Composites: [{ id, quantity }] (ids from clocknext_list_composites)."),
+  flatFee: external_exports.number().min(0).nullish().describe("One flat fee in USD, at most one per package. null = no flat fee.")
+}).strict();
+var ENTITLEMENTS_SHAPE = "- `entitlements` is grouped: `{ credits: [{ id, quantity }], outcomes: [...], units: [...], composites: [...], flatFee }`. `id` is the credit's / outcome's / unit's / composite's own id; `quantity` is a whole number above 0; `flatFee` is USD (one at most). A response adds each item's `name`.";
+var PACKAGE_RULES = [
+  `- A package is one or more entitlements and one price, added to a customer's subscription ON TOP of its plan \u2014 a top-up or an add-on ("500 extra AI credits for $4"). It renews with the subscription on the plan's billing cycle until it is removed, and it is always paid in advance.`,
+  "- It has NO billing cycle, billing mode or rollover of its own (it follows the plan), it NEVER holds a wallet (extra wallet money belongs in the Reserved wallet), and it holds one flat fee at most. Sending any of those is a 400.",
+  ENTITLEMENTS_SHAPE,
+  "- Each entitlement except a flat fee must ALSO be on the customer's plan as ADVANCE (billed up-front, not metered). The catalog accepts any active entitlement, but adding the package to a subscription whose plan lacks it, or meters it, is refused (PACKAGE_ENTITLEMENT_NOT_ON_PLAN / PACKAGE_ENTITLEMENT_METERED). Check the target plan with clocknext_get_plan first.",
+  "- The same entitlement can't be listed twice. Every entitlement must be active and belong to this organisation."
+].join("\n");
+function registerPackageTools(server, cnk) {
+  server.registerTool(
+    "clocknext_list_packages",
+    {
+      title: "Clocknext: list packages",
+      description: [
+        "List the organisation's packages, oldest first \u2014 each with its id, name, price (`cost`), active state and entitlements.",
+        "",
+        "Rules:",
+        "- A package is a top-up or add-on that a customer's subscription gets on top of its plan. Its `id` is what clocknext_add_subscription_packages takes.",
+        "- Pass active=true for only the ones that can still be added to a subscription. Archived packages stay on the subscriptions that already have them.",
+        "- Call this before creating one: a taken name is refused (409). To change one, use clocknext_update_package."
+      ].join("\n"),
+      inputSchema: {
+        active: external_exports.boolean().optional().describe("true = only packages that can be added, false = only archived ones, omit = all.")
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true }
+    },
+    async ({ active }) => {
+      try {
+        const rows = await cnk.packages.list(active === void 0 ? {} : { active });
+        const filtered = active === void 0 ? rows : rows.filter((r) => r.isActive === active);
+        return jsonResult({ count: filtered.length, packages: filtered });
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_get_package",
+    {
+      title: "Clocknext: get package",
+      description: "Get one package by id \u2014 name, description, price (`cost`), active state, and its grouped entitlements (`credits`, `outcomes`, `units`, `composites`: [{ id, name, quantity }], and `flatFee`).",
+      inputSchema: { id: external_exports.string().describe("The package id (from clocknext_list_packages).") },
+      annotations: { readOnlyHint: true, openWorldHint: true }
+    },
+    async ({ id }) => {
+      try {
+        return jsonResult(await cnk.packages.get(id));
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_create_package",
+    {
+      title: "Clocknext: create package",
+      description: [
+        "Create a package \u2014 a top-up or add-on that can be added to a customer's subscription on top of its plan.",
+        "",
+        "Rules:",
+        PACKAGE_RULES,
+        "- `cost` is required: the package price the customer pays each billing cycle of the plan, in USD before tax. Ask the user for the price \u2014 do not invent one.",
+        "- Creating a package CHARGES NOBODY. A customer pays for it only when it is added to their subscription with clocknext_add_subscription_packages.",
+        "- A name already in use is refused (409). There is no delete: retire a package with clocknext_archive_package."
+      ].join("\n"),
+      inputSchema: {
+        name: external_exports.string().min(1).describe("Package name, e.g. 'Booster'. Unique in the organisation."),
+        description: external_exports.string().optional().describe("Optional description."),
+        cost: external_exports.number().min(0).describe("Required. The package price in USD, before tax, each billing cycle. Ask the user."),
+        entitlements: packageEntitlements.describe(
+          "At least one entitlement: { credits, outcomes, units, composites: [{ id, quantity }], flatFee }. A group left out is empty."
+        )
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true
+      }
+    },
+    async (args) => {
+      if (!hasEntitlement(args.entitlements)) {
+        return errorResult(
+          "A package needs at least one entitlement: a credit, outcome, unit or composite ({ id, quantity }) or a flatFee."
+        );
+      }
+      try {
+        return jsonResult(await cnk.packages.create(definedOnly2(args)));
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_update_package",
+    {
+      title: "Clocknext: update package",
+      description: [
+        "Update a package by id.",
+        "",
+        "Rules:",
+        "- Partial update: pass the id plus ONLY the fields to change; everything you leave out keeps its stored value.",
+        "- `entitlements`: each group you pass (`credits`, `outcomes`, `units`, `composites`) is the complete new list for that group; a group you leave out keeps its current items (this tool reads them back first). `flatFee`: a number sets it, null removes it, left out keeps it.",
+        "- Without `cost`, new entitlements reset the price to the sum of their list prices. An update without entitlements keeps the price.",
+        PACKAGE_RULES,
+        "- An edit changes nothing for customers who already have the package: their subscription keeps its own copy."
+      ].join("\n"),
+      inputSchema: {
+        id: external_exports.string().describe("The package id to update."),
+        name: external_exports.string().min(1).optional().describe("New name."),
+        description: external_exports.string().nullish().describe("New description (null clears it)."),
+        cost: external_exports.number().min(0).optional().describe("New price in USD, before tax, each billing cycle."),
+        entitlements: packageEntitlements.optional().describe("The groups to change; a group left out keeps its current items.")
+      },
+      annotations: { readOnlyHint: false, idempotentHint: true, openWorldHint: true }
+    },
+    async ({ id, entitlements, ...fields }) => {
+      const body = definedOnly2(fields);
+      if (Object.keys(body).length === 0 && entitlements === void 0) {
+        return errorResult("Nothing to update \u2014 pass the package id plus at least one field to change.");
+      }
+      try {
+        if (entitlements !== void 0) {
+          const current = await cnk.packages.get(id);
+          const merged = {};
+          for (const group of GROUPS) {
+            merged[group] = entitlements[group] ?? (current.entitlements?.[group] ?? []).map(toItem);
+          }
+          merged.flatFee = entitlements.flatFee !== void 0 ? entitlements.flatFee : current.entitlements?.flatFee ?? null;
+          if (!hasEntitlement(merged)) {
+            return errorResult("A package needs at least one entitlement \u2014 this update would leave it empty.");
+          }
+          body.entitlements = merged;
+        }
+        return jsonResult(await cnk.packages.update(id, body));
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_archive_package",
+    {
+      title: "Clocknext: archive package",
+      description: [
+        "Archive a package (isActive\u2192false) \u2014 the API never deletes; this is how a package is retired.",
+        "",
+        "Rules:",
+        "- It can't be added to a subscription any more (PACKAGE_ARCHIVED). Customers who already have it keep their copy, and it keeps renewing for them.",
+        "- To take it off a customer, use clocknext_remove_subscription_package.",
+        "- Reversible: reactivate with clocknext_unarchive_package."
+      ].join("\n"),
+      inputSchema: { id: external_exports.string().describe("The package id to archive.") },
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true }
+    },
+    async ({ id }) => {
+      try {
+        return jsonResult(await cnk.packages.setActive(id, false));
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_unarchive_package",
+    {
+      title: "Clocknext: unarchive package",
+      description: "Reactivate an archived package (isActive\u2192true) \u2014 the reverse of clocknext_archive_package. It can be added to subscriptions again. Prefer this over creating a replacement.",
+      inputSchema: { id: external_exports.string().describe("The package id to reactivate.") },
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true }
+    },
+    async ({ id }) => {
+      try {
+        return jsonResult(await cnk.packages.setActive(id, true));
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_get_subscription",
+    {
+      title: "Clocknext: get subscription",
+      description: [
+        "Get one subscription by id \u2014 the period running now, with its `packages` and `periods[]` (the periods it renewed out of).",
+        "",
+        "Rules:",
+        "- The subscription id is the purchase id: `plan.purchaseId` from clocknext_get_customer_plan, or the id clocknext_create_purchase returned.",
+        "- `packages` lists the packages that are SCHEDULED (invoice not paid yet), ACTIVE or MARKED_FOR_CANCELLATION (running until `endsAt`), oldest first; CANCELLED ones are left out. Each has `cost`, its grouped `entitlements` (the copy taken when it was added), `notes` (the note sent when it was added, or null) and `cancelReason`. Its `id` is the purchasePackageId that clocknext_remove_subscription_package takes."
+      ].join("\n"),
+      inputSchema: { id: external_exports.string().describe("The subscription id (= the purchase id).") },
+      annotations: { readOnlyHint: true, openWorldHint: true }
+    },
+    async ({ id }) => {
+      try {
+        return jsonResult(await cnk.subscriptions.get(id));
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_add_subscription_packages",
+    {
+      title: "Clocknext: add packages to a subscription",
+      description: [
+        "Add one or more packages to a customer's subscription. Raises ONE invoice, one line per package, at the full package price.",
+        "",
+        "Rules:",
+        "- \u26D4 Raises a REAL invoice (real money on a live org). Only call this after the user explicitly approved this exact attach \u2014 which packages, on which customer's subscription, for how much \u2014 in a question dedicated to it alone.",
+        "- The packages are SCHEDULED until the invoice is paid (the result has its `payUrl`), then ACTIVE. When the org uses the invoice balance for new invoices, the customer's invoice balance pays it first: paid in full, the invoice comes back PAID with no `payUrl` and the packages are ACTIVE at once; paid in part, the invoice stays OPEN for the rest. With `recordAsPaid` the invoice is recorded as paid (paid outside Clocknext) and they are ACTIVE at once \u2014 only when the user says it was really paid; the balance is then not used.",
+        "- Each package entitlement (except a flat fee) must be on the subscription's plan as ADVANCE. Check with clocknext_get_customer_plan / clocknext_get_plan before calling.",
+        "- `notes` (optional, at most 500 characters) is a reference or PO number for this attach: kept on each package as `notes` and shown on the package invoice. Blank is stored as null.",
+        "- Pass an `idempotencyKey` and reuse it if you retry after a timeout or network error: the same key with the same packages answers with the first attach (`replayed: true`) and writes nothing, so a retry never bills twice.",
+        "- Returns `purchasePackages` (in the order sent; each `id` is what clocknext_remove_subscription_package takes), `invoice` and `replayed`.",
+        "",
+        "Refusals (`code` in the error):",
+        "- INVALID_REQUEST (400): a bad body.",
+        "- SUBSCRIPTION_NOT_FOUND (404): no such subscription in this organisation.",
+        "- PACKAGE_NOT_FOUND (404): no such package in this organisation.",
+        "- SUBSCRIPTION_NOT_ACTIVE (409): the subscription is on hold, marked for cancellation, cancelled, or on a free plan.",
+        "- PACKAGE_ARCHIVED (409): a package is archived \u2014 unarchive it with clocknext_unarchive_package, or pick another.",
+        "- PACKAGE_ENTITLEMENT_NOT_ON_PLAN (409): the plan doesn't have one of the package's entitlements as advance \u2014 add it to the plan (clocknext_update_plan) or change the package.",
+        "- PACKAGE_ENTITLEMENT_METERED (409): the plan meters (ARREAR) one of the package's entitlements \u2014 a package can only top up an advance entitlement.",
+        "- IDEMPOTENCY_KEY_REUSED (422): the key was used for another attach (other packages or another subscription) \u2014 use a new key."
+      ].join("\n"),
+      inputSchema: {
+        subscriptionId: external_exports.string().describe("The subscription id (= the purchase id, `plan.purchaseId` from clocknext_get_customer_plan)."),
+        packageIds: external_exports.array(external_exports.string().min(1)).min(1).max(10).refine((ids) => new Set(ids).size === ids.length, { message: "Each package id can be sent once." }).describe("1\u201310 package ids (from clocknext_list_packages), each once."),
+        recordAsPaid: external_exports.object({
+          mode: external_exports.enum(RECORDED_PAYMENT_MODES).describe("How the customer paid outside Clocknext."),
+          reference: external_exports.string().max(200).optional().describe("Optional payment reference, at most 200 characters.")
+        }).optional().describe("Record the invoice as already paid, so the packages start now. Only when the user says it was really paid."),
+        notes: external_exports.string().max(500).optional().describe("Optional note for this attach, at most 500 characters \u2014 a reference or PO number. Kept on each package and shown on the package invoice."),
+        idempotencyKey: external_exports.string().min(1).max(255).optional().describe("1\u2013255 characters. Reuse the same key on a retry so the attach is never made twice.")
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true
+      }
+    },
+    async ({ subscriptionId, packageIds, recordAsPaid, notes, idempotencyKey }) => {
+      try {
+        return jsonResult(
+          await cnk.subscriptions.addPackages(subscriptionId, {
+            packageIds,
+            ...recordAsPaid ? { recordAsPaid } : {},
+            ...notes !== void 0 ? { notes } : {},
+            ...idempotencyKey ? { idempotencyKey } : {}
+          })
+        );
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_remove_subscription_package",
+    {
+      title: "Clocknext: remove a package from a subscription",
+      description: [
+        "Remove a package from a customer's subscription, like cancelling a subscription.",
+        "",
+        "Rules:",
+        "- By default it ends NOW (status CANCELLED, `endedReason: REMOVED`): what is left of the package is taken back (its amount less what was used \u2014 the package is used first). Nothing is refunded.",
+        "- `atPeriodEnd: true` ends it at the end of the paid period instead: it is MARKED_FOR_CANCELLATION until `endsAt`, and keeps working until then. A package marked for cancellation that is removed without atPeriodEnd ends now.",
+        "- `reason` is kept as the package's `cancelReason`.",
+        "- On a subscription on hold it ends now either way, and its line comes off the unpaid renewal invoice (same number and pay link); `invoice` in the result is that renewal. Otherwise `invoice` is null.",
+        "- Ask the user which they want before calling: removing now takes back what the customer has not used yet.",
+        "- The purchasePackageId is the `id` of an entry in the subscription's `packages` (clocknext_get_subscription), not the catalog package id.",
+        "",
+        "Refusals (`code` in the error):",
+        "- INVALID_REQUEST (400): a bad body.",
+        "- PACKAGE_NOT_FOUND (404): no such package on this subscription.",
+        "- PACKAGE_ENDED (409): it is already CANCELLED.",
+        "- PACKAGE_AWAITING_PAYMENT (409): it is SCHEDULED (its invoice is not paid yet) \u2014 void its invoice instead (in the Clocknext product).",
+        "- PACKAGE_ALREADY_ENDING (409): atPeriodEnd: true on a package that is already MARKED_FOR_CANCELLATION.",
+        "- RENEWAL_PAID_IN_PART (409): on hold, and part of the held renewal is already paid.",
+        "- CHARGE_IN_FLIGHT (409): on hold, and a card charge on the renewal is settling \u2014 retry in a few minutes.",
+        "- USAGE_UNAVAILABLE (409): removing now, but the usage can't be read right now \u2014 retry in a minute."
+      ].join("\n"),
+      inputSchema: {
+        subscriptionId: external_exports.string().describe("The subscription id (= the purchase id)."),
+        purchasePackageId: external_exports.string().describe("The package's id on the subscription (from clocknext_get_subscription `packages[].id`)."),
+        atPeriodEnd: external_exports.boolean().optional().describe("true = end at the end of the paid period. Omit (or false) = end now."),
+        reason: external_exports.string().max(200).optional().describe("Optional reason, at most 200 characters; kept as `cancelReason`.")
+      },
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true }
+    },
+    async ({ subscriptionId, purchasePackageId, atPeriodEnd, reason }) => {
+      try {
+        return jsonResult(
+          await cnk.subscriptions.removePackage(subscriptionId, purchasePackageId, {
+            ...atPeriodEnd !== void 0 ? { atPeriodEnd } : {},
+            ...reason !== void 0 ? { reason } : {}
+          })
+        );
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+}
+function hasEntitlement(e) {
+  if (!e) return false;
+  return GROUPS.some((g) => (e[g]?.length ?? 0) > 0) || e.flatFee !== void 0 && e.flatFee !== null;
+}
+function toItem(row) {
+  return { id: row.id, quantity: row.quantity };
+}
+function definedOnly2(args) {
+  const out = {};
+  for (const [key, value] of Object.entries(args)) {
+    if (value !== void 0) out[key] = value;
+  }
+  return out;
+}
+
 // src/tools/search-docs.ts
 var DOCS_URL2 = resolveDocsUrl();
 var DESCRIPTION2 = [
@@ -22858,6 +23243,7 @@ async function main() {
   registerGetDoc(server);
   registerCatalogueTools(server, cnk);
   registerCompositeTools(server, cnk);
+  registerPackageTools(server, cnk);
   registerCustomerTools(server, cnk);
   registerAddModel(server, cnk);
   registerWriteEnv(server);

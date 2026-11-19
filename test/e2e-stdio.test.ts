@@ -10,11 +10,15 @@
  *   E3  search_docs + get_doc against the public docs.
  *   E4  write_env writes the key into a .env and never returns it; it refuses a
  *       wrong file name and a .env that git would commit.
- *   E5  Credits / outcomes / units / plans / composites: list (all / active /
+ *   E5  Credits / outcomes / units / plans / composites / packages: list (all / active /
  *       archived), get, create, update, archive, unarchive.
  *   E6  Customers: create, get, list, a wrong cursor (400), balances, plan,
- *       purchase, bulk import. Balances after the purchase need a server with
+ *       purchase, the subscription and its packages (add, remove), bulk import. Balances after the purchase need a server with
  *       an edge (it reads usage from ClickHouse): set CN_TEST_EDGE=1 for it.
+ *       A new purchase is not running yet (its invoice is unpaid), so a package
+ *       can't go on it. Set CN_TEST_SUBSCRIPTION to a RUNNING subscription of
+ *       the test org to also add a package to it (recorded as paid — a real
+ *       invoice row) and remove it again, at the period end and then now.
  *   E7  Errors: a wrong id is a NotFoundError (404); a wrong key is an
  *       AuthError (401).
  *   E8  (optional) Lock refusals: FEATURE_LOCKED → FeatureLockedError naming
@@ -63,6 +67,15 @@ const EXPECTED_TOOLS = [
   "clocknext_update_composite",
   "clocknext_archive_composite",
   "clocknext_unarchive_composite",
+  "clocknext_list_packages",
+  "clocknext_get_package",
+  "clocknext_create_package",
+  "clocknext_update_package",
+  "clocknext_archive_package",
+  "clocknext_unarchive_package",
+  "clocknext_get_subscription",
+  "clocknext_add_subscription_packages",
+  "clocknext_remove_subscription_package",
   "clocknext_create_customer",
   "clocknext_get_customer",
   "clocknext_list_customers",
@@ -290,7 +303,36 @@ async function main(): Promise<void> {
   const ids = (l: Json[]) => l.map((e) => e.id).sort().join();
   check("update_plan with the same lines → ok, ids and cost kept", r.ok && ids(linesAfter) === ids(lines) && Number(r.data.cost) === 99, r.text);
 
+  r = await call(client, "clocknext_create_package", {
+    name: `${P} package`,
+    cost: 4,
+    entitlements: { credits: [{ id: creditId, quantity: 10 }], flatFee: 1 },
+  });
+  const packageId = r.data.id as string;
+  check("create_package → id", r.ok && typeof packageId === "string", r.text);
+  check("…cost saved", Number(r.data.cost) === 4, r.text);
+  check("…grouped entitlements with names", r.data.entitlements?.credits?.[0]?.id === creditId && typeof r.data.entitlements?.credits?.[0]?.name === "string" && Number(r.data.entitlements?.flatFee) === 1, r.text);
+  r = await call(client, "clocknext_get_package", { id: packageId });
+  check("get_package → the credit and the flat fee", r.ok && r.data.entitlements?.credits?.length === 1 && Number(r.data.entitlements?.flatFee) === 1, r.text);
+  r = await call(client, "clocknext_update_package", { id: packageId, entitlements: { outcomes: [{ id: outcomeId, quantity: 2 }] } });
+  check(
+    "update_package with only outcomes → outcome added, credit and flat fee kept",
+    r.ok && r.data.entitlements?.outcomes?.length === 1 && r.data.entitlements?.credits?.length === 1 && Number(r.data.entitlements?.flatFee) === 1,
+    r.text,
+  );
+  r = await call(client, "clocknext_update_package", { id: packageId, entitlements: { outcomes: [], flatFee: null } });
+  check("update_package outcomes=[] flatFee=null → both removed", r.ok && r.data.entitlements?.outcomes?.length === 0 && r.data.entitlements?.flatFee === null && r.data.entitlements?.credits?.length === 1, r.text);
+  r = await call(client, "clocknext_update_package", { id: packageId, cost: 3.5 });
+  check("update_package cost → saved", r.ok && Number(r.data.cost) === 3.5, r.text);
+  r = await call(client, "clocknext_create_package", {
+    name: `${P} same credit twice`,
+    cost: 1,
+    entitlements: { credits: [{ id: creditId, quantity: 1 }, { id: creditId, quantity: 2 }] },
+  });
+  check("create_package with the same credit twice → 400", !r.ok && /\(400\)/.test(r.text), r.text);
+
   for (const [resource, id] of [
+    ["package", packageId],
     ["credit", creditId],
     ["outcome", outcomeId],
     ["unit", tieredId],
@@ -325,7 +367,70 @@ async function main(): Promise<void> {
   r = await call(client, "clocknext_get_customer_balances", { id: customerId });
   check("get_customer_balances before a purchase → answers", r.ok, r.text);
   r = await call(client, "clocknext_create_purchase", { customerId, planId });
-  check("create_purchase → purchase id", r.ok && typeof r.data.id === "string", r.text);
+  const subscriptionId = r.data.id as string;
+  check("create_purchase → purchase id", r.ok && typeof subscriptionId === "string", r.text);
+  r = await call(client, "clocknext_get_subscription", { id: subscriptionId });
+  check("get_subscription → packages list", r.ok && Array.isArray(r.data.packages), r.text);
+  r = await call(client, "clocknext_add_subscription_packages", {
+    subscriptionId,
+    packageIds: [packageId],
+    recordAsPaid: { mode: "OTHER", reference: `${P}` },
+    idempotencyKey: `${P}-attach`,
+  });
+  if (r.ok) {
+    const purchasePackageId = r.data.purchasePackages?.[0]?.id as string;
+    check("add_subscription_packages (recorded as paid) → ACTIVE", r.data.purchasePackages?.[0]?.status === "ACTIVE", r.text);
+    r = await call(client, "clocknext_remove_subscription_package", { subscriptionId, purchasePackageId, atPeriodEnd: true, reason: "e2e" });
+    check("remove_subscription_package atPeriodEnd → MARKED_FOR_CANCELLATION", r.ok && r.data.purchasePackage?.status === "MARKED_FOR_CANCELLATION", r.text);
+    r = await call(client, "clocknext_remove_subscription_package", { subscriptionId, purchasePackageId, atPeriodEnd: true });
+    check("…again → PACKAGE_ALREADY_ENDING", !r.ok && /PACKAGE_ALREADY_ENDING/.test(r.text), r.text);
+  } else {
+    // The purchase is not running yet (its first invoice is unpaid): the refusal names its code.
+    check("add_subscription_packages refused → names SUBSCRIPTION_NOT_ACTIVE", /SUBSCRIPTION_NOT_ACTIVE/.test(r.text), r.text);
+    r = await call(client, "clocknext_remove_subscription_package", { subscriptionId, purchasePackageId: "no-such-package" });
+    check("remove_subscription_package with a wrong id → PACKAGE_NOT_FOUND", !r.ok && /PACKAGE_NOT_FOUND/.test(r.text), r.text);
+  }
+  const runningId = process.env.CN_TEST_SUBSCRIPTION ?? "";
+  if (!runningId) {
+    console.log("  [SKIP] a package on a running subscription: set CN_TEST_SUBSCRIPTION");
+  } else {
+    r = await call(client, "clocknext_get_subscription", { id: runningId });
+    check("get_subscription (running) → ACTIVE", r.ok && r.data.status === "ACTIVE", r.text);
+    const runningPlanId = r.data.planId as string;
+    r = await call(client, "clocknext_get_plan", { id: runningPlanId });
+    const advanceCredit = ((r.data.entitlements ?? []) as Json[]).find((e) => e.type === "CREDIT" && e.billingMode === "ADVANCE");
+    if (!advanceCredit) {
+      console.log("  [SKIP] the running subscription's plan has no advance credit");
+    } else {
+      r = await call(client, "clocknext_create_package", {
+        name: `${P} booster`,
+        cost: 1,
+        entitlements: { credits: [{ id: advanceCredit.creditId, quantity: 5 }] },
+      });
+      const boosterId = r.data.id as string;
+      check("create_package (plan's advance credit) → id", r.ok && typeof boosterId === "string", r.text);
+      r = await call(client, "clocknext_add_subscription_packages", { subscriptionId: runningId, packageIds: [packageId] });
+      check("add a package whose credit is not on the plan → PACKAGE_ENTITLEMENT_NOT_ON_PLAN", !r.ok && /PACKAGE_ENTITLEMENT_NOT_ON_PLAN/.test(r.text), r.text);
+      const attach = { subscriptionId: runningId, packageIds: [boosterId], recordAsPaid: { mode: "OTHER", reference: P }, idempotencyKey: `${P}-booster` };
+      r = await call(client, "clocknext_add_subscription_packages", attach);
+      const ppId = r.data.purchasePackages?.[0]?.id as string;
+      check("add_subscription_packages recorded as paid → ACTIVE, cost, grouped entitlements", r.ok && r.data.purchasePackages?.[0]?.status === "ACTIVE" && Number(r.data.purchasePackages?.[0]?.cost) === 1 && r.data.purchasePackages?.[0]?.entitlements?.credits?.length === 1, r.text);
+      r = await call(client, "clocknext_add_subscription_packages", attach);
+      check("…the same idempotencyKey → replayed, same package", r.ok && r.data.replayed === true && r.data.purchasePackages?.[0]?.id === ppId, r.text);
+      r = await call(client, "clocknext_get_subscription", { id: runningId });
+      check("get_subscription → lists the new package", r.ok && ((r.data.packages ?? []) as Json[]).some((x) => x.id === ppId), r.text);
+      r = await call(client, "clocknext_remove_subscription_package", { subscriptionId: runningId, purchasePackageId: ppId, atPeriodEnd: true, reason: "e2e" });
+      check("remove atPeriodEnd → MARKED_FOR_CANCELLATION, cancelReason kept", r.ok && r.data.purchasePackage?.status === "MARKED_FOR_CANCELLATION" && r.data.purchasePackage?.cancelReason === "e2e", r.text);
+      r = await call(client, "clocknext_remove_subscription_package", { subscriptionId: runningId, purchasePackageId: ppId, atPeriodEnd: true });
+      check("…again → PACKAGE_ALREADY_ENDING", !r.ok && /PACKAGE_ALREADY_ENDING/.test(r.text), r.text);
+      r = await call(client, "clocknext_remove_subscription_package", { subscriptionId: runningId, purchasePackageId: ppId });
+      check("remove now → CANCELLED, endedReason REMOVED", r.ok && r.data.purchasePackage?.status === "CANCELLED" && r.data.purchasePackage?.endedReason === "REMOVED", r.text);
+      r = await call(client, "clocknext_remove_subscription_package", { subscriptionId: runningId, purchasePackageId: ppId });
+      check("…again → PACKAGE_ENDED", !r.ok && /PACKAGE_ENDED/.test(r.text), r.text);
+      r = await call(client, "clocknext_archive_package", { id: boosterId });
+      check("archive the e2e booster", r.ok && r.data.isActive === false, r.text);
+    }
+  }
   r = await call(client, "clocknext_get_customer_plan", { id: customerId });
   check("get_customer_plan after the purchase → answers", r.ok, r.text);
   console.log(`      plan: ${r.text.replace(/\s+/g, " ").slice(0, 200)}`);

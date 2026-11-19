@@ -41,12 +41,16 @@ const MAX_DELAY_MS = 10_000;
 export class ClocknextError extends Error {
   readonly status?: number;
   readonly retryable: boolean;
+  /** The refusal code the server named in `statusDetail.code` (for example
+   *  `PACKAGE_ENTITLEMENT_NOT_ON_PLAN`), when it named one. */
+  code?: string;
 
-  constructor(message: string, opts: { status?: number; retryable?: boolean } = {}) {
+  constructor(message: string, opts: { status?: number; retryable?: boolean; code?: string } = {}) {
     super(message);
     this.name = new.target.name;
     this.status = opts.status;
     this.retryable = opts.retryable ?? false;
+    this.code = opts.code;
     // Keep `instanceof` working after transpiling.
     Object.setPrototypeOf(this, new.target.prototype);
   }
@@ -356,10 +360,13 @@ export class ClocknextApi {
         typeof result?.feature === "string"
           ? result.feature
           : (response.headers.get("x-feature-locked") ?? undefined);
-      throw errorFromResponse(response.status, message, retryAfterMs, {
+      const error = errorFromResponse(response.status, message, retryAfterMs, {
         code: detail?.code,
         feature,
       });
+      // Keep the refusal code (e.g. `PACKAGE_ARCHIVED`): it says what to do next.
+      if (detail?.code) error.code = detail.code;
+      throw error;
     }
 
     // Old envelope: { ok, error?, ...payload }
@@ -420,6 +427,8 @@ export class ClocknextApi {
   readonly plans = this.catalogue("/api/v1/plans", "plans", "plan");
   /** Composites have no DELETE on the API — retire one by archiving it. */
   readonly composites = this.catalogue("/api/v1/composites", "composites", "composite");
+  /** Packages: entitlements plus one price, added to a subscription. No DELETE. */
+  readonly packages = this.catalogue("/api/v1/packages", "packages", "package");
 
   /**
    * The same five calls for every catalogue resource. `listKey` / `itemKey`
@@ -532,6 +541,58 @@ export class ClocknextApi {
         path: "/api/v1/customers/bulk",
         body: { customers },
         timeoutMs: 60_000, // one batch request; allow headroom
+      });
+    },
+  };
+
+  // --- Subscriptions (`:id` is the purchase id) ------------------------------
+
+  readonly subscriptions = {
+    /** `GET /api/v1/subscriptions/:id` — the period running now, its
+     *  `packages`, and the periods it renewed out of. */
+    get: async (id: string): Promise<unknown> => {
+      const result = await this.request<{ subscription: unknown }>({
+        method: "GET",
+        path: idPath("/api/v1/subscriptions", id),
+      });
+      return result.subscription;
+    },
+
+    /** `POST /api/v1/subscriptions/:id/packages` — add packages; raises one
+     *  invoice. Returns `{ purchasePackages, invoice, replayed }`. */
+    addPackages: (
+      id: string,
+      input: {
+        packageIds: string[];
+        recordAsPaid?: { mode: string; reference?: string };
+        /** A reference or PO number, at most 500 characters; kept on each
+         *  package and shown on the package invoice. Blank is stored as null. */
+        notes?: string;
+        idempotencyKey?: string;
+      },
+    ): Promise<unknown> => {
+      return this.request({
+        method: "POST",
+        path: `${idPath("/api/v1/subscriptions", id)}/packages`,
+        body: input,
+        // Raises an invoice: a timeout would report failure for an attach
+        // that DID go through, so allow headroom (like a purchase).
+        timeoutMs: 60_000,
+      });
+    },
+
+    /** `POST /api/v1/subscriptions/:id/packages/:purchasePackageId/remove`.
+     *  Returns `{ purchasePackage, invoice }`. */
+    removePackage: (
+      id: string,
+      purchasePackageId: string,
+      input: { atPeriodEnd?: boolean; reason?: string },
+    ): Promise<unknown> => {
+      return this.request({
+        method: "POST",
+        path: `${idPath(`${idPath("/api/v1/subscriptions", id)}/packages`, purchasePackageId)}/remove`,
+        body: input,
+        timeoutMs: 60_000,
       });
     },
   };

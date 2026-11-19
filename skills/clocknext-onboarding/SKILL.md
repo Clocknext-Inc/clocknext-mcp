@@ -8,8 +8,8 @@ description: >-
   every setup step the user chooses Manually in the Clocknext or Set it up using AI,
   automatic execution never means automatic progression, and two hard money gates
   guard anything that spends real money. Use whenever the user is doing anything with
-  Clocknext — setting up billing, creating or pricing credits/outcomes/units/plans, adding
-  models, metering or charging for LLM/API calls, wiring agentKey or customerId into their
+  Clocknext — setting up billing, creating or pricing credits/outcomes/units/plans/packages
+  (top-ups and add-ons on a plan), adding models, metering or charging for LLM/API calls, wiring agentKey or customerId into their
   app, or onboarding customers. If the request has nothing to do with Clocknext, ignore
   this skill.
 ---
@@ -197,12 +197,14 @@ then ask S2's one question. If they choose live, respect it — the money gates 
 guardrails; don't nag (and `references/testing.md` follows the same rule).
 
 ### S3 · Reconcile
-List models, credits, outcomes, units, plans, and customers. For each candidate test customer,
-read its current plan/subscription with `clocknext_get_customer_plan`; if purchase history
+List models, credits, outcomes, units, plans, packages (`clocknext_list_packages`), and
+customers. For each candidate test customer,
+read its current plan/subscription with `clocknext_get_customer_plan` (and its packages with
+`clocknext_get_subscription`, by `plan.purchaseId`); if purchase history
 cannot be read by MCP, direct the user to the Clocknext product and ask them to report any active or
 scheduled purchase. Report what exists so everything downstream
 reuses instead of duplicating. If an entitlement exists but is archived/inactive, the fix
-later is `clocknext_unarchive_credit`/`_unit`/`_outcome`/`_plan` — NOT an update:
+later is `clocknext_unarchive_credit`/`_unit`/`_outcome`/`_plan`/`_package` — NOT an update:
 **no update tool takes `isActive` — archive / unarchive are the only way to change active
 state.** NEVER create a second entitlement on an occupied agentKey — agentKeys are
 unique org-wide.
@@ -305,6 +307,26 @@ explicitly authorizes only that named operation in S15. S15 performs only that a
 creation or full-rewrite update, active, and reports the composition and due-at-purchase
 total. A later plan change requires a new S13–S15 cycle and approval.
 Details: `references/plans.md`.
+
+**Packages — top-ups and add-ons on a plan.** A package is one or more entitlements and one
+price that a customer's subscription gets ON TOP of its plan ("500 extra AI credits for $4"):
+use it when customers run out mid-cycle and need more, or buy an optional extra. Offer it in
+S13 only after the plan is settled, and only when the user's pricing has such an extra — it
+is never needed for the proof flow. Rules to say plainly: it renews with the subscription on
+the plan's cycle until removed and is always billed up-front; it has no billing cycle,
+up-front-vs-metered choice or rollover of its own, never holds a wallet, and holds one flat
+fee at most; and **every entitlement in it (except a flat fee) must also be on the plan as
+billed up-front** — a package can't top up a metered entitlement or one the plan lacks.
+Creating or changing one is its own named operation (`CREATE_PACKAGE` / `UPDATE_PACKAGE`),
+with the same one-question method choice as S14: Manually in the Clocknext
+(`{base}/packages`) or Set it up using AI (`clocknext_create_package` /
+`clocknext_update_package`); the answer authorizes only that package. Creating a package
+charges nobody. **Adding one to a customer's subscription
+(`clocknext_add_subscription_packages`) raises a real invoice**: it is never part of Gate 1
+— it needs its own pending action `ADD_PACKAGES_TO_SUBSCRIPTION` (named packages, named
+customer, displayed amount) asked ALONE like a money gate. Removing one
+(`clocknext_remove_subscription_package`) ends it now and takes back what is unused unless
+`atPeriodEnd: true`; ask which before removing. Details: `references/packages.md`.
 
 ### S16 · Choose test-customer method
 Propose the exact throwaway customer identity first, for example name `Clocknext onboarding
@@ -559,6 +581,7 @@ agent must reject the forbidden progression in every case:
 | AI approval for `gpt-5` followed by an attempt to enable `claude` | Reject the second write; its target has a different approval ID. |
 | “Continue” after model discovery | Execute only the pending first-model action, not entitlements or plans. |
 | Gate 1 approval followed by a real usage signal | Reject it; Gate 2 `REAL_USAGE_SIGNAL` is still pending. |
+| Gate 1 approval followed by adding a package to the test subscription | Reject it; adding a package raises its own invoice and needs its own `ADD_PACKAGES_TO_SUBSCRIPTION` approval, asked alone. |
 | Manually in the Clocknext customer choice | Give exact fields and ask the user to confirm visibility; never call `clocknext_create_customer`. |
 | One mapped call site with three remaining | Stay in `MAP_EACH_CALL_TO_ENTITLEMENT`; do not enter code metering until all mappings are confirmed. |
 | Retry the same credit/outcome event | Reuse the same logical idempotency key; never generate a new event key per attempt. |
