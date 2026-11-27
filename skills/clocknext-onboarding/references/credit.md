@@ -78,6 +78,30 @@ A plan grants a credit via a **CREDIT component** referencing the credit's id:
 - **ARREAR** — meter and bill actual consumption (optionally [wallet-funded](wallet.md)).
 See [`plans.md`](plans.md).
 
+## Credit rules — price some signals differently (optional)
+A credit can carry **rules** that change the price of the signals that match their conditions —
+e.g. a higher margin for `gpt-4o`, or a fixed 5 credits for prompts over 10,000 input tokens.
+Only set them up when the user asks for different prices by model, size, customer or a
+`custom` field; a credit works without any.
+
+Tools: `clocknext_list_credit_rules`, `clocknext_get_credit_rule`,
+`clocknext_create_credit_rule`, `clocknext_update_credit_rule` — all by the credit's **id**
+(not its `agentKey`). There is no delete: turn a rule off with `isActive: false`.
+
+- **Order.** Rules run by `priority`, **1 first**; the first active rule that matches sets the
+  price. A signal no rule matches is priced by the credit itself. Creating with a `priority`
+  inserts the rule there and moves the others down; leaving it out puts it last. The answer's
+  `moved` lists the other rules whose place changed.
+- **Mode.** `MARGIN` + `marginPercent` (-100 or more), or `CREDIT` + `creditsValue` (credits
+  per matching signal, 0 or more).
+- **Conditions.** `fieldPath` + `operator` + `value` (always a string) + `joiner` (AND/OR).
+  `modelName` takes an enabled model id from `clocknext_list_models`; `customerId` a customer id
+  of the workspace; `custom.<key>` needs `valueType`. The same conditions as another rule of the
+  credit are refused (409) — update that rule instead.
+- **Update is partial**, but `conditions` sent replaces the whole list.
+- It needs the Credit rules feature (a 403 naming `CREDIT_RULES` otherwise) and takes effect on
+  the next signal. Ask the user before creating one: it changes what their customers pay.
+
 ## Common mistakes
 - **Typing a price.** Never — always the model mixer.
 - **Reusing / renaming the `agentKey` loosely.** It's the runtime binding; changing it re-points

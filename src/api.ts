@@ -422,6 +422,51 @@ export class ClocknextApi {
   readonly composites = this.catalogue("/api/v1/composites", "composites", "composite");
 
   /**
+   * Credit rules of one credit (SE-562), by the credit's id. No DELETE: a rule
+   * is turned off with `isActive: false`. `create` / `update` answer the rule
+   * and `moved` (the other rules whose priority changed).
+   */
+  readonly creditRules = {
+    /** `GET /api/v1/credits/:creditId/rules` — in priority order (1 first). */
+    list: async (creditId: string): Promise<unknown[]> => {
+      const result = await this.request<{ rules: unknown[] }>({
+        method: "GET",
+        path: `${idPath("/api/v1/credits", creditId)}/rules`,
+      });
+      return result.rules ?? [];
+    },
+
+    /** `GET /api/v1/credits/:creditId/rules/:ruleId`. */
+    get: async (creditId: string, ruleId: string): Promise<unknown> => {
+      const result = await this.request<{ rule: unknown }>({
+        method: "GET",
+        path: idPath(`${idPath("/api/v1/credits", creditId)}/rules`, ruleId),
+      });
+      return result.rule;
+    },
+
+    /** `POST /api/v1/credits/:creditId/rules`. */
+    create: async (creditId: string, input: unknown): Promise<{ rule: unknown; moved: unknown[] }> => {
+      const result = await this.request<{ rule: unknown; moved: unknown[] }>({
+        method: "POST",
+        path: `${idPath("/api/v1/credits", creditId)}/rules`,
+        body: input,
+      });
+      return { rule: result.rule, moved: result.moved ?? [] };
+    },
+
+    /** `PATCH /api/v1/credits/:creditId/rules/:ruleId` — partial. */
+    update: async (creditId: string, ruleId: string, input: unknown): Promise<{ rule: unknown; moved: unknown[] }> => {
+      const result = await this.request<{ rule: unknown; moved: unknown[] }>({
+        method: "PATCH",
+        path: idPath(`${idPath("/api/v1/credits", creditId)}/rules`, ruleId),
+        body: input,
+      });
+      return { rule: result.rule, moved: result.moved ?? [] };
+    },
+  };
+
+  /**
    * The same five calls for every catalogue resource. `listKey` / `itemKey`
    * are the fields the server nests the result under, e.g. `{ credits: [...] }`
    * for a list and `{ credit: {...} }` for one item.
