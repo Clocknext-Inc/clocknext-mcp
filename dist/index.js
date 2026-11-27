@@ -548,9 +548,9 @@ var require_codegen = __commonJS({
     };
     Else.kind = "else";
     var If = class _If extends BlockNode {
-      constructor(condition, nodes) {
+      constructor(condition2, nodes) {
         super(nodes);
-        this.condition = condition;
+        this.condition = condition2;
       }
       render(opts) {
         let code = `if(${this.condition})` + super.render(opts);
@@ -813,8 +813,8 @@ var require_codegen = __commonJS({
         return new code_1._Code(code);
       }
       // `if` clause (or statement if `thenBody` and, optionally, `elseBody` are passed)
-      if(condition, thenBody, elseBody) {
-        this._blockNode(new If(condition));
+      if(condition2, thenBody, elseBody) {
+        this._blockNode(new If(condition2));
         if (thenBody && elseBody) {
           this.code(thenBody).else().code(elseBody).endIf();
         } else if (thenBody) {
@@ -825,8 +825,8 @@ var require_codegen = __commonJS({
         return this;
       }
       // `else if` clause - invalid without `if` or after `else` clauses
-      elseIf(condition) {
-        return this._elseNode(new If(condition));
+      elseIf(condition2) {
+        return this._elseNode(new If(condition2));
       }
       // `else` clause - only valid after `if` or `else if` clauses
       else() {
@@ -1693,11 +1693,11 @@ var require_defaults = __commonJS({
         (0, util_1.checkStrictMode)(it, `default is ignored for: ${childData}`);
         return;
       }
-      let condition = (0, codegen_1._)`${childData} === undefined`;
+      let condition2 = (0, codegen_1._)`${childData} === undefined`;
       if (opts.useDefaults === "empty") {
-        condition = (0, codegen_1._)`${condition} || ${childData} === null || ${childData} === ""`;
+        condition2 = (0, codegen_1._)`${condition2} || ${childData} === null || ${childData} === ""`;
       }
-      gen.if(condition, (0, codegen_1._)`${childData} = ${(0, codegen_1.stringify)(defaultValue)}`);
+      gen.if(condition2, (0, codegen_1._)`${childData} = ${(0, codegen_1.stringify)(defaultValue)}`);
     }
   }
 });
@@ -2621,11 +2621,11 @@ var require_validate = __commonJS({
           this.errsCount = it.gen.const("_errs", names_1.default.errors);
         }
       }
-      result(condition, successAction, failAction) {
-        this.failResult((0, codegen_1.not)(condition), successAction, failAction);
+      result(condition2, successAction, failAction) {
+        this.failResult((0, codegen_1.not)(condition2), successAction, failAction);
       }
-      failResult(condition, successAction, failAction) {
-        this.gen.if(condition);
+      failResult(condition2, successAction, failAction) {
+        this.gen.if(condition2);
         if (failAction)
           failAction();
         else
@@ -2642,28 +2642,28 @@ var require_validate = __commonJS({
             this.gen.else();
         }
       }
-      pass(condition, failAction) {
-        this.failResult((0, codegen_1.not)(condition), void 0, failAction);
+      pass(condition2, failAction) {
+        this.failResult((0, codegen_1.not)(condition2), void 0, failAction);
       }
-      fail(condition) {
-        if (condition === void 0) {
+      fail(condition2) {
+        if (condition2 === void 0) {
           this.error();
           if (!this.allErrors)
             this.gen.if(false);
           return;
         }
-        this.gen.if(condition);
+        this.gen.if(condition2);
         this.error();
         if (this.allErrors)
           this.gen.endIf();
         else
           this.gen.else();
       }
-      fail$data(condition) {
+      fail$data(condition2) {
         if (!this.$data)
-          return this.fail(condition);
+          return this.fail(condition2);
         const { schemaCode } = this;
-        this.fail((0, codegen_1._)`${schemaCode} !== undefined && (${(0, codegen_1.or)(this.invalid$data(), condition)})`);
+        this.fail((0, codegen_1._)`${schemaCode} !== undefined && (${(0, codegen_1.or)(this.invalid$data(), condition2)})`);
       }
       error(append, errorParams, errorPaths) {
         if (errorParams) {
@@ -21421,6 +21421,47 @@ var ClocknextApi = class {
   /** Composites have no DELETE on the API — retire one by archiving it. */
   composites = this.catalogue("/api/v1/composites", "composites", "composite");
   /**
+   * Credit rules of one credit (SE-562), by the credit's id. No DELETE: a rule
+   * is turned off with `isActive: false`. `create` / `update` answer the rule
+   * and `moved` (the other rules whose priority changed).
+   */
+  creditRules = {
+    /** `GET /api/v1/credits/:creditId/rules` — in priority order (1 first). */
+    list: async (creditId2) => {
+      const result = await this.request({
+        method: "GET",
+        path: `${idPath("/api/v1/credits", creditId2)}/rules`
+      });
+      return result.rules ?? [];
+    },
+    /** `GET /api/v1/credits/:creditId/rules/:ruleId`. */
+    get: async (creditId2, ruleId) => {
+      const result = await this.request({
+        method: "GET",
+        path: idPath(`${idPath("/api/v1/credits", creditId2)}/rules`, ruleId)
+      });
+      return result.rule;
+    },
+    /** `POST /api/v1/credits/:creditId/rules`. */
+    create: async (creditId2, input) => {
+      const result = await this.request({
+        method: "POST",
+        path: `${idPath("/api/v1/credits", creditId2)}/rules`,
+        body: input
+      });
+      return { rule: result.rule, moved: result.moved ?? [] };
+    },
+    /** `PATCH /api/v1/credits/:creditId/rules/:ruleId` — partial. */
+    update: async (creditId2, ruleId, input) => {
+      const result = await this.request({
+        method: "PATCH",
+        path: idPath(`${idPath("/api/v1/credits", creditId2)}/rules`, ruleId),
+        body: input
+      });
+      return { rule: result.rule, moved: result.moved ?? [] };
+    }
+  };
+  /**
    * The same five calls for every catalogue resource. `listKey` / `itemKey`
    * are the fields the server nests the result under, e.g. `{ credits: [...] }`
    * for a list and `{ credit: {...} }` for one item.
@@ -22419,6 +22460,153 @@ function registerCompositeTools(server, cnk) {
   );
 }
 
+// src/tools/credit-rules.ts
+var creditId = external_exports.string().min(1).describe("The credit's id (from clocknext_list_credits) \u2014 not its agentKey.");
+var condition = external_exports.object({
+  fieldPath: external_exports.string().min(1).describe(
+    [
+      "The signal field the condition reads:",
+      "modelName \u2014 the model; `value` is an enabled model id from clocknext_list_models (e.g. 'gpt-4o'), never a display name.",
+      "status \u2014 SUCCESS, FAILURE or PENDING.",
+      "inputTokens / outputTokens / cacheTokens / totalTokens \u2014 numbers.",
+      "providedCost \u2014 what the call cost at the provider, in USD.",
+      "customerId \u2014 a customer id of this workspace (archived customers are allowed).",
+      "custom.<key> \u2014 a key of the signal's `custom` object; needs valueType."
+    ].join(" ")
+  ),
+  operator: external_exports.enum(["EQ", "NEQ", "GT", "GTE", "LT", "LTE", "CONTAINS", "STARTS_WITH", "ENDS_WITH"]).describe("How the signal's value is compared with `value`."),
+  valueType: external_exports.enum(["STRING", "NUMBER", "BOOLEAN"]).optional().describe("Required for a custom.<key> field only; a built-in field knows its type."),
+  value: external_exports.string().min(1).describe("Always a string, also for a number ('10000')."),
+  joiner: external_exports.enum(["AND", "OR"]).nullable().optional().describe("Joins this condition to the one before it. Ignored on the first. Default AND.")
+});
+var ruleFields = {
+  name: external_exports.string().min(1).max(120).describe("Rule name, 1\u2013120 characters."),
+  description: external_exports.string().max(500).nullable().optional().describe("Up to 500 characters; null clears it."),
+  mode: external_exports.enum(["MARGIN", "CREDIT"]).describe("MARGIN: the matching signal is priced with marginPercent. CREDIT: it costs creditsValue credits."),
+  marginPercent: external_exports.number().nullable().optional().describe("MARGIN only (required there): the margin in percent, -100 or more."),
+  creditsValue: external_exports.number().nullable().optional().describe("CREDIT only (required there): the credits charged per matching signal, 0 or more."),
+  isActive: external_exports.boolean().optional().describe("Default true. false turns the rule off without deleting it."),
+  priority: external_exports.number().int().min(1).nullable().optional().describe(
+    "1 runs first. A number puts the rule there and the rules from there on move down one (they come back in `moved`). Left out, null or past the end: last."
+  ),
+  conditions: external_exports.array(condition).min(1).describe("At least one. The same conditions as another rule of the credit are refused (409).")
+};
+function sentOnly(args) {
+  return Object.fromEntries(Object.entries(args).filter(([, v]) => v !== void 0));
+}
+function registerCreditRuleTools(server, cnk) {
+  server.registerTool(
+    "clocknext_list_credit_rules",
+    {
+      title: "Clocknext: list credit rules",
+      description: [
+        "List a credit's rules in priority order (1 runs first). Each rule has its conditions, its mode (MARGIN with marginPercent, or CREDIT with creditsValue) and isActive.",
+        "",
+        "Rules:",
+        "- The first ACTIVE rule whose conditions match a signal sets that signal's price; a signal no rule matches is priced by the credit itself.",
+        "- A modelName condition reads back as the model id; when no enabled model has the stored name any more, the stored name comes back.",
+        "- Needs the Credit rules feature; a locked feature is a 403 naming CREDIT_RULES."
+      ].join("\n"),
+      inputSchema: { creditId },
+      annotations: { readOnlyHint: true, openWorldHint: true }
+    },
+    async ({ creditId: id }) => {
+      try {
+        const rules = await cnk.creditRules.list(id);
+        return jsonResult({ count: rules.length, rules });
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_get_credit_rule",
+    {
+      title: "Clocknext: get credit rule",
+      description: "One rule of a credit, with its conditions and priority (1 runs first).",
+      inputSchema: { creditId, ruleId: external_exports.string().min(1).describe("The rule's id (from clocknext_list_credit_rules).") },
+      annotations: { readOnlyHint: true, openWorldHint: true }
+    },
+    async ({ creditId: id, ruleId }) => {
+      try {
+        return jsonResult(await cnk.creditRules.get(id, ruleId));
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_create_credit_rule",
+    {
+      title: "Clocknext: create credit rule",
+      description: [
+        "Create a rule that changes the price of a credit's signals when they match its conditions \u2014 e.g. a higher margin for gpt-4o, or a fixed 5 credits for prompts over 10,000 input tokens.",
+        "",
+        "Rules:",
+        "- priority: 1 runs first. A number inserts the rule there and moves the rules from there on down one; left out puts it last. The answer has the new rule and `moved` (the other rules whose priority changed).",
+        "- A modelName condition takes an enabled model id from clocknext_list_models (e.g. 'gpt-4o'); an unknown or archived model is refused (400).",
+        "- A customerId condition takes a customer id of this workspace.",
+        "- A custom.<key> condition needs valueType (STRING, NUMBER or BOOLEAN); a built-in field does not.",
+        "- Conditions are joined by each one's joiner (AND by default).",
+        "- The same conditions as another rule of the credit are refused (409 CREDIT_RULE_DUPLICATE): change that rule with clocknext_update_credit_rule instead.",
+        "- It takes effect on the next signal. Tell the user which signals it reprices."
+      ].join("\n"),
+      inputSchema: { creditId, ...ruleFields },
+      annotations: { readOnlyHint: false, idempotentHint: false, openWorldHint: true }
+    },
+    async (args) => {
+      try {
+        const { creditId: id, ...rest } = args;
+        return jsonResult(await cnk.creditRules.create(id, sentOnly(rest)));
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+  server.registerTool(
+    "clocknext_update_credit_rule",
+    {
+      title: "Clocknext: update credit rule",
+      description: [
+        "Change a credit rule. PARTIAL: only the fields sent change.",
+        "",
+        "Rules:",
+        "- `conditions`, if sent, replaces the whole list: re-send every condition you want to keep (read them with clocknext_get_credit_rule).",
+        "- priority: a number moves the rule there and the rules in between shift one place; null or left out keeps its place. The answer has the rule and `moved` (the other rules whose priority changed).",
+        "- isActive: false turns the rule off, true turns it back on. There is no delete.",
+        "- Switching mode needs the new mode's value (marginPercent for MARGIN, creditsValue for CREDIT)."
+      ].join("\n"),
+      inputSchema: {
+        creditId,
+        ruleId: external_exports.string().min(1).describe("The rule's id (from clocknext_list_credit_rules)."),
+        name: ruleFields.name.optional(),
+        description: ruleFields.description,
+        mode: ruleFields.mode.optional(),
+        marginPercent: ruleFields.marginPercent,
+        creditsValue: ruleFields.creditsValue,
+        isActive: ruleFields.isActive,
+        priority: ruleFields.priority.describe(
+          "1 runs first. A number moves the rule there; null or left out keeps its place."
+        ),
+        conditions: ruleFields.conditions.optional()
+      },
+      annotations: { readOnlyHint: false, idempotentHint: true, openWorldHint: true }
+    },
+    async (args) => {
+      try {
+        const { creditId: id, ruleId, ...rest } = args;
+        const payload = sentOnly(rest);
+        if (Object.keys(payload).length === 0) {
+          return errorResult("Nothing to update \u2014 pass the creditId, the ruleId and at least one field to change.");
+        }
+        return jsonResult(await cnk.creditRules.update(id, ruleId, payload));
+      } catch (err) {
+        return errorResult(errMsg(err));
+      }
+    }
+  );
+}
+
 // src/tools/customers.ts
 var customerFields = {
   name: external_exports.string().min(1).describe("Customer / company name."),
@@ -22861,6 +23049,7 @@ async function main() {
   registerGetDoc(server);
   registerCatalogueTools(server, cnk);
   registerCompositeTools(server, cnk);
+  registerCreditRuleTools(server, cnk);
   registerCustomerTools(server, cnk);
   registerAddModel(server, cnk);
   registerWriteEnv(server);

@@ -4,6 +4,7 @@ import { makeClient } from "./client";
 import { registerAddModel } from "./tools/add-model";
 import { registerCatalogueTools } from "./tools/catalogue";
 import { registerCompositeTools } from "./tools/composites";
+import { registerCreditRuleTools } from "./tools/credit-rules";
 import { registerCustomerTools } from "./tools/customers";
 import { registerGetDoc } from "./tools/get-doc";
 import { registerListModels } from "./tools/list-models";
@@ -30,6 +31,7 @@ async function main(): Promise<void> {
   registerGetDoc(server); // reads a full docs page; also no API key needed
   registerCatalogueTools(server, cnk); // CRUD for plans/credits/outcomes/units
   registerCompositeTools(server, cnk); // list/get/create/update/archive composites (no delete on the public API)
+  registerCreditRuleTools(server, cnk); // list/get/create/update a credit's rules (no delete on the public API)
   registerCustomerTools(server, cnk); // customers, purchases, bulk import
   registerAddModel(server, cnk); // enable a model (autopriced); reads price back to warn on $0
   registerWriteEnv(server); // writes the cnk_ key into a project .env server-side — key never enters context
